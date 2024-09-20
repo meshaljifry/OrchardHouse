@@ -15,7 +15,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Learn React
+          Orchard House Website Coming soon 
         </a>
       </header>
     </div>
