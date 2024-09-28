@@ -13,4 +13,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       
     </NextUIProvider>
   </React.StrictMode>,
+   document.getElementById('root')
 );
