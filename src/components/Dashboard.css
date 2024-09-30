@@ -1,0 +1,72 @@
+/* Dashboard Container */
+.dashboard-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Two items per row */
+    gap: 24px;
+    padding: 20px;
+  }
+  
+  /* Dashboard Item */
+  .dashboard-item {
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: transparent; /* No background */
+    transition: background-color 0.3s ease;
+  }
+  
+  .dashboard-item h3 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 16px;
+  }
+  
+  .dashboard-item:hover {
+    background-color: rgba(255, 255, 255, 0.7); /* Background appears on hover */
+  }
+  
+  /* Farm Photos */
+  .farm-photos .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .farm-photo {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+  
+  /* Products Table */
+  .products table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .products th, .products td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .products th {
+    font-size: 1rem;
+  }
+  
+  .products td {
+    font-size: 0.875rem;
+  }
+  
+  /* Charts */
+  .dashboard-item .recharts-wrapper {
+    margin: 0 auto;
+  }
+  
+  /* Responsive design for smaller screens */
+  @media (max-width: 768px) {
+    .dashboard-container {
+      grid-template-columns: 1fr; /* Full width for smaller screens */
+    }
+  }
+  
