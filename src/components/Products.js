@@ -88,7 +88,7 @@ const Products = () => {
                   className="mt-4 w-full"
                   onClick={() => addToCart(product)}
                 >
-                  Add to Cart
+                  Add To Cart
                 </Button>
               </div>
             </div>

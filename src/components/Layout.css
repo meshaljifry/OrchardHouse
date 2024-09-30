@@ -1,0 +1,148 @@
+/* Set CSS variables for layout width and height */
+:root {
+    --layout-width: 100%; /* You can adjust this percentage */
+    --layout-max-width: 1200px; /* Or change the max width */
+    --layout-height: 85vh; /* Adjust this height as well */
+  }
+  
+  /* Background styling */
+  .layout-background {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url('../background.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  
+  /* Main container styling with manual width/height control */
+  .layout-container {
+    width: var(--layout-width);
+    max-width: var(--layout-max-width);
+    height: var(--layout-height);
+    background-color: white;
+    border-radius: 24px; /* Rounded corners */
+    display: flex;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    width: 250px;
+    background-color: #f2f3ae;
+    color: #3c1518;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .sidebar-logo {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 40px;
+  }
+  
+  .sidebar-menu {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .sidebar-link {
+    display: block;
+    margin-bottom: 24px;
+    color: #3c1518;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.3s;
+  }
+  
+  .sidebar-link:hover {
+    color: gray;
+  }
+  
+  .sidebar-heading {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-top: 40px;
+    margin-bottom: 24px;
+  }
+  
+  /* Main content styling */
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Top bar */
+  .top-bar {
+    background-color: #f2f3ae;
+    color: #3c1518;
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 5;
+  }
+  
+  .search-bar {
+    width: 33%;
+  }
+  
+  .input-field {
+    background-color: #f2f3ae;
+    color: #3c1518;
+    border: none;
+  }
+  
+  /* Icons section brought to front with higher z-index and correct alignment */
+  .icons-section {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    position: relative;
+    z-index: 10; /* Higher z-index */
+  }
+  
+  .alert-icon {
+    font-size: 1.75rem;
+    cursor: pointer;
+    position: relative;
+    z-index: 10; /* Ensure it's on top */
+  }
+  
+  /* Username and avatar visibility fix */
+  .username {
+    font-size: 1.125rem;
+    position: relative;
+    z-index: 10; /* Bring username to the front */
+  }
+  
+  .avatar {
+    position: relative;
+    z-index: 10; /* Ensure avatar is on top */
+  }
+  
+  /* Page content styling */
+  .page-content {
+    flex: 1;
+    padding: 32px;
+    background-color: #f2f3ae;
+    color: #3c1518;
+    overflow: auto;
+  }
+  
+  /* Fix for possible overflow issues */
+  .top-bar,
+  .icons-section,
+  .alert-icon,
+  .username,
+  .avatar {
+    white-space: nowrap;
+    overflow: visible; /* Ensures elements don't get clipped */
+  }
+  

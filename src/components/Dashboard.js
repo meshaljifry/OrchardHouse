@@ -1,6 +1,7 @@
 // File: src/components/Dashboard.js
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend } from 'recharts';
+import './Dashboard.css'; // Importing external CSS file
 
 const mockRevenueData = [
   { name: 'Jan', revenue: 4000 },
@@ -40,20 +41,9 @@ const orderComparisonData = [
 
 const Dashboard = () => {
   return (
-    <div
-      className="grid grid-cols-12 gap-4 p-6"
-      style={{
-        gridTemplateAreas: `
-          'revenue pie pie'
-          'photos products comparison'
-        `,
-        gridTemplateColumns: 'repeat(12, 1fr)', // Ensure we have a 12-column grid layout
-        gridAutoRows: 'minmax(200px, auto)', // Define row height
-      }}
-    >
-      {/* Part 1: Revenue Chart */}
-      <div className="bg-white shadow-md rounded-lg p-4 col-span-6" style={{ gridArea: 'revenue' }}>
-        <h3 className="text-xl font-bold mb-4">Revenue</h3>
+    <div className="dashboard-container">
+      <div className="dashboard-item revenue">
+        <h3>Revenue</h3>
         <BarChart width={350} height={200} data={mockRevenueData}>
           <XAxis dataKey="name" />
           <YAxis />
@@ -62,9 +52,8 @@ const Dashboard = () => {
         </BarChart>
       </div>
 
-      {/* Part 2: Your Time Pie Chart */}
-      <div className="bg-white shadow-md rounded-lg p-4 col-span-6" style={{ gridArea: 'pie' }}>
-        <h3 className="text-xl font-bold mb-4">Your Time</h3>
+      <div className="dashboard-item time-pie">
+        <h3>Your Time</h3>
         <PieChart width={350} height={200}>
           <Pie data={mockTimeData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#8884d8">
             {mockTimeData.map((entry, index) => (
@@ -75,42 +64,39 @@ const Dashboard = () => {
         </PieChart>
       </div>
 
-      {/* Part 3: Farm Photos */}
-      <div className="bg-white shadow-md rounded-lg p-4 col-span-4" style={{ gridArea: 'photos' }}>
-        <h3 className="text-xl font-bold mb-4">Farm Photos</h3>
-        <div className="grid grid-cols-2 gap-2">
+    {/*   <div className="dashboard-item farm-photos">
+        <h3>Farm Photos</h3>
+        <div className="photo-grid">
           {farmPhotos.map((url, index) => (
-            <img key={index} src={url} alt={`Farm ${index}`} className="w-full h-24 object-cover rounded-lg" />
+            <img key={index} src={url} alt={`Farm ${index}`} className="farm-photo" />
           ))}
         </div>
-      </div>
+      </div> */}
 
-      {/* Part 4: Most Ordered Products */}
-      <div className="bg-white shadow-md rounded-lg p-4 col-span-4" style={{ gridArea: 'products' }}>
-        <h3 className="text-xl font-bold mb-4">Most Ordered Products</h3>
-        <table className="min-w-full bg-white">
+      <div className="dashboard-item products">
+        <h3>Most Ordered Products</h3>
+        <table>
           <thead>
             <tr>
-              <th className="py-2 px-4 border-b">Product</th>
-              <th className="py-2 px-4 border-b">Orders</th>
-              <th className="py-2 px-4 border-b">Revenue</th>
+              <th>Product</th>
+              <th>Orders</th>
+              <th>Revenue</th>
             </tr>
           </thead>
           <tbody>
             {productsData.map((product, index) => (
               <tr key={index}>
-                <td className="py-2 px-4 border-b">{product.product}</td>
-                <td className="py-2 px-4 border-b">{product.orders}</td>
-                <td className="py-2 px-4 border-b">${product.revenue}</td>
+                <td>{product.product}</td>
+                <td>{product.orders}</td>
+                <td>${product.revenue}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      {/* Part 5: Orders Comparison */}
-      <div className="bg-white shadow-md rounded-lg p-4 col-span-4" style={{ gridArea: 'comparison' }}>
-        <h3 className="text-xl font-bold mb-4">Orders Comparison (This Week vs Last Week)</h3>
+      <div className="dashboard-item order-comparison">
+        <h3>Orders Comparison (This Week vs Last Week)</h3>
         <LineChart width={350} height={200} data={orderComparisonData}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
