@@ -16,9 +16,9 @@ export default function Login() {
     console.log('Hashed Password:', hashedPassword);
     
     // const db = mysql.createConnection({
-    //   host: 'localhost',
-    //   user: 'root',
-    //   password: 'password',
+    //   host: 'appleorcharddatabase.cz04caw0ahsw.us-east-2.rds.amazonaws.com',
+    //   user: 'admin',
+    //   password: 'jD1mOUsCvcIxk7PTH2iV',
     //   database: 'your_database_name'
     // });
     
