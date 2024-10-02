@@ -15,6 +15,20 @@ export default function Login() {
     console.log('Username:', username);
     console.log('Hashed Password:', hashedPassword);
     
+    // const db = mysql.createConnection({
+    //   host: 'localhost',
+    //   user: 'root',
+    //   password: 'password',
+    //   database: 'your_database_name'
+    // });
+    
+    // db.connect((err) => {
+    //   if (err) {
+    //     console.error('Error connecting to the database:', err);
+    //     return;
+    //   }
+    //   console.log('Connected to the MySQL database.');
+    // });
   };
 
     return (
