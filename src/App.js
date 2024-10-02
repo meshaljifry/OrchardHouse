@@ -24,7 +24,7 @@ function App() {
           <Route path="/scheduler" element={<Scheduler />} />
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/" element={<Test />} />
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/payments" element={<Payments />} />
           <Route path="/accounts" element={<Accounts />} />

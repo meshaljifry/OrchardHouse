@@ -35,6 +35,23 @@ app.get('/api/Item', (req, res) => {
   });
 });
 
+app.get('/api/getPasswordHash', (req, res) => {
+  const username = req.query.username;
+  const query = 'SELECT passwordHash FROM UserAccount WHERE username = ?';
+  
+  db.query(query, [username], (err, results) => {
+    if (err) {
+      res.status(500).send('Error querying the database');
+      return;
+    }
+    if (results.length > 0) {
+      res.json({ passwordHash: results[0].passwordHash });
+    } else {
+      res.status(404).send('User not found');
+    }
+  });
+});
+
 // Define a default route for the root URL (optional)
 app.get('/', (req, res) => {
   res.send('API is running. Use /api/Item to fetch items.');
