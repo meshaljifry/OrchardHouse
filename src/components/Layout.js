@@ -1,9 +1,10 @@
+// Layout.js
 import { Link } from 'react-router-dom'; 
-import { Input, Avatar, Badge } from "@nextui-org/react";
+import { Input, Avatar, Badge } from '@nextui-org/react';
 import Logo from '../ohlogo.png';
 import Test from './Test';
-import background from '../background.jpg';
-import './Layout.css'; // Import external CSS file
+import './Layout.css';
+
 
 export default function Layout({ children }) {
   return (
@@ -13,11 +14,7 @@ export default function Layout({ children }) {
         <div className="sidebar">
           <div>
             {/* Logo */}
-            <img 
-              src={Logo} 
-              alt="Logo" 
-              className="sidebar-logo" 
-            />
+            <img src={Logo} alt="Logo" className="sidebar-logo" />
 
             <ul className="sidebar-menu">
               <li><Link to="/" className="sidebar-link">Dashboard</Link></li>
@@ -32,8 +29,13 @@ export default function Layout({ children }) {
               <li><Link to="/payments" className="sidebar-link">Payments</Link></li>
               <li><Link to="/accounts" className="sidebar-link">Accounts</Link></li>
               <li><Link to="/help" className="sidebar-link">Help</Link></li>
-              <Test></Test>
+              <Link to="/register" className="sidebar-link">Register</Link>
+
+              <Test />
+             
             </ul>
+
+            
           </div>
         </div>
 
@@ -41,32 +43,21 @@ export default function Layout({ children }) {
         <div className="main-content">
           {/* Top bar */}
           <div className="top-bar">
-            {/* Search bar */}
             <div className="search-bar">
-              <Input 
-                placeholder="Search..." 
+              <Input
+                placeholder="Search..."
                 clearable
                 fullWidth
                 className="input-field"
               />
             </div>
 
-            {/* Icons */}
             <div className="icons-section">
-              {/* Alert Icon */}
               <Badge content={3} color="error">
                 <span className="alert-icon">🔔</span>
               </Badge>
-
-              {/* Username */}
               <div className="username">Username</div>
-
-              {/* Profile Avatar */}
-              <Avatar 
-                src="https://i.pravatar.cc/150?u=username" 
-                size="lg" 
-                bordered 
-              />
+              <Avatar src="https://i.pravatar.cc/150?u=username" size="lg" bordered />
             </div>
           </div>
 

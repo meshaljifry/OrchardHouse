@@ -9,7 +9,9 @@ import Payments from './components/Payments';
 import Accounts from './components/Accounts';
 import Help from './components/Help';
 import Test from './components/Test';
-import LoginPage from './Pages/Login';
+import Login from './Pages/Login';
+import Register from "./components/Register";
+
 
 function App() {
   return (
@@ -27,6 +29,7 @@ function App() {
           <Route path="/payments" element={<Payments />} />
           <Route path="/accounts" element={<Accounts />} />
           <Route path="/help" element={<Help />} />
+          <Route path="/register" element={<Register/>} />
         </Routes>
       </Layout>
     </Router>
