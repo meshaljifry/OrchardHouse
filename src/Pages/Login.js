@@ -29,6 +29,14 @@ export default function Login() {
     //   }
     //   console.log('Connected to the MySQL database.');
     // });
+    //TODO: Need to  pull password from database to see if it matches password entered.
+    if (bcrypt.compare(password, hashedPassword)) { // check if password matches hashed password
+      // login successful, redirect to dashboard
+      console.log('Login successful!');
+    } else {
+      // login failed, display error message
+      console.log('Login failed. Incorrect username or password.');
+    }
   };
 
     return (
