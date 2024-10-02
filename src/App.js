@@ -9,7 +9,7 @@ import Payments from './components/Payments';
 import Accounts from './components/Accounts';
 import Help from './components/Help';
 import Test from './components/Test';
-import Login from './Pages/Login';
+import LoginPage from './Pages/Login';
 
 function App() {
   return (
@@ -22,7 +22,7 @@ function App() {
           <Route path="/scheduler" element={<Scheduler />} />
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/" element={<Test />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/payments" element={<Payments />} />
           <Route path="/accounts" element={<Accounts />} />
