@@ -51,8 +51,10 @@ app.get('/api/UserAccount', (req, res) => {
     } else {
       res.status(404).send('User not found');
     }
+  });
 
 });
+
 
 // Define a default route for the root URL (optional)
 app.get('/', (req, res) => {

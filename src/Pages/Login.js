@@ -26,9 +26,11 @@ export default function Login() {
       // Compare the entered password with the fetched password hash
       if (password === passwordHash) {
         console.log('Login successful!');
+        alert("Login successful!");
         // Redirect to dashboard or perform other actions
       } else {
         console.log('Login failed. Incorrect username or password.');
+        alert("Login failed. Incorrect username or password.")
       }
     } catch (error) {
       console.error('Error during login:', error);
@@ -77,10 +79,6 @@ export default function Login() {
       <Spacer y={2} />
 
       <Button onPress={handleLogin}>Login</Button>
-
-      {/* Display error or success message */}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {success && <p style={{ color: 'green' }}>{success}</p>}
     </div>
   );
 }
