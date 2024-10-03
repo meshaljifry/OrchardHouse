@@ -17,13 +17,12 @@ export default function Login() {
       return;
     }
     try {
-      const response = await fetch(`/api/getPasswordHash?username=${username}`);
+      const response = await fetch(`http://localhost:5000/api/UserAccount?username=${username}`);
       if (!response.ok) {
         throw new Error('User not found or server error');
       }
-      const data = await response.json();
-      const passwordHash = data.passwordHash;
-      console.log(passwordHash)
+      const passwordHash = await response.json();
+      
       // Compare the entered password with the fetched password hash
       const isMatch = password === passwordHash;
       if (isMatch) {

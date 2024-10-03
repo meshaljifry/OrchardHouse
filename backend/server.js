@@ -35,9 +35,9 @@ app.get('/api/Item', (req, res) => {
   });
 });
 
-app.get('/api/getPasswordHash', (req, res) => {
+app.get('/api/UserAccount', (req, res) => {
   const username = req.query.username;
-  const query = 'SELECT passwordHash FROM UserAccount WHERE username = ?';
+  const query = "SELECT passwordHash FROM AppleOrchardSystem.UserAccount WHERE username = ?";
   
   db.query(query, [username], (err, results) => {
     if (err) {
@@ -45,7 +45,7 @@ app.get('/api/getPasswordHash', (req, res) => {
       return;
     }
     if (results.length > 0) {
-      res.json({ passwordHash: results[0].passwordHash });
+      res.json(results[0].passwordHash);
     } else {
       res.status(404).send('User not found');
     }
