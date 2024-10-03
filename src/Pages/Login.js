@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import {EyeFilledIcon} from "../components/EyeFilledIcon";
-import {EyeSlashFilledIcon} from "../components/EyeSlashFilledIcon";
+import { EyeFilledIcon } from "../components/EyeFilledIcon";
+import { EyeSlashFilledIcon } from "../components/EyeSlashFilledIcon";
 import { Input, Button, Spacer } from '@nextui-org/react';
-// import bcrypt from 'bcryptjs';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -11,6 +10,7 @@ export default function Login() {
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   const handleLogin = async () => {
+
     // Check if username and password are not empty
     if (!username || !password) {
       alert('Please enter a username and password.');
@@ -32,55 +32,55 @@ export default function Login() {
       }
     } catch (error) {
       console.error('Error during login:', error);
+
     }
   };
 
-    return (
-      <div>
-        <h1>Login Page</h1>
-        {/* Add your login form here */}
+  return (
+    <div>
+      <h1>Login Page</h1>
       
-        <Spacer y={2} />
-        <Input
-          isRequired
-          isClearable
-          type="email"
-          label="Username"
-          variant="flat"
-          placeholder="Enter your username"
-          defaultValue=""
-          // onClear={() => console.log("input cleared")}
-          onValueChange={setUsername}
-          className="max-w-xs m-2"
-        />
-        <Spacer y={2} />
-        <Input
+      <Spacer y={2} />
+      <Input
         isRequired
-          label="Password"
-          variant="flat"
-          placeholder="Enter your password"
-          onValueChange={setPassword}
-          endContent={
-            <button
-              className="focus:outline-none"
-              type="button"
-              onClick={toggleVisibility}
-            >
-              {isVisible ? (
-                <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-              ) : (
-                <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-              )}
-            </button>
-          }
-          type={isVisible ? "text" : "password"}
-          className="max-w-xs m-2"
-        />
-        <Spacer y={2} />
-        <Button onPress={handleLogin}>Login</Button>
-    
-      </div>
-    );
-  }
+        isClearable
+        type="text"
+        label="Username"
+        variant="flat"
+        placeholder="Enter your username"
+        onValueChange={setUsername}
+        className="max-w-xs m-2"
+      />
+      <Spacer y={2} />
+      <Input
+        isRequired
+        label="Password"
+        variant="flat"
+        placeholder="Enter your password"
+        onValueChange={setPassword}
+        endContent={
+          <button
+            className="focus:outline-none"
+            type="button"
+            onClick={toggleVisibility}
+          >
+            {isVisible ? (
+              <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+            ) : (
+              <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+            )}
+          </button>
+        }
+        type={isVisible ? "text" : "password"}
+        className="max-w-xs m-2"
+      />
+      <Spacer y={2} />
 
-  
+      <Button onPress={handleLogin}>Login</Button>
+
+      {/* Display error or success message */}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {success && <p style={{ color: 'green' }}>{success}</p>}
+    </div>
+  );
+}

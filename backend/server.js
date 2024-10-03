@@ -1,6 +1,7 @@
 const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
+const bcrypt = require('bcryptjs'); // Import bcrypt for password comparison
 const app = express();
 
 // Middleware to parse JSON and enable CORS
@@ -35,6 +36,7 @@ app.get('/api/Item', (req, res) => {
   });
 });
 
+
 app.get('/api/UserAccount', (req, res) => {
   const username = req.query.username;
   const query = "SELECT passwordHash FROM AppleOrchardSystem.UserAccount WHERE username = ?";
@@ -49,12 +51,12 @@ app.get('/api/UserAccount', (req, res) => {
     } else {
       res.status(404).send('User not found');
     }
-  });
+
 });
 
 // Define a default route for the root URL (optional)
 app.get('/', (req, res) => {
-  res.send('API is running. Use /api/Item to fetch items.');
+  res.send('API is running. Use /api/Item to fetch items and /api/login to handle login.');
 });
 
 const PORT = 5000;
