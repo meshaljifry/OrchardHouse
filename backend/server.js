@@ -27,7 +27,7 @@ db.connect(err => {
 
 // Route to get items from the database (excluding ID)
 app.get('/api/Item', (req, res) => {
-  const sql = 'SELECT Name, Description, price FROM Item'; // Excluding the ID field
+  const sql = 'SELECT Name, Description, price FROM AppleOrchardSystem.Item'; // Excluding the ID field
   db.query(sql, (err, results) => {
     if (err) {
       return res.status(500).send(err);
