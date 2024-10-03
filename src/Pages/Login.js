@@ -24,8 +24,7 @@ export default function Login() {
       const passwordHash = await response.json();
       
       // Compare the entered password with the fetched password hash
-      const isMatch = password === passwordHash;
-      if (isMatch) {
+      if (password === passwordHash) {
         console.log('Login successful!');
         // Redirect to dashboard or perform other actions
       } else {
