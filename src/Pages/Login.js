@@ -7,40 +7,32 @@ export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isVisible, setIsVisible] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   const handleLogin = async () => {
-    // Clear previous messages
-    setError('');
-    setSuccess('');
 
+    // Check if username and password are not empty
+    if (!username || !password) {
+      alert('Please enter a username and password.');
+      return;
+    }
     try {
-      // Send a POST request to the backend for login validation
-      const response = await fetch('http://localhost:5000/api/UserAccount', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: username,
-          password: password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.status === 200) {
-        // Login successful
-        setSuccess(data.message);
+      const response = await fetch(`http://localhost:5000/api/UserAccount?username=${username}`);
+      if (!response.ok) {
+        throw new Error('User not found or server error');
+      }
+      const passwordHash = await response.json();
+      
+      // Compare the entered password with the fetched password hash
+      if (password === passwordHash) {
+        console.log('Login successful!');
+        // Redirect to dashboard or perform other actions
       } else {
-        // Login failed
-        setError(data.error);
+        console.log('Login failed. Incorrect username or password.');
       }
     } catch (error) {
-      setError('An error occurred while trying to log in.');
+      console.error('Error during login:', error);
+
     }
   };
 
