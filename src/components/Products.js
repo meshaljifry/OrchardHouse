@@ -9,7 +9,7 @@ const Products = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('/api/products'); // Replace with your API endpoint
+        const response = await fetch('http://localhost:5000/api/Item'); // Replace with your API endpoint
         const data = await response.json();
 
         setProducts(data);
