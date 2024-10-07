@@ -23,7 +23,9 @@ db.connect(err => {
 });
 
 app.get('/api/Item', (req, res) => {
+
   const sql = 'SELECT Name AS name, Description AS description, price FROM Item';
+
   db.query(sql, (err, results) => {
     if (err) {
       return res.status(500).send(err);
@@ -32,37 +34,34 @@ app.get('/api/Item', (req, res) => {
   });
 });
 
-app.post('/api/UserAccount', (req, res) => {
-  const { username, password } = req.body;
-  console.log('Received login request:', req.body);
 
-  if (!username || !password) {
-    return res.status(400).send({ error: 'Username or password missing' });
-  }
 
-  const sql = 'SELECT username, passwordHash FROM UserAccount';
-  db.query(sql, async (err, results) => {
+
+app.get('/api/UserAccount', (req, res) => {
+  const username = req.query.username;
+  const query = "SELECT passwordHash FROM AppleOrchardSystem.UserAccount WHERE username = ?";
+  
+  db.query(query, [username], (err, results) => {
+
     if (err) {
-      return res.status(500).send({ error: 'Database error' });
+      res.status(500).send('Error querying the database');
+      return;
     }
 
-    for (let i = 0; i < results.length; i++) {
-      const user = results[i];
-      
-      if (user.username === username) {
-        const isMatch = await bcrypt.compare(password, user.passwordHash);
-        
-        if (isMatch) {
-          return res.status(200).send({ message: 'Login successful' });
-        } else {
-          return res.status(400).send({ error: 'Incorrect password' });
-        }
-      }
-    }
 
-    return res.status(400).send({ error: 'User not found' });
+    if (results.length > 0) {
+      res.json(results[0].passwordHash);
+    } else {
+      res.status(404).send('User not found');
+    }
   });
+
 });
+
+
+
+
+// Define a default route for the root URL (optional)
 
 app.get('/', (req, res) => {
   res.send('API is running. Use /api/Item to fetch items and /api/login to handle login.');
