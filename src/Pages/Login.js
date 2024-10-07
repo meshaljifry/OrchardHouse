@@ -22,7 +22,6 @@ export default function Login() {
         throw new Error('User not found or server error');
       }
       const passwordHash = await response.json();
-      
       // Compare the entered password with the fetched password hash
       if (password === passwordHash) {
         console.log('Login successful!');

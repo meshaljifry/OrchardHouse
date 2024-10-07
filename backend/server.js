@@ -1,7 +1,6 @@
 const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
-const bcrypt = require('bcryptjs');
 const app = express();
 
 app.use(cors());
@@ -33,9 +32,6 @@ app.get('/api/Item', (req, res) => {
     res.json(results);
   });
 });
-
-
-
 
 app.get('/api/UserAccount', (req, res) => {
   const username = req.query.username;
