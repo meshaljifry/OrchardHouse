@@ -4,6 +4,7 @@ import { Button, Input } from '@nextui-org/react';
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [quantities, setQuantities] = useState({});
+  const [searchTerm, setSearchTerm] = useState(''); // State for search term
 
   // Fetch products from the database/API
   useEffect(() => {
@@ -39,12 +40,35 @@ const Products = () => {
     alert(`Added ${quantities[product.id]} of ${product.name} to the cart!`);
   };
 
+  // Handle search term change
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  // Filter products based on the search term
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="p-8">
       <h2 className="text-2xl font-semibold mb-4">Products</h2>
+
+      {/* Search Bar */}
+      <div className="mb-4">
+        <Input
+          placeholder="Search products..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          clearable
+          bordered
+          fullWidth
+        />
+      </div>
+
       <div className="flex flex-wrap justify-between">
-        {products.length > 0 ? (
-          products.map((product) => (
+        {filteredProducts.length > 0 ? (
+          filteredProducts.map((product) => (
             <div
               key={product.id}
               className="bg-gray-200 bg-opacity-50 p-4 shadow-lg rounded-lg flex flex-col justify-between m-2"
@@ -101,7 +125,7 @@ const Products = () => {
             </div>
           ))
         ) : (
-          <p>Loading products...</p>
+          <p>No products found...</p>
         )}
       </div>
     </div>
