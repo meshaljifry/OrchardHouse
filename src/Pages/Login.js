@@ -19,14 +19,14 @@ export default function Login() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/UserAccount?username=${username}`);
+      const response = await fetch(`http://localhost:5000/api/UserAccount?username=${username}&passwordHash=${password}`);
       if (!response.ok) {
-        throw new Error('User not found or server error');
+        throw new Error("Login failed. Incorrect username or password.");
       }
 
       const { passwordHash, RoleID } = await response.json();
 
-      if (password === passwordHash) {
+      if (response.ok) {
         console.log('Login successful!');
         localStorage.setItem('roleID', RoleID); // Store RoleID for role-based routing
 

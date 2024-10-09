@@ -1,7 +1,6 @@
 const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
-const bcrypt = require('bcryptjs');
 const app = express();
 
 app.use(cors());
@@ -37,19 +36,21 @@ app.get('/api/Item', (req, res) => {
 
 
 
+
 // server.js
 app.get('/api/UserAccount', (req, res) => {
   const username = req.query.username;
-  
+  const passwordHash = req.query.passwordHash;
   // Modified query to join UserAccount with User table to retrieve RoleID
   const query = `
     SELECT UA.passwordHash, U.RoleID
     FROM AppleOrchardSystem.UserAccount UA
     JOIN AppleOrchardSystem.User U ON UA.userID = U.userID
-    WHERE UA.username = ?
+    WHERE UA.username = ? AND UA.passwordHash = sha2(?, 512)
   `;
 
-  db.query(query, [username], (err, results) => {
+
+  db.query(query, [username, passwordHash], (err, results) => {
     if (err) {
       console.error('Error querying the database:', err);
       res.status(500).send('Error querying the database');
@@ -57,9 +58,9 @@ app.get('/api/UserAccount', (req, res) => {
     }
 
     if (results.length > 0) {
-      res.json(results[0]);  // Send passwordHash and RoleID
+      res.json({ message: 'Login successful' });
     } else {
-      res.status(404).send('User not found');
+      res.status(401).send('Incorrect username or password');
     }
   });
 });
