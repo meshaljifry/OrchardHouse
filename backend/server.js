@@ -37,25 +37,31 @@ app.get('/api/Item', (req, res) => {
 
 
 
+// server.js
 app.get('/api/UserAccount', (req, res) => {
   const username = req.query.username;
-  const query = "SELECT passwordHash FROM AppleOrchardSystem.UserAccount WHERE username = ?";
   
-  db.query(query, [username], (err, results) => {
+  // Modified query to join UserAccount with User table to retrieve RoleID
+  const query = `
+    SELECT UA.passwordHash, U.RoleID
+    FROM AppleOrchardSystem.UserAccount UA
+    JOIN AppleOrchardSystem.User U ON UA.userID = U.userID
+    WHERE UA.username = ?
+  `;
 
+  db.query(query, [username], (err, results) => {
     if (err) {
+      console.error('Error querying the database:', err);
       res.status(500).send('Error querying the database');
       return;
     }
 
-
     if (results.length > 0) {
-      res.json(results[0].passwordHash);
+      res.json(results[0]);  // Send passwordHash and RoleID
     } else {
       res.status(404).send('User not found');
     }
   });
-
 });
 
 
