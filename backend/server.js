@@ -35,9 +35,10 @@ app.get('/api/Item', (req, res) => {
 
 app.get('/api/UserAccount', (req, res) => {
   const username = req.query.username;
-  const query = "SELECT passwordHash FROM AppleOrchardSystem.UserAccount WHERE username = ?";
+  const passwordHash = req.query.passwordHash;
+  const query = "SELECT passwordHash FROM AppleOrchardSystem.UserAccount WHERE username = ? AND passwordHash = sha2(?, 512)";
   
-  db.query(query, [username], (err, results) => {
+  db.query(query, [username, passwordHash], (err, results) => {
 
     if (err) {
       res.status(500).send('Error querying the database');
@@ -46,9 +47,9 @@ app.get('/api/UserAccount', (req, res) => {
 
 
     if (results.length > 0) {
-      res.json(results[0].passwordHash);
+      res.json({ message: 'Login successful' });
     } else {
-      res.status(404).send('User not found');
+      res.status(401).send('Incorrect username or password');
     }
   });
 

@@ -17,19 +17,12 @@ export default function Login() {
       return;
     }
     try {
-      const response = await fetch(`http://localhost:5000/api/UserAccount?username=${username}`);
+      const response = await fetch(`http://localhost:5000/api/UserAccount?username=${username}&passwordHash=${password}`);
       if (!response.ok) {
-        throw new Error('User not found or server error');
+        throw new Error("Login failed. Incorrect username or password.");
       }
-      const passwordHash = await response.json();
-      // Compare the entered password with the fetched password hash
-      if (password === passwordHash) {
-        console.log('Login successful!');
-        alert("Login successful!");
-        // Redirect to dashboard or perform other actions
-      } else {
-        console.log('Login failed. Incorrect username or password.');
-        alert("Login failed. Incorrect username or password.")
+      if (response.ok){
+        alert("Login Successful!")
       }
     } catch (error) {
       console.error('Error during login:', error);
