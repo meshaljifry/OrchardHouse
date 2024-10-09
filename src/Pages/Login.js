@@ -9,6 +9,7 @@ export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isVisible, setIsVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const toggleVisibility = () => setIsVisible(!isVisible);
   const navigate = useNavigate();
 
@@ -43,6 +44,7 @@ export default function Login() {
       }
     } catch (error) {
       console.error('Error during login:', error);
+      setErrorMessage('Login failed. Incorrect username or password.');
     }
   };
 
@@ -79,6 +81,7 @@ export default function Login() {
       />
       <Spacer y={2} />
       <Button onPress={handleLogin}>Login</Button>
+      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>} {/* Display error message */}
     </div>
   );
 }
