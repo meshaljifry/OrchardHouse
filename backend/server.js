@@ -64,7 +64,7 @@ app.get('/api/UserAccount', (req, res) => {
 // Define a default route for the root URL (optional)
 
 app.get('/', (req, res) => {
-  res.send('API is running. Use /api/Item to fetch items and /api/login to handle login.');
+  res.send('API is running. Use /api/Item to fetch items and /api/UserAccount to handle login.');
 });
 
 const PORT = 5000;

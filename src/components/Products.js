@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Input } from '@nextui-org/react';
+import './products.css'; // Import the CSS file
 
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [quantities, setQuantities] = useState({});
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // Fetch products from the database/API
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/Item'); // Replace with your API endpoint
+        const response = await fetch('http://localhost:5000/api/Item');
         const data = await response.json();
 
         setProducts(data);
 
-        // Initialize quantities with default values
         const initialQuantities = data.reduce((acc, product) => {
           acc[product.id] = 1;
           return acc;
@@ -39,69 +39,75 @@ const Products = () => {
     alert(`Added ${quantities[product.id]} of ${product.name} to the cart!`);
   };
 
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="p-8">
-      <h2 className="text-2xl font-semibold mb-4">Products</h2>
-      <div className="flex flex-wrap justify-between">
-        {products.length > 0 ? (
-          products.map((product) => (
-            <div
-              key={product.id}
-              className="bg-gray-200 bg-opacity-50 p-4 shadow-lg rounded-lg flex flex-col justify-between m-2"
-              style={{ width: '30%', height: '350px' }}
-            >
-              <div className="h-40 mb-4">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="rounded-lg object-cover w-full h-full"
-                />
+    <div className="products-container">
+      <h2 className="products-title">Products</h2>
+      
+      <div className="search-bar">
+        <Input
+          placeholder="Search products..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          clearable
+          bordered
+          fullWidth
+        />
+      </div>
+
+      <div className="products-grid">
+        {filteredProducts.length > 0 ? (
+          filteredProducts.map((product) => (
+            <div key={product.id} className="product-card">
+              <div className="product-image">
+                <img src={product.image} alt={product.name} className="image" />
               </div>
 
-              <div className="flex flex-col justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold">{product.name}</h3>
-                  <p className="text-gray-600">${product.price.toFixed(2)}</p>
-                </div>
+              <div className="product-details">
+                <h3 className="product-name">{product.name}</h3>
+                <p className="product-price">${product.price.toFixed(2)}</p>
 
-                <div className="mt-4">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center">
-                      <button
-                        className="bg-gray-300 px-2 py-1 rounded"
-                        onClick={() => handleQuantityChange(product.id, -1)}
-                      >
-                        -
-                      </button>
-                      <Input
-                        type="number"
-                        value={quantities[product.id]}
-                        readOnly
-                        className="mx-2 text-center border border-gray-300 rounded w-12"
-                      />
-                      <button
-                        className="bg-gray-300 px-2 py-1 rounded"
-                        onClick={() => handleQuantityChange(product.id, 1)}
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-
-                  <Button
-                    auto
-                    color="primary"
-                    className="mt-4 w-full"
-                    onClick={() => addToCart(product)}
+                <div className="quantity-controls">
+                  <button
+                    className="quantity-button"
+                    onClick={() => handleQuantityChange(product.id, -1)}
                   >
-                    Add To Cart
-                  </Button>
+                    -
+                  </button>
+                  <Input
+                    type="number"
+                    value={quantities[product.id]}
+                    readOnly
+                    className="quantity-input"
+                  />
+                  <button
+                    className="quantity-button"
+                    onClick={() => handleQuantityChange(product.id, 1)}
+                  >
+                    +
+                  </button>
                 </div>
+
+                <Button
+                  auto
+                  color="primary"
+                  className="add-to-cart-button"
+                  onClick={() => addToCart(product)}
+                >
+                  Add To Cart
+                </Button>
               </div>
             </div>
           ))
         ) : (
-          <p>Loading products...</p>
+          <p className="no-products">No products found...</p>
         )}
       </div>
     </div>
