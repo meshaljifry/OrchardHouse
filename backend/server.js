@@ -33,18 +33,29 @@ app.get('/api/Item', (req, res) => {
   });
 });
 
+
+
+
+
+// server.js
 app.get('/api/UserAccount', (req, res) => {
   const username = req.query.username;
   const passwordHash = req.query.passwordHash;
-  const query = "SELECT passwordHash FROM AppleOrchardSystem.UserAccount WHERE username = ? AND passwordHash = sha2(?, 512)";
-  
-  db.query(query, [username, passwordHash], (err, results) => {
+  // Modified query to join UserAccount with User table to retrieve RoleID
+  const query = `
+    SELECT UA.passwordHash, U.RoleID
+    FROM AppleOrchardSystem.UserAccount UA
+    JOIN AppleOrchardSystem.User U ON UA.userID = U.userID
+    WHERE UA.username = ? AND UA.passwordHash = sha2(?, 512)
+  `;
 
+
+  db.query(query, [username, passwordHash], (err, results) => {
     if (err) {
+      console.error('Error querying the database:', err);
       res.status(500).send('Error querying the database');
       return;
     }
-
 
     if (results.length > 0) {
       res.json({ message: 'Login successful' });
@@ -52,7 +63,6 @@ app.get('/api/UserAccount', (req, res) => {
       res.status(401).send('Incorrect username or password');
     }
   });
-
 });
 
 
@@ -61,7 +71,7 @@ app.get('/api/UserAccount', (req, res) => {
 // Define a default route for the root URL (optional)
 
 app.get('/', (req, res) => {
-  res.send('API is running. Use /api/Item to fetch items and /api/login to handle login.');
+  res.send('API is running. Use /api/Item to fetch items and /api/UserAccount to handle login.');
 });
 
 const PORT = 5000;
