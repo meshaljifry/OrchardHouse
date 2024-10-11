@@ -40,23 +40,90 @@ const UserDashboard = () => {
 
   const getWeatherIcon = (weatherCode) => {
     switch (weatherCode) {
+      // Clear weather
       case 0:
-        return '☀️'; // clear sky
+        return '☀️'; // Clear sky
+  
+      // Partly cloudy
       case 1:
       case 2:
-        return '🌤️'; // partly cloudy
+        return '🌤️'; // Partly cloudy
+  
+      // Overcast and cloudy
       case 3:
-        return '☁️'; // cloudy
+        return '☁️'; // Cloudy
+  
+      // Fog and hazy conditions
+      case 45:
+      case 48:
+        return '🌫️'; // Fog
+  
+      // Drizzle
+      case 51:
+        return '🌦️'; // Light drizzle
+      case 53:
+        return '🌦️'; // Moderate drizzle
+      case 55:
+        return '🌦️'; // Dense drizzle
+  
+      // Freezing drizzle
+      case 56:
+      case 57:
+        return '❄️🌧️'; // Freezing drizzle
+  
+      // Rain
       case 61:
-        return '🌧️'; // light rain
+        return '🌧️'; // Light rain
       case 63:
-        return '🌧️'; // moderate rain
+        return '🌧️'; // Moderate rain
+      case 65:
+        return '🌧️'; // Heavy rain
+  
+      // Freezing rain
+      case 66:
+      case 67:
+        return '❄️🌧️'; // Freezing rain
+  
+      // Snowfall
       case 71:
-        return '❄️'; // light snow
+        return '❄️'; // Light snowfall
+      case 73:
+        return '❄️'; // Moderate snowfall
+      case 75:
+        return '❄️'; // Heavy snowfall
+  
+      // Snow grains
+      case 77:
+        return '🌨️'; // Snow grains
+  
+      // Rain showers
+      case 80:
+        return '🌦️'; // Light rain showers
+      case 81:
+        return '🌧️'; // Moderate rain showers
+      case 82:
+        return '🌧️'; // Violent rain showers
+  
+      // Snow showers
+      case 85:
+        return '🌨️'; // Light snow showers
+      case 86:
+        return '🌨️'; // Heavy snow showers
+  
+      // Thunderstorms
+      case 95:
+        return '⛈️'; // Thunderstorm
+      case 96:
+        return '⛈️❄️'; // Thunderstorm with light hail
+      case 99:
+        return '⛈️❄️'; // Thunderstorm with heavy hail
+  
+      // Default case for unknown weather codes
       default:
-        return '❓'; // unknown
+        return '❓'; // Unknown weather condition
     }
   };
+  
 
   const formatDayOfWeek = (dateString) => {
     const date = new Date(dateString + 'T00:00:00'); // Force midnight time to avoid time zone issues
