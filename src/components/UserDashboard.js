@@ -1,4 +1,3 @@
-// File: src/components/Dashboard.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Dashboard.css';
@@ -10,77 +9,94 @@ const UserDashboard = () => {
   const [loadingWeather, setLoadingWeather] = useState(true);
   const [errorWeather, setErrorWeather] = useState(null);
 
-  // Coordinates of the orchard
-  const lat = 44.8755; 
-  const lon = -91.9193;
+  // Coordinates of the orchard (provided values)
+  const lat = 44.8755; // provided latitude
+  const lon = -91.9193; // provided longitude
 
-  // Helper function to create a range
-  const range = (start, stop, step) => {
-    return Array.from({ length: (stop - start) / step }, (_, i) => start + i * step);
-  };
-
-  // Fetch 5-day weather forecast from Open-Meteo API
+  // Fetch 7-day weather forecast from Open-Meteo starting from today
   useEffect(() => {
-    const params = {
-      latitude: lat,
-      longitude: lon,
-      hourly: "temperature_2m"
-    };
+    const currentDate = new Date();
+    const startDate = currentDate.toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
+    const endDate = new Date(currentDate);
+    endDate.setDate(currentDate.getDate() + 6); // Add 6 days to the current date for a total of 7 days
+    const endDateString = endDate.toISOString().split('T')[0]; // Get end date in YYYY-MM-DD format
 
-    const fetchWeatherApi = async (url, params) => {
-      try {
-        const response = await axios.get(url, { params });
-        return [response.data]; // Wrap response in array for consistency
-      } catch (error) {
-        console.error('Error fetching weather:', error);
-        setErrorWeather('Error fetching weather data');
-        setLoadingWeather(false);
-      }
-    };
+    axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto&start_date=${startDate}&end_date=${endDateString}`)
+        .then(response => {
+            console.log("Weather API response:", response.data); // Log the entire response data
 
-    const getWeatherData = async () => {
-      const url = "https://api.open-meteo.com/v1/forecast";
-      const responses = await fetchWeatherApi(url, params);
-      const response = responses[0]; // Process first location (as in your original TypeScript code)
+            const dailyForecast = response.data.daily;
 
-      if (!response) {
-        setErrorWeather('No weather data available');
-        return;
-      }
+            // Rearranging the data so today is first
+            const todayIndex = dailyForecast.time.findIndex(date => date === startDate);
+            if (todayIndex !== -1) {
+                // Move today to the first position
+                const rearrangedForecast = [
+                    dailyForecast.time[todayIndex],
+                    ...dailyForecast.time.slice(0, todayIndex),
+                    ...dailyForecast.time.slice(todayIndex + 1)
+                ];
 
-      // Attributes for timezone and location
-      const utcOffsetSeconds = response.utc_offset_seconds;
-      const timezone = response.timezone;
-      const timezoneAbbreviation = response.timezone_abbreviation;
-      const latitude = response.latitude;
-      const longitude = response.longitude;
+                setForecast({
+                    time: rearrangedForecast,
+                    temperature_2m_max: [
+                        dailyForecast.temperature_2m_max[todayIndex],
+                        ...dailyForecast.temperature_2m_max.slice(0, todayIndex),
+                        ...dailyForecast.temperature_2m_max.slice(todayIndex + 1)
+                    ],
+                    temperature_2m_min: [
+                        dailyForecast.temperature_2m_min[todayIndex],
+                        ...dailyForecast.temperature_2m_min.slice(0, todayIndex),
+                        ...dailyForecast.temperature_2m_min.slice(todayIndex + 1)
+                    ],
+                    weathercode: [
+                        dailyForecast.weathercode[todayIndex],
+                        ...dailyForecast.weathercode.slice(0, todayIndex),
+                        ...dailyForecast.weathercode.slice(todayIndex + 1)
+                    ]
+                });
+            } else {
+                setForecast(dailyForecast); // In case today is not found
+            }
 
-      const hourly = response.hourly;
-
-      // Create weather data structure
-      const weatherData = {
-        hourly: {
-          time: range(Number(hourly.time[0]), Number(hourly.time[hourly.time.length - 1]), hourly.time_interval).map(
-            (t) => new Date((t + utcOffsetSeconds) * 1000)
-          ),
-          temperature2m: hourly.temperature_2m,
-        },
-      };
-
-      // Log weather data
-      console.log('Weather Data:', weatherData);
-
-      // Processed data for the 5-day forecast display
-      setForecast(weatherData);
-      setLoadingWeather(false);
-    };
-
-    getWeatherData();
-  }, [lat, lon]);
+            setLoadingWeather(false);
+        })
+        .catch(error => {
+            setErrorWeather('Error fetching weather data');
+            setLoadingWeather(false);
+        });
+}, [lat, lon]);
 
   // Function to convert Celsius to Fahrenheit
   const celsiusToFahrenheit = (celsius) => {
-    return ((celsius * 9/5) + 32).toFixed(1);
+    return ((celsius * 9 / 5) + 32).toFixed(1);
+  };
+
+  // Function to get the weather icon based on the weather code (Open-Meteo uses weather codes)
+  const getWeatherIcon = (weatherCode) => {
+    switch (weatherCode) {
+      case 0:
+        return '☀️'; // clear sky
+      case 1:
+      case 2:
+        return '🌤️'; // partly cloudy
+      case 3:
+        return '☁️'; // cloudy
+      case 61:
+        return '🌧️'; // light rain
+      case 63:
+        return '🌧️'; // moderate rain
+      case 71:
+        return '❄️'; // light snow
+      default:
+        return '❓'; // unknown
+    }
+  };
+
+  // Function to get the correct day of the week from the date
+  const formatDayOfWeek = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { weekday: 'short' }); // returns day as "Mon", "Tue", etc.
   };
 
   return (
@@ -117,21 +133,26 @@ const UserDashboard = () => {
         )}
       </div>
 
-      {/* 5-Day Weather Forecast Section */}
+      {/* 7-Day Weather Forecast Section */}
       <div className="dashboard-item weather-section">
-        <h3>5-Day Weather Forecast</h3>
+        <h3>7-Day Weather Forecast</h3>
         {loadingWeather ? (
           <p>Loading weather...</p>
         ) : errorWeather ? (
           <p>{errorWeather}</p>
         ) : forecast ? (
-          <div className="forecast-grid">
-            {forecast.hourly.time.map((time, index) => (
-              <div key={index} className="forecast-box">
-                <p className="forecast-day">{time.toLocaleString()}</p>
-                <p className="forecast-temp">Temp: {celsiusToFahrenheit(forecast.hourly.temperature2m[index])}°F</p>
-              </div>
-            ))}
+          <div className="forecast-container">
+            <div className="forecast-grid">
+              {forecast.time.map((date, index) => (
+                <div key={index} className="forecast-box">
+                  <p className="forecast-day">{formatDayOfWeek(date)}</p>
+                  <p>{getWeatherIcon(forecast.weathercode[index])}</p>
+                  <p className="forecast-condition">{forecast.weathercode[index] === 0 ? "Clear" : forecast.weathercode[index] === 3 ? "Cloudy" : "Other"}</p>
+                  <p className="forecast-temp">High: {celsiusToFahrenheit(forecast.temperature_2m_max[index])}°F</p>
+                  <p className="forecast-temp">Low: {celsiusToFahrenheit(forecast.temperature_2m_min[index])}°F</p>
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           <p>No weather data available.</p>
@@ -144,7 +165,7 @@ const UserDashboard = () => {
         <div className="photo-grid">
           {farmPhotos.map((url, index) => (
             <img key={index} src={url} alt={`Farm ${index}`} className="farm-photo" />
-          ))}
+          ))} 
         </div>
       </div> */}
 
@@ -156,7 +177,7 @@ const UserDashboard = () => {
             <li key={index}>
               <strong>{event.name}</strong>: {event.date}
             </li>
-          ))}
+          ))} 
         </ul>
       </div> */}
 
