@@ -70,3 +70,34 @@
     }
   }
   
+  /* File: src/components/Dashboard.css */
+.forecast-grid {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.forecast-box {
+  background-color: #e0f7fa;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  width: 100px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.forecast-day {
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-bottom: 5px;
+}
+
+.forecast-condition {
+  font-size: 1em;
+  margin: 5px 0;
+}
+
+.forecast-temp {
+  font-size: 0.9em;
+  margin: 5px 0;
+}
