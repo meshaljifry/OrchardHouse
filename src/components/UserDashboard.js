@@ -9,11 +9,9 @@ const UserDashboard = () => {
   const [loadingWeather, setLoadingWeather] = useState(true);
   const [errorWeather, setErrorWeather] = useState(null);
 
-  // Coordinates of the orchard (provided values)
   const lat = 44.8755; // provided latitude
   const lon = -91.9193; // provided longitude
 
-  // Fetch 7-day weather forecast from Open-Meteo starting from today
   useEffect(() => {
     const currentDate = new Date();
     const startDate = currentDate.toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
@@ -22,57 +20,24 @@ const UserDashboard = () => {
     const endDateString = endDate.toISOString().split('T')[0]; // Get end date in YYYY-MM-DD format
 
     axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto&start_date=${startDate}&end_date=${endDateString}`)
-        .then(response => {
-            console.log("Weather API response:", response.data); // Log the entire response data
+      .then(response => {
+        console.log("Weather API response:", response.data);
 
-            const dailyForecast = response.data.daily;
+        const dailyForecast = response.data.daily;
+        setForecast(dailyForecast);
 
-            // Rearranging the data so today is first
-            const todayIndex = dailyForecast.time.findIndex(date => date === startDate);
-            if (todayIndex !== -1) {
-                // Move today to the first position
-                const rearrangedForecast = [
-                    dailyForecast.time[todayIndex],
-                    ...dailyForecast.time.slice(0, todayIndex),
-                    ...dailyForecast.time.slice(todayIndex + 1)
-                ];
+        setLoadingWeather(false);
+      })
+      .catch(error => {
+        setErrorWeather('Error fetching weather data');
+        setLoadingWeather(false);
+      });
+  }, [lat, lon]);
 
-                setForecast({
-                    time: rearrangedForecast,
-                    temperature_2m_max: [
-                        dailyForecast.temperature_2m_max[todayIndex],
-                        ...dailyForecast.temperature_2m_max.slice(0, todayIndex),
-                        ...dailyForecast.temperature_2m_max.slice(todayIndex + 1)
-                    ],
-                    temperature_2m_min: [
-                        dailyForecast.temperature_2m_min[todayIndex],
-                        ...dailyForecast.temperature_2m_min.slice(0, todayIndex),
-                        ...dailyForecast.temperature_2m_min.slice(todayIndex + 1)
-                    ],
-                    weathercode: [
-                        dailyForecast.weathercode[todayIndex],
-                        ...dailyForecast.weathercode.slice(0, todayIndex),
-                        ...dailyForecast.weathercode.slice(todayIndex + 1)
-                    ]
-                });
-            } else {
-                setForecast(dailyForecast); // In case today is not found
-            }
-
-            setLoadingWeather(false);
-        })
-        .catch(error => {
-            setErrorWeather('Error fetching weather data');
-            setLoadingWeather(false);
-        });
-}, [lat, lon]);
-
-  // Function to convert Celsius to Fahrenheit
   const celsiusToFahrenheit = (celsius) => {
     return ((celsius * 9 / 5) + 32).toFixed(1);
   };
 
-  // Function to get the weather icon based on the weather code (Open-Meteo uses weather codes)
   const getWeatherIcon = (weatherCode) => {
     switch (weatherCode) {
       case 0:
@@ -93,10 +58,9 @@ const UserDashboard = () => {
     }
   };
 
-  // Function to get the correct day of the week from the date
   const formatDayOfWeek = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { weekday: 'short' }); // returns day as "Mon", "Tue", etc.
+    const date = new Date(dateString + 'T00:00:00'); // Force midnight time to avoid time zone issues
+    return date.toLocaleDateString('en-US', { weekday: 'short' });
   };
 
   return (
@@ -120,9 +84,6 @@ const UserDashboard = () => {
                   <td>{ticket.name}</td>
                   <td>${ticket.price}</td>
                   <td>
-                    {/* <button onClick={() => handleQuantityChange(ticket.name, -1)}>-</button>
-                    <span>{ticketCounts[ticket.name]}</span>
-                    <button onClick={() => handleQuantityChange(ticket.name, 1)}>+</button> */}
                   </td>
                 </tr>
               ))}
@@ -158,29 +119,6 @@ const UserDashboard = () => {
           <p>No weather data available.</p>
         )}
       </div>
-
-      {/* Farm Photos Section */}
-      {/* <div className="dashboard-item farm-photos">
-        <h3>Farm Photos</h3>
-        <div className="photo-grid">
-          {farmPhotos.map((url, index) => (
-            <img key={index} src={url} alt={`Farm ${index}`} className="farm-photo" />
-          ))} 
-        </div>
-      </div> */}
-
-      {/* Events Section */}
-      {/* <div className="dashboard-item events">
-        <h3>Events</h3>
-        <ul>
-          {mockEvents.map((event, index) => (
-            <li key={index}>
-              <strong>{event.name}</strong>: {event.date}
-            </li>
-          ))} 
-        </ul>
-      </div> */}
-
     </div>
   );
 };
