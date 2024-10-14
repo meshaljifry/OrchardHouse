@@ -1,119 +1,85 @@
 /* Dashboard Container */
 .dashboard-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Two items per row */
-    gap: 24px;
-    padding: 20px;
-  }
-  
-  /* Dashboard Item */
-  .dashboard-item {
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    background-color: transparent; /* No background */
-    transition: background-color 0.3s ease;
-  }
-  
-  .dashboard-item h3 {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 16px;
-  }
-  
-  .dashboard-item:hover {
-    background-color: rgba(255, 255, 255, 0.7); /* Background appears on hover */
-  }
-  
-  /* Farm Photos */
-  .farm-photos .photo-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-  
-  .farm-photo {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-  }
-  
-  /* Products Table */
-  .products table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .products th, .products td {
-    padding: 8px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .products th {
-    font-size: 1rem;
-  }
-  
-  .products td {
-    font-size: 0.875rem;
-  }
-  
-  /* Charts */
-  .dashboard-item .recharts-wrapper {
-    margin: 0 auto;
-  }
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Two items per row */
+  gap: 24px;
+  padding: 20px;
+}
 
-  .product-management h3 {
-    margin-top: 20px;
-    font-size: 1.3rem;
-    font-weight: bold;
-  }
+/* Dashboard Item */
+.dashboard-item {
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: transparent; /* No background */
+  transition: background-color 0.3s ease;
+}
+
+.dashboard-item h3 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
   
-  .product-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-  }
-  
-  .product-table th, .product-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-  }
-  
-  .product-table th {
-    background-color: #f4f4f4;
-    text-align: left;
-  }
-  
-  .add-product-form {
-    display: flex;
-    gap: 10px;
-  }
-  
-  .add-product-form input {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  
-  .add-product-form button {
-    padding: 8px 16px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .add-product-form button:hover {
-    background-color: #45a049;
-  }
-  
-  
-  /* Responsive design for smaller screens */
-  @media (max-width: 768px) {
-    .dashboard-container {
+.dashboard-item:hover {
+  background-color: rgba(255, 255, 255, 0.7); /* Background appears on hover */
+}
+
+/* Weather Section Fixed Size with Scrolling */
+.weather-section {
+  height: 300px; /* Set a fixed height */
+  overflow-y: auto; /* Enable vertical scrolling */
+}
+
+/* Weather Grid */
+.forecast-grid {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+/* Forecast Box */
+.forecast-box {
+  background-color: #e0f7fa;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  width: 100px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.forecast-day {
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-bottom: 5px;
+}
+
+.forecast-condition {
+  font-size: 1em;
+  margin: 5px 0;
+}
+
+.forecast-temp {
+  font-size: 0.9em;
+  margin: 5px 0;
+}
+
+/* Farm Photos */
+.farm-photos .photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.farm-photo {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  .dashboard-container {
       grid-template-columns: 1fr; /* Full width for smaller screens */
-    }
   }
-  
+}
