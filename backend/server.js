@@ -37,6 +37,7 @@ app.get('/api/Item', (req, res) => {
 
 
 
+
 // server.js
 app.get('/api/UserAccount', (req, res) => {
   const username = req.query.username;
@@ -92,8 +93,68 @@ app.post('/api/Item', (req, res) => {
   });
 });
 
+// Fetch animals from the Animal table
+app.get('/api/getAnimalList', (req, res) => {
+  const sql = 'SELECT animalID, name, species, location, statusID FROM Animal';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error querying the Animal table:', err);
+      return res.status(500).send('Error querying the Animal table');
+    }
+    res.json(results);
+  });
+});
 
+// Fetch plants from the Plant table
+app.get('/api/getPlantList', (req, res) => {
+  const sql = 'SELECT plantID, name, location, statusID FROM Plant';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error querying the Plant table:', err);
+      return res.status(500).send('Error querying the Plant table');
+    }
+    res.json(results);
+  });
+});
 
+// Fetch supplies from the Supply table
+app.get('/api/getSupplyList', (req, res) => {
+  const sql = 'SELECT supplyID, name FROM Supply';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error querying the Supply table:', err);
+      return res.status(500).send('Error querying the Supply table');
+    }
+    res.json(results);
+  });
+});
+
+// Fetch reports from the Report table
+app.get('/api/getReportList', (req, res) => {
+  const sql = 'SELECT reportID, description FROM Report';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error querying the Report table:', err);
+      return res.status(500).send('Error querying the Report table');
+    }
+    res.json(results);
+  });
+});
+
+// Create a new task
+app.post('/api/createTask', (req, res) => {   
+  const {code, name, description, animalID, plantID, supplyID, reportID } = req.body;   
+  var countID;  
+  const sql = `INSERT INTO Task (code, name, description, animalID, plantID, supplyID, reportID)     
+  VALUES (?, ?, ?, ?, ?, ?, ?)   `;     
+  db.query(sql, [code || null, name, description, animalID || null, plantID || null, supplyID || null, reportID || null], (err, result) => {     
+  if (err) { 
+    console.error('Error inserting task:', err);       
+    return res.status(500).send('Error inserting task'); 
+  } 
+  res.status(201).send('Task created successfully'); 
+  }); 
+});
 
 // Define a default route for the root URL (optional)
 
