@@ -1,4 +1,5 @@
 import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Input, Textarea, Autocomplete, AutocompleteItem} from "@nextui-org/react";
+import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell} from "@nextui-org/react";
 import './Tasks.css';
 import React, { useState, useEffect } from 'react';
 
@@ -93,6 +94,7 @@ const Tasks = () => {
         },
         body: JSON.stringify(newTask),
       });
+      await fetchTasks();
     } catch (error) {
       console.error('Error creating task:', error);
     }
@@ -253,13 +255,28 @@ const Tasks = () => {
         {/* Display tasks below the "Create Task" button */}
         <div>
           <h2 className="text-lg font-semibold mt-4">Tasks List</h2>
-          <ul>
-            {tasks.map((task) => (
-              <li key={task.id}>
-                <p><strong>Task ID:</strong> {task.taskID}, <strong>Name:</strong> {task.name}, <strong>Description:</strong> {task.description}</p>
-              </li>
-            ))}
-          </ul>
+          <Table 
+            color={"primary"}
+            selectionMode="single" 
+            defaultSelectedKeys={["2"]} 
+            aria-label="Example static collection table"
+            className="custom-table"
+          >
+            <TableHeader>
+              <TableColumn>TASK ID</TableColumn>
+              <TableColumn>NAME</TableColumn>
+              <TableColumn>Description</TableColumn>
+            </TableHeader>
+            <TableBody>
+              {tasks.map((task) => (
+                <TableRow key={task.id}>
+                  <TableCell>{task.taskID}</TableCell>
+                  <TableCell>{task.name}</TableCell>
+                  <TableCell>{task.description}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
     );
