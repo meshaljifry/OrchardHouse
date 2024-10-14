@@ -15,6 +15,16 @@
   transition: background-color 0.3s ease;
 }
 
+.dashboard-item h3 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+  
+.dashboard-item:hover {
+  background-color: rgba(255, 255, 255, 0.7); /* Background appears on hover */
+}
+
 /* Weather Section Fixed Size with Scrolling */
 .weather-section {
   height: 300px; /* Set a fixed height */

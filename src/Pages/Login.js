@@ -9,6 +9,7 @@ export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isVisible, setIsVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const toggleVisibility = () => setIsVisible(!isVisible);
   const navigate = useNavigate();
 
@@ -19,14 +20,14 @@ export default function Login() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/UserAccount?username=${username}`);
+      const response = await fetch(`http://localhost:5000/api/UserAccount?username=${username}&passwordHash=${password}`);
       if (!response.ok) {
-        throw new Error('User not found or server error');
+        throw new Error("Login failed. Incorrect username or password.");
       }
 
       const { passwordHash, RoleID } = await response.json();
 
-      if (password === passwordHash) {
+      if (response.ok) {
         console.log('Login successful!');
         localStorage.setItem('roleID', RoleID); // Store RoleID for role-based routing
 
@@ -43,6 +44,7 @@ export default function Login() {
       }
     } catch (error) {
       console.error('Error during login:', error);
+      setErrorMessage('Login failed. Incorrect username or password.');
     }
   };
 
@@ -79,6 +81,7 @@ export default function Login() {
       />
       <Spacer y={2} />
       <Button onPress={handleLogin}>Login</Button>
+      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>} {/* Display error message */}
     </div>
   );
 }
