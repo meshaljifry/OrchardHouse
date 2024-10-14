@@ -31,7 +31,7 @@ export default function Layout({ children }) {
               <li><Link to="/help" className="sidebar-link">Help</Link></li>
               <Link to="/register" className="sidebar-link">Register</Link>
 
-              <Test />
+              <Test /> {/* Link to Login page */}
              
             </ul>
 

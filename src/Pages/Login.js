@@ -1,54 +1,62 @@
+// Login.js
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Input, Button, Spacer } from '@nextui-org/react';
 import { EyeFilledIcon } from "../components/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "../components/EyeSlashFilledIcon";
-import { Input, Button, Spacer } from '@nextui-org/react';
 
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isVisible, setIsVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const toggleVisibility = () => setIsVisible(!isVisible);
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
-
-    // Check if username and password are not empty
     if (!username || !password) {
       alert('Please enter a username and password.');
       return;
     }
+
     try {
-      const response = await fetch(`http://localhost:5000/api/UserAccount?username=${username}`);
+      const response = await fetch(`http://localhost:5000/api/UserAccount?username=${username}&passwordHash=${password}`);
       if (!response.ok) {
-        throw new Error('User not found or server error');
+        throw new Error("Login failed. Incorrect username or password.");
       }
-      const passwordHash = await response.json();
-      
-      // Compare the entered password with the fetched password hash
-      if (password === passwordHash) {
+
+      const { passwordHash, RoleID } = await response.json();
+
+      if (response.ok) {
         console.log('Login successful!');
-        alert("Login successful!");
-        // Redirect to dashboard or perform other actions
+        localStorage.setItem('roleID', RoleID); // Store RoleID for role-based routing
+
+        // Redirect based on RoleID with consistent route paths
+        if (RoleID === 1 || RoleID === 2) {
+          navigate('/dashboard');
+        } else if (RoleID === 3) {
+          navigate('/employee-dashboard');
+        } else {
+          navigate('/user-dashboard');
+        }
       } else {
-        console.log('Login failed. Incorrect username or password.');
-        alert("Login failed. Incorrect username or password.")
+        alert('Login failed. Incorrect username or password.');
       }
     } catch (error) {
       console.error('Error during login:', error);
-
+      setErrorMessage('Login failed. Incorrect username or password.');
     }
   };
 
   return (
     <div>
       <h1>Login Page</h1>
-      
       <Spacer y={2} />
       <Input
         isRequired
         isClearable
         type="text"
         label="Username"
-        variant="flat"
         placeholder="Enter your username"
         onValueChange={setUsername}
         className="max-w-xs m-2"
@@ -57,15 +65,10 @@ export default function Login() {
       <Input
         isRequired
         label="Password"
-        variant="flat"
         placeholder="Enter your password"
         onValueChange={setPassword}
         endContent={
-          <button
-            className="focus:outline-none"
-            type="button"
-            onClick={toggleVisibility}
-          >
+          <button type="button" onClick={toggleVisibility}>
             {isVisible ? (
               <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
             ) : (
@@ -73,12 +76,12 @@ export default function Login() {
             )}
           </button>
         }
-        type={isVisible ? "text" : "password"}
+        type={isVisible ? 'text' : 'password'}
         className="max-w-xs m-2"
       />
       <Spacer y={2} />
-
       <Button onPress={handleLogin}>Login</Button>
+      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>} {/* Display error message */}
     </div>
   );
 }

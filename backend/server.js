@@ -1,7 +1,6 @@
 const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
-const bcrypt = require('bcryptjs');
 const app = express();
 
 app.use(cors());
@@ -34,25 +33,64 @@ app.get('/api/Item', (req, res) => {
   });
 });
 
+
+
+
+
+
+// server.js
 app.get('/api/UserAccount', (req, res) => {
   const username = req.query.username;
-  const query = "SELECT passwordHash FROM AppleOrchardSystem.UserAccount WHERE username = ?";
-  
-  db.query(query, [username], (err, results) => {
+  const passwordHash = req.query.passwordHash;
+  // Modified query to join UserAccount with User table to retrieve RoleID
+  const query = `
+    SELECT UA.passwordHash, U.RoleID
+    FROM AppleOrchardSystem.UserAccount UA
+    JOIN AppleOrchardSystem.User U ON UA.userID = U.userID
+    WHERE UA.username = ? AND UA.passwordHash = sha2(?, 512)
+  `;
 
+
+  db.query(query, [username, passwordHash], (err, results) => {
     if (err) {
+      console.error('Error querying the database:', err);
       res.status(500).send('Error querying the database');
       return;
     }
 
-
     if (results.length > 0) {
-      res.json(results[0].passwordHash);
+      res.json({ message: 'Login successful' });
     } else {
-      res.status(404).send('User not found');
+      res.status(401).send('Incorrect username or password');
     }
   });
+});
 
+// Update a product
+app.put('/api/Item/:id', (req, res) => {
+  const { id } = req.params;
+  const { name, price } = req.body;
+  const sql = 'UPDATE Item SET Name = ?, Price = ? WHERE id = ?';
+  db.query(sql, [name, price, id], (err, results) => {
+    if (err) {
+      console.error('Error updating product:', err);
+      return res.status(500).send('Error updating product');
+    }
+    res.sendStatus(200);
+  });
+});
+
+// Add a new product
+app.post('/api/Item', (req, res) => {
+  const { name, price } = req.body;
+  const sql = 'INSERT INTO Item (Name, Price) VALUES (?, ?)';
+  db.query(sql, [name, price], (err, results) => {
+    if (err) {
+      console.error('Error adding product:', err);
+      return res.status(500).send('Error adding product');
+    }
+    res.sendStatus(201);
+  });
 });
 
 // Fetch animals from the Animal table
@@ -121,7 +159,7 @@ app.post('/api/createTask', (req, res) => {
 // Define a default route for the root URL (optional)
 
 app.get('/', (req, res) => {
-  res.send('API is running. Use /api/Item to fetch items and /api/login to handle login.');
+  res.send('API is running. Use /api/Item to fetch items and /api/UserAccount to handle login.');
 });
 
 const PORT = 5000;

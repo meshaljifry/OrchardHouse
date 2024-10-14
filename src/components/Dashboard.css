@@ -62,6 +62,53 @@
   .dashboard-item .recharts-wrapper {
     margin: 0 auto;
   }
+
+  .product-management h3 {
+    margin-top: 20px;
+    font-size: 1.3rem;
+    font-weight: bold;
+  }
+  
+  .product-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  .product-table th, .product-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  .product-table th {
+    background-color: #f4f4f4;
+    text-align: left;
+  }
+  
+  .add-product-form {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .add-product-form input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .add-product-form button {
+    padding: 8px 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .add-product-form button:hover {
+    background-color: #45a049;
+  }
+  
   
   /* Responsive design for smaller screens */
   @media (max-width: 768px) {
