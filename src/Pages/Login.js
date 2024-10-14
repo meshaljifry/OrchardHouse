@@ -25,16 +25,17 @@ export default function Login() {
         throw new Error("Login failed. Incorrect username or password.");
       }
 
-      const { passwordHash, RoleID } = await response.json();
+      const { passwordHash, roleID } = await response.json();
+      console.log('roleID fetched from database:', roleID); // Logging roleID
 
       if (response.ok) {
         console.log('Login successful!');
-        localStorage.setItem('roleID', RoleID); // Store RoleID for role-based routing
+        localStorage.setItem('roleID', roleID); // Store roleID for role-based routing
 
-        // Redirect based on RoleID with consistent route paths
-        if (RoleID === 1 || RoleID === 2) {
-          navigate('/dashboard');
-        } else if (RoleID === 3) {
+        // Redirect based on roleID with consistent route paths
+        if (roleID === 1 || roleID === 2) {
+          navigate('/Dashboard');
+        } else if (roleID === 3) {
           navigate('/employee-dashboard');
         } else {
           navigate('/user-dashboard');
