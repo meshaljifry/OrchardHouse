@@ -1,7 +1,24 @@
+// Imports
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Dashboard.css';
 
+// Create mock events to display
+const mockEvents = [
+  { name: 'Apple Picking Festival', date: 'Oct 15, 2023' },
+  { name: 'Harvest Dinner', date: 'Nov 1, 2023' },
+  { name: 'Winter Market', date: 'Dec 5, 2023' },
+];
+
+// Create farm photos to display
+const farmPhotos = [
+  'https://example.com/photo1.jpg',
+  'https://example.com/photo2.jpg',
+  'https://example.com/photo3.jpg',
+  'https://example.com/photo4.jpg',
+];
+
+// UserDashboard
 const UserDashboard = () => {
   const [tickets, setTickets] = useState([]);
   const [ticketCounts, setTicketCounts] = useState({});
@@ -9,9 +26,11 @@ const UserDashboard = () => {
   const [loadingWeather, setLoadingWeather] = useState(true);
   const [errorWeather, setErrorWeather] = useState(null);
 
+  // Coordinates for weather api
   const lat = 44.8755; // provided latitude
   const lon = -91.9193; // provided longitude
 
+  // Get data and error handling
   useEffect(() => {
     const currentDate = new Date();
     const startDate = currentDate.toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
@@ -34,10 +53,12 @@ const UserDashboard = () => {
       });
   }, [lat, lon]);
 
+  // Convert celcius to fahrenheit
   const celsiusToFahrenheit = (celsius) => {
     return ((celsius * 9 / 5) + 32).toFixed(1);
   };
 
+  // Get the weather icon
   const getWeatherIcon = (weatherCode) => {
     switch (weatherCode) {
       // Clear weather
@@ -124,12 +145,21 @@ const UserDashboard = () => {
     }
   };
   
+  // Handle ticket quantity changes
+  const handleQuantityChange = (name, delta) => {
+    setTicketCounts(prevCounts => ({
+      ...prevCounts,
+      [name]: Math.max(0, prevCounts[name] + delta)
+    }));
+  };
 
+  // Format day of the week
   const formatDayOfWeek = (dateString) => {
     const date = new Date(dateString + 'T00:00:00'); // Force midnight time to avoid time zone issues
     return date.toLocaleDateString('en-US', { weekday: 'short' });
   };
 
+  // HTML return
   return (
     <div className="dashboard-container">
 
@@ -151,6 +181,9 @@ const UserDashboard = () => {
                   <td>{ticket.name}</td>
                   <td>${ticket.price}</td>
                   <td>
+                    <button onClick={() => handleQuantityChange(ticket.name, -1)}>-</button>
+                    <span>{ticketCounts[ticket.name]}</span>
+                    <button onClick={() => handleQuantityChange(ticket.name, 1)}>+</button>
                   </td>
                 </tr>
               ))}
@@ -186,8 +219,32 @@ const UserDashboard = () => {
           <p>No weather data available.</p>
         )}
       </div>
+
+      {/* Farm Photos Section */}
+      <div className="dashboard-item farm-photos">
+        <h3>Farm Photos</h3>
+        <div className="photo-grid">
+          {farmPhotos.map((url, index) => (
+            <img key={index} src={url} alt={`Farm ${index}`} className="farm-photo" />
+          ))}
+        </div>
+      </div>
+
+      {/* Events Section */}
+      <div className="dashboard-item events">
+        <h3>Events</h3>
+        <ul>
+          {mockEvents.map((event, index) => (
+            <li key={index}>
+              <strong>{event.name}</strong>: {event.date}
+            </li>
+          ))}
+        </ul>
+      </div>
+
     </div>
   );
 };
 
+// Export
 export default UserDashboard;
