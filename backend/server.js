@@ -138,7 +138,7 @@ app.get('/api/getReportList', (req, res) => {
 
 // Fetch tasks from the Task table
 app.get('/api/getTasks', (req, res) => {
-  const sql = 'SELECT id, code, name, description, animalID, plantID, supplyID, reportID FROM Task';
+  const sql = 'SELECT taskID, code, name, description, animalID, plantID, supplyID, reportID FROM Task';
   db.query(sql, (err, results) => {
     if (err) {
       console.error('Error querying the Task table:', err);

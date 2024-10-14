@@ -256,9 +256,7 @@ const Tasks = () => {
           <ul>
             {tasks.map((task) => (
               <li key={task.id}>
-                <p>{task.name}</p>
-                <p>{task.description}</p>
-                {/* Add more task details as needed */}
+                <p><strong>Task ID:</strong> {task.taskID}, <strong>Name:</strong> {task.name}, <strong>Description:</strong> {task.description}</p>
               </li>
             ))}
           </ul>
