@@ -14,14 +14,14 @@ const Tasks = () => {
   const [plantValue, setPlantValue] = useState();
   const [supplyValue, setSupplyValue] = useState();
   const [reportValue, setReportValue] = useState();
-
+  const [tasks, setTasks] = useState([]);
   // Fetch Animal, Plant, Supply, and Report Lists
   useEffect(() => {
     fetchAnimals();
     fetchPlants();
     fetchSupplies();
     fetchReports();
-    
+    fetchTasks();
   },[]);
 
   const fetchAnimals = async () => {
@@ -65,6 +65,17 @@ const Tasks = () => {
       setReports(data);
     } catch (error){
       console.error('Error fetching reports:', error);
+    }
+  };
+
+  const fetchTasks = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/getTasks');
+      const data = await response.json();
+
+      setTasks(data);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
     }
   };
 
@@ -239,8 +250,20 @@ const Tasks = () => {
               )}
             </ModalContent>
           </Modal>
+        {/* Display tasks below the "Create Task" button */}
+        <div>
+          <h2 className="text-lg font-semibold mt-4">Tasks List</h2>
+          <ul>
+            {tasks.map((task) => (
+              <li key={task.id}>
+                <p>{task.name}</p>
+                <p>{task.description}</p>
+                {/* Add more task details as needed */}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
-
     );
   }
   export default Tasks;

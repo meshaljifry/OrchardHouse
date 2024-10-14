@@ -33,11 +33,6 @@ app.get('/api/Item', (req, res) => {
   });
 });
 
-
-
-
-
-
 // server.js
 app.get('/api/UserAccount', (req, res) => {
   const username = req.query.username;
@@ -136,6 +131,18 @@ app.get('/api/getReportList', (req, res) => {
     if (err) {
       console.error('Error querying the Report table:', err);
       return res.status(500).send('Error querying the Report table');
+    }
+    res.json(results);
+  });
+});
+
+// Fetch tasks from the Task table
+app.get('/api/getTasks', (req, res) => {
+  const sql = 'SELECT id, code, name, description, animalID, plantID, supplyID, reportID FROM Task';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error querying the Task table:', err);
+      return res.status(500).send('Error querying the Task table');
     }
     res.json(results);
   });
