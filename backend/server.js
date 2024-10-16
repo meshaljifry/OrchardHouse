@@ -157,20 +157,10 @@ app.post('/api/createTask', (req, res) => {
 
 // Assign Task Endpoint
 app.post('/api/assignTask', async (req, res) => {
-  // const { assignedTaskID, userID, assignerID, taskID, statusID, dateScheduledFor, date } = req.body;
-  // try {
-  //   const query = 'INSERT INTO AssignedTask (assignedTaskID, userID, assignerID, taskID, statusID, dateScheduledFor, date) VALUES (?, ?, ?, ?, ?, ?, ?)';
-  //   const values = [assignedTaskID, userID, assignerID, taskID, statusID, dateScheduledFor || null, date || null];
-  //   await db.query(query, values);  // Assuming db.query is a helper to execute queries
-  //   res.status(200).json({ message: 'Task successfully assigned.' });
-  // } catch (error) {
-  //   console.error('Error assigning task:', error);
-  //   res.status(500).json({ error: 'Failed to assign task' });
-  // }
-  const {assignedTaskID, userID, assignerID, taskID, statusID, dateScheduledFor, date} = req.body;   
-  const sql = `INSERT INTO AssignedTask (assignedTaskID, userID, assignerID, taskID, statusID, dateScheduledFor, date)     
-  VALUES (?, ?, ?, ?, ?, ?, ?)   `;
-  const values = [assignedTaskID, userID, assignerID, taskID, statusID, dateScheduledFor || null, date || null];
+  const {userID, assignerID, taskID, statusID, dateScheduledFor, date} = req.body;   
+  const sql = `INSERT INTO AssignedTask (userID, assignerID, taskID, statusID, dateScheduledFor, date)     
+  VALUES (?, ?, ?, ?, ?, ?)   `;
+  const values = [userID, assignerID, taskID, statusID, dateScheduledFor || null, date || null];
   db.query(sql, values, (err, result) => {     
   if (err) { 
     console.error('Error inserting AssignedTask:', err);       
