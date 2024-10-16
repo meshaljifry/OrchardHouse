@@ -1,3 +1,4 @@
+// server.js
 const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
@@ -22,9 +23,7 @@ db.connect(err => {
 });
 
 app.get('/api/Item', (req, res) => {
-
   const sql = 'SELECT Name AS name, Description AS description, price FROM Item';
-
   db.query(sql, (err, results) => {
     if (err) {
       return res.status(500).send(err);
@@ -33,18 +32,15 @@ app.get('/api/Item', (req, res) => {
   });
 });
 
-// server.js
 app.get('/api/UserAccount', (req, res) => {
   const username = req.query.username;
   const passwordHash = req.query.passwordHash;
-  // Modified query to join UserAccount with User table to retrieve RoleID
   const query = `
-    SELECT UA.passwordHash, U.RoleID
+    SELECT UA.passwordHash, U.roleID
     FROM AppleOrchardSystem.UserAccount UA
     JOIN AppleOrchardSystem.User U ON UA.userID = U.userID
     WHERE UA.username = ? AND UA.passwordHash = sha2(?, 512)
   `;
-
 
   db.query(query, [username, passwordHash], (err, results) => {
     if (err) {
@@ -54,14 +50,15 @@ app.get('/api/UserAccount', (req, res) => {
     }
 
     if (results.length > 0) {
-      res.json({ message: 'Login successful' });
+      const { passwordHash, roleID } = results[0];
+      console.log('roleID fetched from database:', roleID); // Logging roleID for visibility
+      res.json({ passwordHash, roleID });
     } else {
       res.status(401).send('Incorrect username or password');
     }
   });
 });
 
-// Update a product
 app.put('/api/Item/:id', (req, res) => {
   const { id } = req.params;
   const { name, price } = req.body;
@@ -75,7 +72,6 @@ app.put('/api/Item/:id', (req, res) => {
   });
 });
 
-// Add a new product
 app.post('/api/Item', (req, res) => {
   const { name, price } = req.body;
   const sql = 'INSERT INTO Item (Name, Price) VALUES (?, ?)';
@@ -88,7 +84,6 @@ app.post('/api/Item', (req, res) => {
   });
 });
 
-// Fetch animals from the Animal table
 app.get('/api/getAnimalList', (req, res) => {
   const sql = 'SELECT animalID, name, species, location, statusID FROM Animal';
   db.query(sql, (err, results) => {
@@ -100,7 +95,6 @@ app.get('/api/getAnimalList', (req, res) => {
   });
 });
 
-// Fetch plants from the Plant table
 app.get('/api/getPlantList', (req, res) => {
   const sql = 'SELECT plantID, name, location, statusID FROM Plant';
   db.query(sql, (err, results) => {
@@ -112,7 +106,6 @@ app.get('/api/getPlantList', (req, res) => {
   });
 });
 
-// Fetch supplies from the Supply table
 app.get('/api/getSupplyList', (req, res) => {
   const sql = 'SELECT supplyID, name FROM Supply';
   db.query(sql, (err, results) => {
@@ -124,7 +117,6 @@ app.get('/api/getSupplyList', (req, res) => {
   });
 });
 
-// Fetch reports from the Report table
 app.get('/api/getReportList', (req, res) => {
   const sql = 'SELECT reportID, description FROM Report';
   db.query(sql, (err, results) => {
@@ -135,6 +127,7 @@ app.get('/api/getReportList', (req, res) => {
     res.json(results);
   });
 });
+
 
 // Fetch tasks from the Task table
 app.get('/api/getTasks', (req, res) => {
@@ -151,7 +144,6 @@ app.get('/api/getTasks', (req, res) => {
 // Create a new task
 app.post('/api/createTask', (req, res) => {   
   const {code, name, description, animalID, plantID, supplyID, reportID } = req.body;   
-  var countID;  
   const sql = `INSERT INTO Task (code, name, description, animalID, plantID, supplyID, reportID)     
   VALUES (?, ?, ?, ?, ?, ?, ?)   `;     
   db.query(sql, [code || null, name, description, animalID || null, plantID || null, supplyID || null, reportID || null], (err, result) => {     
@@ -162,8 +154,6 @@ app.post('/api/createTask', (req, res) => {
   res.status(201).send('Task created successfully'); 
   }); 
 });
-
-// Define a default route for the root URL (optional)
 
 app.get('/', (req, res) => {
   res.send('API is running. Use /api/Item to fetch items and /api/UserAccount to handle login.');
