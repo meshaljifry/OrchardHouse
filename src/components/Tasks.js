@@ -265,7 +265,7 @@ const Tasks = () => {
             <TableHeader>
               <TableColumn>TASK ID</TableColumn>
               <TableColumn>NAME</TableColumn>
-              <TableColumn>Description</TableColumn>
+              <TableColumn>DESCRIPTION</TableColumn>
             </TableHeader>
             <TableBody>
               {tasks.map((task) => (
