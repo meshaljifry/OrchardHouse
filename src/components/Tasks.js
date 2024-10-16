@@ -1,4 +1,5 @@
 import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Input, Textarea, Autocomplete, AutocompleteItem} from "@nextui-org/react";
+import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell} from "@nextui-org/react";
 import './Tasks.css';
 import React, { useState, useEffect } from 'react';
 
@@ -14,14 +15,14 @@ const Tasks = () => {
   const [plantValue, setPlantValue] = useState();
   const [supplyValue, setSupplyValue] = useState();
   const [reportValue, setReportValue] = useState();
-
+  const [tasks, setTasks] = useState([]);
   // Fetch Animal, Plant, Supply, and Report Lists
   useEffect(() => {
     fetchAnimals();
     fetchPlants();
     fetchSupplies();
     fetchReports();
-    
+    fetchTasks();
   },[]);
 
   const fetchAnimals = async () => {
@@ -68,6 +69,17 @@ const Tasks = () => {
     }
   };
 
+  const fetchTasks = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/getTasks');
+      const data = await response.json();
+
+      setTasks(data);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
+
   const createTask = async () => {
     newTask.animalID = animalValue;
     newTask.plantID = plantValue;
@@ -82,6 +94,7 @@ const Tasks = () => {
         },
         body: JSON.stringify(newTask),
       });
+      await fetchTasks();
     } catch (error) {
       console.error('Error creating task:', error);
     }
@@ -239,8 +252,33 @@ const Tasks = () => {
               )}
             </ModalContent>
           </Modal>
+        {/* Display tasks below the "Create Task" button */}
+        <div>
+          <h2 className="text-lg font-semibold mt-4">Tasks List</h2>
+          <Table 
+            color={"primary"}
+            selectionMode="single" 
+            defaultSelectedKeys={["2"]} 
+            aria-label="Example static collection table"
+            className="custom-table"
+          >
+            <TableHeader>
+              <TableColumn>TASK ID</TableColumn>
+              <TableColumn>NAME</TableColumn>
+              <TableColumn>DESCRIPTION</TableColumn>
+            </TableHeader>
+            <TableBody>
+              {tasks.map((task) => (
+                <TableRow key={task.id}>
+                  <TableCell>{task.taskID}</TableCell>
+                  <TableCell>{task.name}</TableCell>
+                  <TableCell>{task.description}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-
     );
   }
   export default Tasks;
