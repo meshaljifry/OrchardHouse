@@ -23,12 +23,23 @@ db.connect(err => {
 });
 
 app.get('/api/Item', (req, res) => {
-  const sql = 'SELECT Name AS name, Description AS description, price FROM Item';
+  const sql = 'SELECT Name AS name, Description AS description, price, Image AS image FROM Item';
   db.query(sql, (err, results) => {
     if (err) {
-      return res.status(500).send(err);
+      console.error("Database query error:", err);
+      return res.status(500).send("An error occurred while fetching items");
     }
-    res.json(results);
+
+    // Convert the blob to a Base64 string for each item
+    const items = results.map(item => {
+      return {
+        ...item,
+        image: item.image ? `data:image/png;base64,${item.image.toString('base64')}` : null
+      };
+    });
+
+    res.setHeader('Content-Type', 'application/json');
+    res.json(items);
   });
 });
 
