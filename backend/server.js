@@ -160,7 +160,7 @@ app.post('/api/assignTask', async (req, res) => {
   const {userID, assignerID, taskID, statusID, dateScheduledFor, date} = req.body;   
   const sql = `INSERT INTO AssignedTask (userID, assignerID, taskID, statusID, dateScheduledFor, date)     
   VALUES (?, ?, ?, ?, ?, ?)   `;
-  const values = [userID, assignerID, taskID, statusID, dateScheduledFor || null, date || null];
+  const values = [userID, assignerID, taskID, statusID || 3, dateScheduledFor || null, date || null];
   db.query(sql, values, (err, result) => {     
   if (err) { 
     console.error('Error inserting AssignedTask:', err);       

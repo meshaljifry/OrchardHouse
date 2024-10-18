@@ -118,7 +118,7 @@ const Tasks = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ taskID: selectedTaskID, userID: selectedUser }),
+        body: JSON.stringify({ taskID: selectedTaskID, userID: selectedUser, assignerID: localStorage.getItem('roleID') }),
       });
       await fetchTasks();
     } catch (error) {
