@@ -166,6 +166,33 @@ app.post('/api/createTask', (req, res) => {
   }); 
 });
 
+// Assign Task Endpoint
+app.post('/api/assignTask', async (req, res) => {
+  const {userID, assignerID, taskID, statusID, dateScheduledFor, date} = req.body;   
+  const sql = `INSERT INTO AssignedTask (userID, assignerID, taskID, statusID, dateScheduledFor, date)     
+  VALUES (?, ?, ?, ?, ?, ?)   `;
+  const values = [userID, assignerID, taskID, statusID || 3, dateScheduledFor || null, date || null];
+  db.query(sql, values, (err, result) => {     
+  if (err) { 
+    console.error('Error inserting AssignedTask:', err);       
+    return res.status(500).send('Error inserting AssignedTask'); 
+  } 
+  res.status(201).send('Task created successfully'); 
+  }); 
+});
+
+// Get User List Endpoint
+app.get('/api/getUserList', async (req, res) => {
+  const sql = 'SELECT userID, firstName, lastName FROM User';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error querying the User table:', err);
+      return res.status(500).send('Error querying the User table');
+    }
+    res.json(results);
+  });
+});
+
 app.get('/', (req, res) => {
   res.send('API is running. Use /api/Item to fetch items and /api/UserAccount to handle login.');
 });
