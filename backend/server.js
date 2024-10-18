@@ -23,7 +23,7 @@ db.connect(err => {
 });
 
 app.get('/api/Item', (req, res) => {
-  const sql = 'SELECT Name AS name, Description AS description, price FROM Item';
+  const sql = 'SELECT itemID, Name AS name, Description AS description, price FROM Item';
   db.query(sql, (err, results) => {
     if (err) {
       return res.status(500).send(err);
