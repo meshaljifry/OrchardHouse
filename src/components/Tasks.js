@@ -18,7 +18,7 @@ const Tasks = () => {
   const [supplyValue, setSupplyValue] = useState();
   const [reportValue, setReportValue] = useState();
   const [selectedUser, setSelectedUser] = useState();
-  const [selectedTaskID, setSelectedTaskID] = useState();
+  const [selectedTaskID, setSelectedTaskID] = useState(null); // Selected task ID from highlighted row
   const [tasks, setTasks] = useState([]);
 
   // Fetch Animal, Plant, Supply, Report, User, and Task Lists
@@ -112,6 +112,10 @@ const Tasks = () => {
   };
 
   const assignTask = async () => {
+    if (!selectedTaskID) {
+      alert('Please select a task by highlighting a row');
+      return;
+    }
     try {
       await fetch('http://localhost:5000/api/assignTask', {
         method: 'POST',
@@ -158,9 +162,6 @@ const Tasks = () => {
                   value={newTask.description}
                   onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
                 />
-                {/* Dropdowns for Animal, Plant, Supply, Report */}
-                {/* Autocomplete for each item */}
-                {/* Similar to the original Create Task */}
               </ModalBody>
               <ModalFooter>
                 <Button onPress={onClose}>Close</Button>
@@ -179,18 +180,6 @@ const Tasks = () => {
             <>
               <ModalHeader>Assign Task</ModalHeader>
               <ModalBody>
-                {/* Select Task */}
-                <Autocomplete
-                  label="Select Task"
-                  items={tasks}
-                  selectedKey={selectedTaskID}
-                  onSelectionChange={setSelectedTaskID}
-                >
-                  {tasks.map((task) => (
-                    <AutocompleteItem key={task.taskID}>{task.name}</AutocompleteItem>
-                  ))}
-                </Autocomplete>
-
                 {/* Select User */}
                 <Autocomplete
                   label="Select User"
@@ -198,9 +187,14 @@ const Tasks = () => {
                   selectedKey={selectedUser}
                   onSelectionChange={setSelectedUser}
                 >
-                  {users.map((user) => (
-                    <AutocompleteItem key={user.userID}>{user.firstName} {user.lastName}</AutocompleteItem>
-                  ))}
+                  {users.map((user) => {
+                    const fullName = `${user.firstName} ${user.lastName}`; // Combine first and last name
+                    return (
+                      <AutocompleteItem key={user.userID}>
+                        {fullName}
+                      </AutocompleteItem>
+                    );
+                  })}
                 </Autocomplete>
               </ModalBody>
               <ModalFooter>
@@ -212,14 +206,14 @@ const Tasks = () => {
         </ModalContent>
       </Modal>
 
-      {/* Display tasks below the "Create Task" button */}
+      {/* Display tasks and enable row selection */}
       <div>
         <h2 className="text-lg font-semibold mt-4">Tasks List</h2>
         <Table
           color={"primary"}
           selectionMode="single"
-          defaultSelectedKeys={["2"]}
-          aria-label="Example static collection table"
+          selectedKeys={selectedTaskID ? [selectedTaskID] : []}
+          onSelectionChange={(keys) => setSelectedTaskID(Array.from(keys)[0])} // Handle row selection
         >
           <TableHeader>
             <TableColumn>TASK ID</TableColumn>
