@@ -21,6 +21,10 @@
     padding: 20px;
   }
   
+  .button-spacing {
+    margin-right: 10px;
+  }
+
   .custom-table {
     background-color: transparent;
   }
