@@ -187,6 +187,7 @@ const Tasks = () => {
         body: JSON.stringify({ assignedTaskID: selectedTaskID, comment: comment }),
       });
       await fetchTasks();
+      await fetchComments();
       setComment('');
     } catch (error) {
       console.error('Error assigning task:', error);
