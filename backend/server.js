@@ -152,6 +152,17 @@ app.get('/api/getTasks', (req, res) => {
   });
 });
 
+app.get('/api/getComments', (req, res) => {
+  const sql = 'SELECT assignedTaskID, comment FROM AssignedTaskComment';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error querying the Task table:', err);
+      return res.status(500).send('Error querying the Task table');
+    }
+    res.json(results);
+  });
+});
+
 // Create a new task
 app.post('/api/createTask', (req, res) => {   
   const {code, name, description, animalID, plantID, supplyID, reportID } = req.body;   
@@ -179,6 +190,19 @@ app.post('/api/assignTask', async (req, res) => {
   } 
   res.status(201).send('Task created successfully'); 
   }); 
+});
+
+app.post('/api/commentTask', async (req,res) => {
+  const {assignedTaskID, comment} = req.body;
+  const sql = 'INSERT INTO AssignedTaskComment (assignedTaskID, comment) VALUES (?, ?)';
+  const values = [assignedTaskID, comment]
+  db.query(sql, values, (err, result) =>{
+  if (err) { 
+    console.error('Error inserting AssignedTaskComment:', err);       
+    return res.status(500).send('Error inserting AssignedTaskComment'); 
+  } 
+  res.status(201).send('Task comment created successfully'); 
+  });
 });
 
 // Get User List Endpoint

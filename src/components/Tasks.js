@@ -4,8 +4,9 @@ import './Tasks.css';
 import React, { useState, useEffect } from 'react';
 
 const Tasks = () => {
-  const { isOpen: isCreateOpen, onOpen: onCreateOpen, onOpenChange: onCreateOpenChange } = useDisclosure();
+  const {isOpen, onOpen, onOpenChange} = useDisclosure();
   const { isOpen: isAssignOpen, onOpen: onAssignOpen, onOpenChange: onAssignOpenChange } = useDisclosure();
+  const { isOpen: isCommentOpen, onOpen: onCommentOpen, onOpenChange: onCommentOpenChange } = useDisclosure();
 
   const [animals, setAnimals] = useState([]);
   const [plants, setPlants] = useState([]);
@@ -20,6 +21,8 @@ const Tasks = () => {
   const [selectedUser, setSelectedUser] = useState();
   const [selectedTaskID, setSelectedTaskID] = useState(null); // Selected task ID from highlighted row
   const [tasks, setTasks] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [comment, setComment] = useState('');
 
   // Fetch Animal, Plant, Supply, Report, User, and Task Lists
   useEffect(() => {
@@ -29,6 +32,7 @@ const Tasks = () => {
     fetchReports();
     fetchUsers();
     fetchTasks();
+    fetchComments();
   }, []);
 
   const fetchAnimals = async () => {
@@ -91,6 +95,16 @@ const Tasks = () => {
     }
   };
 
+  const fetchComments = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/getComments');
+      const data = await response.json();
+      setComments(data);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
+
   const createTask = async () => {
     newTask.animalID = animalValue;
     newTask.plantID = plantValue;
@@ -130,6 +144,26 @@ const Tasks = () => {
     }
   };
 
+  const commentOnTask = async () => {
+    if (!selectedTaskID) {
+      alert('Please select a task by highlighting a row');
+      return;
+    }
+    try {
+      await fetch('http://localhost:5000/api/commentTask', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ assignedTaskID: selectedTaskID, comment: comment }),
+      });
+      await fetchTasks();
+      setComment('');
+    } catch (error) {
+      console.error('Error assigning task:', error);
+    }
+  };
+
   const clearNewTask = () => {
     setNewTask({ code: '', name: '', description: '', animalID: '', plantID: '', supplyID: '', reportID: '' });
   };
@@ -137,37 +171,136 @@ const Tasks = () => {
   return (
     <div>
       <h1 className="text-2xl font-semibold mb-4">Tasks</h1>
-
-      {/* 'Create Task' Button and Modal */}
-      <Button onPress={() => { onCreateOpen(); clearNewTask(); }}>Create Task</Button>
-      <Modal isOpen={isCreateOpen} onOpenChange={onCreateOpenChange}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader>Create Task</ModalHeader>
-              <ModalBody>
-                {/* Task Creation Fields */}
-                <Input
-                  label="Enter Task Code"
-                  value={newTask.code}
-                  onChange={(e) => setNewTask({ ...newTask, code: e.target.value })}
-                />
-                <Input
-                  label="Enter Task Title"
-                  value={newTask.name}
-                  onChange={(e) => setNewTask({ ...newTask, name: e.target.value })}
-                />
-                <Textarea
-                  label="Enter Task Description"
-                  value={newTask.description}
-                  onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                />
-              </ModalBody>
-              <ModalFooter>
-                <Button onPress={onClose}>Close</Button>
-                <Button onPress={() => { createTask(); onClose(); }}>Create</Button>
-              </ModalFooter>
-            </>
+      {/* 'Create Task' Button and Pop-up Modal*/}
+      <Button onPress={() => {onOpen(); clearNewTask();}}>Create Task</Button>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+      <ModalContent>
+        {(onClose) => (
+          <>
+            <ModalHeader className="flex flex-col gap-1">Create Task</ModalHeader>
+            <ModalBody>
+              <Input
+                clearable
+                bordered
+                fullWidth
+                color="primary"
+                size="lg"
+                labelPlacement="inside"
+                label="Enter Task Code"
+                id="taskCode"
+                value={newTask.code}
+                onChange={(e) => {setNewTask({ ...newTask, code: e.target.value })}}
+              />
+              <Input
+                clearable
+                isRequired
+                bordered
+                fullWidth
+                color="primary"
+                size="lg"
+                labelPlacement="inside"
+                label="Enter Task Title"
+                id="taskName"
+                onChange={(e) => {setNewTask({ ...newTask, name: e.target.value })}}
+              />
+              <Textarea 
+                maxlength="100"
+                clearable
+                isRequired
+                bordered
+                fullWidth
+                color="primary"
+                size="lg"
+                labelPlacement="inside"
+                label="Enter Task Description"
+                id="taskDescription"
+                onChange={(e) => {setNewTask({ ...newTask, description: e.target.value })}}
+              />
+              Enter the following fields if applicable:
+              <Autocomplete
+                classname="max-w-xs"
+                color="primary"
+                bordered
+                labelPlacement="inside"
+                label="Select an Animal"
+                id="taskAnimal"
+                items={animals}
+                selectedKey={animalValue}
+                onSelectionChange={setAnimalValue}
+                onChange={(e) => setNewTask({ ...newTask, animalID: e.target.animalValue })}
+                >
+                {animals.map((animal) => (
+                  <AutocompleteItem 
+                    key={animal.animalID} 
+                  >
+                    {animal.name}
+                  </AutocompleteItem>
+                ))}
+                </Autocomplete>
+                <Autocomplete
+                labelPlacement="inside"
+                label="Select a Plant"
+                classname="max-w-xs"
+                color="primary"
+                bordered
+                id="taskPlant"
+                items={plants}
+                selectedKey={plantValue}
+                onSelectionChange={setPlantValue}
+                onChange={(e) => setNewTask({ ...newTask, plantID: e.target.plantValue })}
+                >
+                {plants.map((plant) => (
+                  <AutocompleteItem key={plant.plantID}>
+                    {plant.name}
+                  </AutocompleteItem>
+                ))}
+                </Autocomplete>
+                <Autocomplete
+                labelPlacement="inside"
+                label="Select a Supply"
+                classname="max-w-xs"
+                color="primary"
+                bordered
+                id="taskSupply"
+                items={supplies}
+                selectedKey={supplyValue}
+                onSelectionChange={setSupplyValue}
+                onChange={(e) => setNewTask({ ...newTask, supplyID: e.target.supplyValue })}
+                >
+                {supplies.map((supply) => (
+                  <AutocompleteItem key={supply.supplyID}>
+                    {supply.name}
+                  </AutocompleteItem>
+                ))}
+                </Autocomplete>
+                <Autocomplete
+                labelPlacement="inside"
+                label="Select a Report"
+                classname="max-w-xs"
+                color="primary"
+                bordered
+                id="taskReport"
+                items={reports}
+                selectedKey={reportValue}
+                onSelectionChange={setReportValue}
+                onChange={(e) => setNewTask({ ...newTask, reportID: e.target.reportValue })}
+                >
+                {reports.map((report) => (
+                  <AutocompleteItem key={report.reportID}>
+                    {report.description}
+                  </AutocompleteItem>
+                ))}
+                </Autocomplete>
+            </ModalBody>
+            <ModalFooter>
+              <Button color="danger" variant="light" onPress={() => {onClose();}}>
+                Close
+              </Button>
+              <Button disabled={!(newTask.name.length > 1) && !(newTask.description.length > 1)} color="primary" onPress={() => {createTask(); onClose();}}>
+                Create
+              </Button>
+            </ModalFooter>
+          </>
           )}
         </ModalContent>
       </Modal>
@@ -206,12 +339,44 @@ const Tasks = () => {
         </ModalContent>
       </Modal>
 
+      <Button onPress={onCommentOpen}>Comment</Button>
+      <Modal isOpen={isCommentOpen} onOpenChange={onCommentOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader>Comment</ModalHeader>
+              <ModalBody>
+                {/* Write comment */}
+                <Input
+                  clearable
+                  bordered
+                  fullWidth
+                  color="primary"
+                  size="lg"
+                  labelPlacement="inside"
+                  label="Write Comment Here"
+                  id="comment"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                />
+              </ModalBody>
+              <ModalFooter>
+                <Button onPress={onClose}>Close</Button>
+                <Button onPress={() => { commentOnTask(); onClose(); }}>Comment</Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
       {/* Display tasks and enable row selection */}
       <div>
         <h2 className="text-lg font-semibold mt-4">Tasks List</h2>
         <Table
           color={"primary"}
-          selectionMode="single"
+          selectionMode="single" 
+          aria-label="Example static collection table"
+          className="custom-table"
           selectedKeys={selectedTaskID ? [selectedTaskID] : []}
           onSelectionChange={(keys) => setSelectedTaskID(Array.from(keys)[0])} // Handle row selection
         >
@@ -219,6 +384,7 @@ const Tasks = () => {
             <TableColumn>TASK ID</TableColumn>
             <TableColumn>NAME</TableColumn>
             <TableColumn>DESCRIPTION</TableColumn>
+            <TableColumn>COMMENTS</TableColumn>
           </TableHeader>
           <TableBody>
             {tasks.map((task) => (
@@ -226,6 +392,13 @@ const Tasks = () => {
                 <TableCell>{task.taskID}</TableCell>
                 <TableCell>{task.name}</TableCell>
                 <TableCell>{task.description}</TableCell>
+                <TableCell>
+                {comments
+                  .filter((comment) => comment.assignedTaskID === task.taskID)
+                  .map((filteredComment, index) => (
+                    <div key={index}>{filteredComment.comment}</div>
+                  ))}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
