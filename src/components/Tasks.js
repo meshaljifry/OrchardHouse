@@ -167,6 +167,7 @@ const Tasks = () => {
         body: JSON.stringify({ taskID: selectedTaskID, userID: selectedUser, assignerID: localStorage.getItem('roleID') }),
       });
       await fetchTasks();
+      await fetchAssignedTasks();
     } catch (error) {
       console.error('Error assigning task:', error);
     }
