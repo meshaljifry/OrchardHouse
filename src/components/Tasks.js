@@ -21,6 +21,7 @@ const Tasks = () => {
   const [selectedUser, setSelectedUser] = useState();
   const [selectedTaskID, setSelectedTaskID] = useState(null); // Selected task ID from highlighted row
   const [tasks, setTasks] = useState([]);
+  const [comments, setComments] = useState([]);
   const [comment, setComment] = useState('');
 
   // Fetch Animal, Plant, Supply, Report, User, and Task Lists
@@ -31,6 +32,7 @@ const Tasks = () => {
     fetchReports();
     fetchUsers();
     fetchTasks();
+    fetchComments();
   }, []);
 
   const fetchAnimals = async () => {
@@ -88,6 +90,16 @@ const Tasks = () => {
       const response = await fetch('http://localhost:5000/api/getTasks');
       const data = await response.json();
       setTasks(data);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
+
+  const fetchComments = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/getComments');
+      const data = await response.json();
+      setComments(data);
     } catch (error) {
       console.error('Error fetching tasks:', error);
     }
@@ -372,6 +384,7 @@ const Tasks = () => {
             <TableColumn>TASK ID</TableColumn>
             <TableColumn>NAME</TableColumn>
             <TableColumn>DESCRIPTION</TableColumn>
+            <TableColumn>COMMENTS</TableColumn>
           </TableHeader>
           <TableBody>
             {tasks.map((task) => (
@@ -379,6 +392,13 @@ const Tasks = () => {
                 <TableCell>{task.taskID}</TableCell>
                 <TableCell>{task.name}</TableCell>
                 <TableCell>{task.description}</TableCell>
+                <TableCell>
+                {comments
+                  .filter((comment) => comment.assignedTaskID === task.taskID)
+                  .map((filteredComment, index) => (
+                    <div key={index}>{filteredComment.comment}</div>
+                  ))}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

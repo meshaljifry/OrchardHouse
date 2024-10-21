@@ -152,6 +152,17 @@ app.get('/api/getTasks', (req, res) => {
   });
 });
 
+app.get('/api/getComments', (req, res) => {
+  const sql = 'SELECT assignedTaskID, comment FROM AssignedTaskComment';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error querying the Task table:', err);
+      return res.status(500).send('Error querying the Task table');
+    }
+    res.json(results);
+  });
+});
+
 // Create a new task
 app.post('/api/createTask', (req, res) => {   
   const {code, name, description, animalID, plantID, supplyID, reportID } = req.body;   
