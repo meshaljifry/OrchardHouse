@@ -181,6 +181,19 @@ app.post('/api/assignTask', async (req, res) => {
   }); 
 });
 
+app.post('/api/commentTask', async (req,res) => {
+  const {assignedTaskID, comment} = req.body;
+  const sql = 'INSERT INTO AssignedTaskComment (assignedTaskID, comment) VALUES (?, ?)';
+  const values = [assignedTaskID, comment]
+  db.query(sql, values, (err, result) =>{
+  if (err) { 
+    console.error('Error inserting AssignedTaskComment:', err);       
+    return res.status(500).send('Error inserting AssignedTaskComment'); 
+  } 
+  res.status(201).send('Task comment created successfully'); 
+  });
+});
+
 // Get User List Endpoint
 app.get('/api/getUserList', async (req, res) => {
   const sql = 'SELECT userID, firstName, lastName FROM User';
