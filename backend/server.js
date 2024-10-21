@@ -152,6 +152,17 @@ app.get('/api/getTasks', (req, res) => {
   });
 });
 
+app.get('/api/getAssignedTasks', (req, res) => {
+  const sql = 'SELECT assignedTaskID, userID, assignerID, taskID, statusID, dateScheduledFor, date FROM AssignedTask';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error querying the AssignedTask table:', err);
+      return res.status(500).send('Error querying the AssignedTask table');
+    }
+    res.json(results);
+  });
+});
+
 app.get('/api/getComments', (req, res) => {
   const sql = 'SELECT assignedTaskID, comment FROM AssignedTaskComment';
   db.query(sql, (err, results) => {
@@ -190,6 +201,19 @@ app.post('/api/assignTask', async (req, res) => {
   } 
   res.status(201).send('Task created successfully'); 
   }); 
+});
+
+app.put('/api/TaskStatus/:taskID', (req, res) => {
+  const { taskID } = req.params;
+  const { statusID } = req.body;
+  const sql = 'UPDATE AssignedTask SET statusID = ? WHERE taskID = ?';
+  db.query(sql, [statusID, taskID], (err, results) => {
+    if (err) {
+      console.error('Error updating product:', err);
+      return res.status(500).send('Error updating product');
+    }
+    res.sendStatus(200);
+  });
 });
 
 app.post('/api/commentTask', async (req,res) => {

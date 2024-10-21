@@ -21,6 +21,7 @@ const Tasks = () => {
   const [selectedUser, setSelectedUser] = useState();
   const [selectedTaskID, setSelectedTaskID] = useState(null); // Selected task ID from highlighted row
   const [tasks, setTasks] = useState([]);
+  const [assignedTasks, setAssignedTasks] = useState([]);
   const [comments, setComments] = useState([]);
   const [comment, setComment] = useState('');
 
@@ -33,6 +34,7 @@ const Tasks = () => {
     fetchUsers();
     fetchTasks();
     fetchComments();
+    fetchAssignedTasks();
   }, []);
 
   const fetchAnimals = async () => {
@@ -105,6 +107,32 @@ const Tasks = () => {
     }
   };
 
+  const fetchAssignedTasks = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/getAssignedTasks');
+      const data = await response.json();
+      setAssignedTasks(data);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
+
+  const updateStatus = async () => {
+    try {
+      await fetch(`http://localhost:5000/api/TaskStatus/${selectedTaskID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ statusID: 4 }),
+      });
+      await fetchTasks();
+      await fetchAssignedTasks();
+    } catch (error) {
+      console.error('Error updating product:', error);
+    }
+  };
+
   const createTask = async () => {
     newTask.animalID = animalValue;
     newTask.plantID = plantValue;
@@ -172,7 +200,7 @@ const Tasks = () => {
     <div>
       <h1 className="text-2xl font-semibold mb-4">Tasks</h1>
       {/* 'Create Task' Button and Pop-up Modal*/}
-      <Button onPress={() => {onOpen(); clearNewTask();}}>Create Task</Button>
+      <Button onPress={() => {onOpen(); clearNewTask();}} className="button-spacing">Create Task</Button>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
       <ModalContent>
         {(onClose) => (
@@ -306,7 +334,7 @@ const Tasks = () => {
       </Modal>
 
       {/* 'Assign Task' Button and Modal */}
-      <Button onPress={onAssignOpen}>Assign Task</Button>
+      <Button onPress={onAssignOpen} className="button-spacing">Assign Task</Button>
       <Modal isOpen={isAssignOpen} onOpenChange={onAssignOpenChange}>
         <ModalContent>
           {(onClose) => (
@@ -339,7 +367,7 @@ const Tasks = () => {
         </ModalContent>
       </Modal>
 
-      <Button onPress={onCommentOpen}>Comment</Button>
+      <Button onPress={onCommentOpen} className="button-spacing">Comment</Button>
       <Modal isOpen={isCommentOpen} onOpenChange={onCommentOpenChange}>
         <ModalContent>
           {(onClose) => (
@@ -369,6 +397,8 @@ const Tasks = () => {
         </ModalContent>
       </Modal>
 
+      <Button onPress={updateStatus} className="button-spacing">Mark Complete</Button>
+
       {/* Display tasks and enable row selection */}
       <div>
         <h2 className="text-lg font-semibold mt-4">Tasks List</h2>
@@ -384,6 +414,7 @@ const Tasks = () => {
             <TableColumn>TASK ID</TableColumn>
             <TableColumn>NAME</TableColumn>
             <TableColumn>DESCRIPTION</TableColumn>
+            <TableColumn>STATUS</TableColumn>
             <TableColumn>COMMENTS</TableColumn>
           </TableHeader>
           <TableBody>
@@ -392,6 +423,15 @@ const Tasks = () => {
                 <TableCell>{task.taskID}</TableCell>
                 <TableCell>{task.name}</TableCell>
                 <TableCell>{task.description}</TableCell>
+                <TableCell>
+                  {assignedTasks
+                  .filter((assignedTask) => assignedTask.taskID === task.taskID)
+                  .map((filteredAssignedTask, index) => (
+                    <div key={index}>
+                      {filteredAssignedTask.statusID === 3 ? 'Incomplete' : filteredAssignedTask.statusID === 4 ? 'Complete' : ''}
+                    </div>
+                  ))}
+                </TableCell>
                 <TableCell>
                 {comments
                   .filter((comment) => comment.assignedTaskID === task.taskID)
