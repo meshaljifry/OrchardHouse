@@ -4,22 +4,30 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Input, Avatar, Badge, Button } from '@nextui-org/react';
 import Logo from '../ohlogo.png';
 import Test from './LoginButton';
+import Dashboard from './Dashboard';
+import EmployeeDashboard from './EmployeeDashboard';
+import UserDashboard from './UserDashboard';
 import './Layout.css';
 
 export default function Layout({ children }) {
   const [username, setUsername] = useState(localStorage.getItem('username'));
+  const [roleID, setRoleID] = useState(localStorage.getItem('roleID'));
   const navigate = useNavigate();
 
-  const fetchUsername = () => {
+  // Fetch user data on component mount
+  const fetchUserData = () => {
     const storedUsername = localStorage.getItem('username');
+    const storedRoleID = localStorage.getItem('roleID');
     setUsername(storedUsername);
+    setRoleID(storedRoleID);
   };
 
+  // Update user data on component mount and when localStorage changes
   useEffect(() => {
-    fetchUsername();
+    fetchUserData();
 
     const handleStorageChange = () => {
-      fetchUsername();
+      fetchUserData();
     };
     window.addEventListener('storage', handleStorageChange);
 
@@ -28,10 +36,52 @@ export default function Layout({ children }) {
     };
   }, []);
 
+  // Handle logout by clearing localStorage and navigating to login page
   const handleLogout = () => {
     localStorage.removeItem('username');
+    localStorage.removeItem('roleID');
     setUsername(null);
+    setRoleID(null);
     navigate('/login');
+  };
+
+  // Render the appropriate dashboard based on roleID
+  const renderDashboard = () => {
+    if (roleID === '1' || roleID === '2') {
+      return <Dashboard />;
+    } else if (roleID === '3') {
+      return <EmployeeDashboard />;
+    } else {
+      return <UserDashboard />;
+    }
+  };
+
+  // Render sidebar menu based on roleID
+  const renderSidebarMenu = () => {
+    if (roleID === '1' || roleID === '2') {
+      return (
+        <>
+          <li><Link to="/" className="sidebar-link">Dashboard</Link></li>
+          <li><Link to="/products" className="sidebar-link">Products</Link></li>
+          <li><Link to="/scheduler" className="sidebar-link">Scheduler</Link></li>
+          <li><Link to="/tasks" className="sidebar-link">Tasks</Link></li>
+        </>
+      );
+    } else if (roleID === '3') {
+      return (
+        <>
+          <li><Link to="/" className="sidebar-link">Dashboard</Link></li>
+          <li><Link to="/tasks" className="sidebar-link">Tasks</Link></li>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <li><Link to="/" className="sidebar-link">Dashboard</Link></li>
+          <li><Link to="/products" className="sidebar-link">Products</Link></li>
+        </>
+      );
+    }
   };
 
   return (
@@ -41,18 +91,12 @@ export default function Layout({ children }) {
           <div>
             <img src={Logo} alt="Logo" className="sidebar-logo" />
             <ul className="sidebar-menu">
-              <li><Link to="/" className="sidebar-link">Dashboard</Link></li>
-              <li><Link to="/products" className="sidebar-link">Products</Link></li>
-              <li><Link to="/scheduler" className="sidebar-link">Scheduler</Link></li>
-              <li><Link to="/tasks" className="sidebar-link">Tasks</Link></li>
+              {renderSidebarMenu()}
             </ul>
             <h3 className="sidebar-heading">Others</h3>
             <ul className="sidebar-menu">
-              <li><Link to="/settings" className="sidebar-link">Settings</Link></li>
-              <li><Link to="/payments" className="sidebar-link">Payments</Link></li>
-              <li><Link to="/accounts" className="sidebar-link">Accounts</Link></li>
               <li><Link to="/help" className="sidebar-link">Help</Link></li>
-              <Link to="/register" className="sidebar-link">Register</Link>
+              {!username && <li><Link to="/login" className="sidebar-link">Login</Link></li>}
               <Test />
             </ul>
           </div>
@@ -95,7 +139,7 @@ export default function Layout({ children }) {
           </div>
 
           <div className="page-content">
-            {children}
+            {children ? children : renderDashboard()}
           </div>
         </div>
       </div>
