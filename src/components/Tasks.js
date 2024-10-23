@@ -340,7 +340,7 @@ const Tasks = () => {
       </Modal>
 
       {/* 'Assign Task' Button and Modal */}
-      <Button onPress={onAssignOpen}>Assign Task</Button>
+      <Button onPress={onAssignOpen} className="button-spacing">Assign Task</Button>
       <Modal isOpen={isAssignOpen} onOpenChange={onAssignOpenChange}>
         <ModalContent>
           {(onClose) => (
