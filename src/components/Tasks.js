@@ -2,6 +2,7 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDi
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react";
 import './Tasks.css';
 import React, { useState, useEffect } from 'react';
+import { filter } from "framer-motion/m";
 
 const Tasks = () => {
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
@@ -24,6 +25,9 @@ const Tasks = () => {
   const [assignedTasks, setAssignedTasks] = useState([]);
   const [comments, setComments] = useState([]);
   const [comment, setComment] = useState('');
+  const [dateScheduledFor, setDateScheduledFor] = useState('');
+  const currentDate = new Date();
+  const formattedDate = currentDate.toISOString().split('T')[0];
 
   // Fetch the logged-in user's userID and roleID
   const loggedInUserID = localStorage.getItem('userID');
@@ -169,7 +173,7 @@ const Tasks = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ taskID: selectedTaskID, userID: selectedUser, assignerID: localStorage.getItem('roleID') }),
+        body: JSON.stringify({ taskID: selectedTaskID, userID: selectedUser, assignerID: localStorage.getItem('roleID'), dateScheduledFor: dateScheduledFor, date: formattedDate }),
       });
       await fetchTasks();
       await fetchAssignedTasks();
@@ -371,6 +375,13 @@ const Tasks = () => {
                     );
                   })}
                 </Autocomplete>
+                {/* Select Date for Task */}
+                <Input
+                  label="Choose Scheduled Date"
+                  type="date"
+                  value={dateScheduledFor}
+                  onChange={(e) => setDateScheduledFor(e.target.value)}
+                />
               </ModalBody>
               <ModalFooter>
                 <Button onPress={onClose}>Close</Button>
@@ -433,6 +444,7 @@ const Tasks = () => {
               <TableColumn>NAME</TableColumn>
               <TableColumn>DESCRIPTION</TableColumn>
               <TableColumn>STATUS</TableColumn>
+              <TableColumn>DATE SCHEDULED FOR</TableColumn>
               <TableColumn>COMMENTS</TableColumn>
             </TableHeader>
             <TableBody>
@@ -448,6 +460,13 @@ const Tasks = () => {
                       <div key={index}>
                         {filteredAssignedTask.statusID === 3 ? 'Incomplete' : filteredAssignedTask.statusID === 4 ? 'Complete' : ''}
                       </div>
+                    ))}
+                  </TableCell>
+                  <TableCell>
+                    {assignedTasks
+                    .filter((assignedTask) => assignedTask.taskID === task.taskID)
+                    .map((filteredAssignedTask, index) => (
+                      <div key={index}>{new Date(filteredAssignedTask.dateScheduledFor).toISOString().split('T')[0]}</div>
                     ))}
                   </TableCell>
                   <TableCell>
