@@ -29,7 +29,6 @@ const EmployeeDashboard = () => {
   const [productValue, setProductValue] = useState();
   const [selectedPayment, setSelectedPayment] = useState("card");
   const [payment, setPayment] = useState({paymentType: '', cardNumber: '', cardExpiration: '', cardCode: '', cashGiven: ''});
-  const [transactionID, setTransactionId] = useState();
   const [newTransaction, setNewTransaction] = useState({date: '', userID: ''});
 
   useEffect(() => {
@@ -53,11 +52,11 @@ const EmployeeDashboard = () => {
     if (selectedPayment === "cash") {
       cardDiv.style.display = "block";
       cashDiv.style.display = "none";
-      setPayment({...payment, paymentType: "cash"})
+      setPayment({...payment, paymentType: "card"})
     } else {
       cardDiv.style.display = "none";
       cashDiv.style.display = "block";
-      setPayment({...payment, paymentType: "card"})
+      setPayment({...payment, paymentType: "cash"})
     }
   }
 
@@ -99,11 +98,20 @@ const EmployeeDashboard = () => {
     }
   }
 
-  // const handlePosSubmit = () => {
-  //   // Here, we would normally handle payment submission logic
-  //   console.log('POS data submitted:', posInput);
-  //   setPosInput({ itemNumber: '', price: '', creditCard: '' });
-  // };
+  const clearTransaction = () => {
+    payment.cardNumber = '';
+    payment.cardExpiration = '';
+    payment.cardCode = '';
+    payment.cashGiven = '';
+    payment.cashGiven = '';
+    setCart((cart).filter(item => item.itemID === -1));
+    document.getElementById('cardNumber').value = '';
+    document.getElementById('cardExpiration').value = '';
+    document.getElementById('cardCode').value = '';
+    document.getElementById('cashGiven').value = '';
+    document.getElementById('changeGiven').value = '';
+    document.getElementById('search').value = '';
+  }
 
   const handlePOSSubmit = async () => {
     //Handle Transaction and Payment Submission Logic
@@ -113,59 +121,38 @@ const EmployeeDashboard = () => {
     //Check to ensure that the transaction is full and has data
     if (cart.size < 1) {
       //cart is empty
+      alert('Please add an item to the transaction')
       safeToSubmit = false;
     }
 
     if (payment.paymentType === null) {
       //payment is empty
       safeToSubmit = false;
-      //alert("Please include payment information");
+      alert('Please submit payment information');
     }
 
     if (safeToSubmit) {
     //submit transaction and recieve id back
-      const current = new Date();
+      //const current = new Date();
       newTransaction.date = null; //"10/23/2024";//current.getDate();
       newTransaction.userID = 3; //localStorage.getItem("userID") 
       newTransaction.cart = cart;
+      newTransaction.paymentType = payment.paymentType;
+      newTransaction.cardNumber = payment.cardNumber;
+      newTransaction.cardExpiration = payment.cardExpiration;
+      newTransaction.cardCode = payment.cardCode;
       try {
-        const response = await fetch('http://localhost:5000/api/createTransaction', {
+        await fetch('http://localhost:5000/api/createTransaction', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(newTransaction),
         });
-        const data = await response.json();
-        setTransactionId(data);
       } catch (error) {
         console.error('Error creating transaction:');
       }
-      //submit transaction items
-      // try {
-      //   await fetch('http://localhost:5000/api/createTransactionItem', {
-      //     method: 'POST',
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //     },
-      //     body: JSON.stringify(transactionID + cart),
-      //   });
-      // } catch (error) {
-      //   console.error('Error creating transactionItem:', error);
-      // }
 
-      // //submit payment
-      // try {
-      //   await fetch('http://localhost:5000/api/createPayment', {
-      //     method: 'POST',
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //     },
-      //     body: JSON.stringify(transactionID + payment),
-      //   });
-      // } catch (error) {
-      //   console.error('Error creating payment:', error);
-      // }
     }
   };
 
@@ -250,9 +237,8 @@ const EmployeeDashboard = () => {
       <div className="dashboard-item pos-system" onClick={onOpen}>
         <Modal 
           isOpen={isOpen} 
-          onOpenChange={onOpenChange}
+          onOpenChange={() => {onOpenChange(); handlePaymentOptionVisibility();}}
           size="full" //maybe change based on inputs
-
         >
         <ModalContent>
         {(onClose) => (
@@ -263,11 +249,12 @@ const EmployeeDashboard = () => {
                 <ModalBody>
                 <div className="flex w-full flex-wrap md:flex-nowrap mb-6 md:mb-0 gap-4" >
                 {/* Search for Product or Scan Products Into Here */}
-                <Autocomplete
+                <Spacer x='10'/><Autocomplete
                     labelPlacement="inside"
                     placeholder="Search products..."
                     classname="max-w-xs"
                     bordered
+                    id="search"
                     defaultItems={products}
                     className="max-w-xs"
                     selectedKey={productValue}
@@ -288,80 +275,82 @@ const EmployeeDashboard = () => {
                     Add Product to Transaction
                     </Button>
                   </div>
-                {/* See Selected Products */}
-                <Table aria-label="Example empty table" >
-                  <TableHeader>
-                    <TableColumn key="name">Product</TableColumn>
-                    <TableColumn key="height">Unit Price</TableColumn>
-                    <TableColumn key="quantity">Quantity</TableColumn>
-                    <TableColumn>Product Total</TableColumn>
-                    <TableColumn>Actions</TableColumn>
-                  </TableHeader>
-                  <TableBody 
-                    emptyContent={"Search for a product to add to the transaction."}
-                    items={cart}
-                  >
-                  {(item) => (
-                      <TableRow key={item.itemID}>
-                        <TableCell>{item.name}</TableCell>
-                        <TableCell>${item.price.toFixed(2)}</TableCell>
-                        <TableCell>{item.quantity}</TableCell>
-                        <TableCell>${(item.price * item.quantity).toFixed(2)}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-3 items-center">
-                            <Button
-                              className="quantity-button"
-                              onClick={() => handleCartQuantityChange(item.itemID, +1)}
-                              size="sm"
-                              color="success"
-                            >
-                              +
-                            </Button>
-                            <Button
-                              className="quantity-button"
-                              onClick={() => handleCartQuantityChange(item.itemID, -1)}
-                              size="sm"
-                              color="warning"
-                            >
-                              -
-                            </Button>
-                            <Button
-                              className="quantity-button"
-                              onClick={() => handleCartQuantityChange(item.itemID, 0)}
-                              size="sm"
-                              color="danger"
-                            >
-                              Delete
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                  )}
-                  </TableBody>
-                </Table>
-
-                <Table hideHeader aria-label="Example empty table">
-                  <TableHeader>
-                    <TableColumn></TableColumn>
-                    <TableColumn></TableColumn>
-                  </TableHeader>
-                  <TableBody emptyContent={"No rows to display."}>
-                    <TableRow key="PreTotal">
-                      <TableCell>Pre-Tax Total</TableCell>
-                      <TableCell>${calculateTotal(0)}</TableCell>
-                    </TableRow>
-                    <TableRow key="Tax">
-                      <TableCell>Tax</TableCell>
-                      <TableCell>${calculateTotal(1)}</TableCell>
-                    </TableRow>
-                    <TableRow key="Total">
-                      <TableCell>Combined Total</TableCell>
-                      <TableCell>${calculateTotal(2)}</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-                
-                  <RadioGroup
+                <div className="dashboard-container">
+                    <div className="dashboard-item">
+                      <Table aria-label="Example empty table">
+                        <TableHeader>
+                          <TableColumn key="name">Product</TableColumn>
+                          <TableColumn key="height">Unit Price</TableColumn>
+                          <TableColumn key="quantity">Quantity</TableColumn>
+                          <TableColumn>Product Total</TableColumn>
+                          <TableColumn>Actions</TableColumn>
+                        </TableHeader>
+                        <TableBody 
+                          emptyContent={"Search for a product to add to the transaction."}
+                          items={cart}
+                        >
+                        {(item) => (
+                          <TableRow key={item.itemID}>
+                            <TableCell>{item.name}</TableCell>
+                            <TableCell>${item.price.toFixed(2)}</TableCell>
+                            <TableCell>{item.quantity}</TableCell>
+                            <TableCell>${(item.price * item.quantity).toFixed(2)}</TableCell>
+                            <TableCell>
+                              <div className="flex gap-3 items-center">
+                                <Button
+                                  className="quantity-button"
+                                  onClick={() => handleCartQuantityChange(item.itemID, +1)}
+                                  size="sm"
+                                  color="success"
+                                >
+                                  +
+                                </Button>
+                                <Button
+                                  className="quantity-button"
+                                  onClick={() => handleCartQuantityChange(item.itemID, -1)}
+                                  size="sm"
+                                  color="warning"
+                                >
+                                  -
+                                </Button>
+                                <Button
+                                  className="quantity-button"
+                                  onClick={() => handleCartQuantityChange(item.itemID, 0)}
+                                  size="sm"
+                                  color="danger"
+                                >
+                                  Delete
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    <div className='dashboarditem'>
+                      <Table hideHeader aria-label="Example empty table">
+                        <TableHeader>
+                          <TableColumn></TableColumn>
+                          <TableColumn></TableColumn>
+                        </TableHeader>
+                        <TableBody emptyContent={"No rows to display."}>
+                          <TableRow key="PreTotal">
+                            <TableCell>Pre-Tax Total</TableCell>
+                            <TableCell>${calculateTotal(0)}</TableCell>
+                          </TableRow>
+                          <TableRow key="Tax">
+                            <TableCell>Tax</TableCell>
+                            <TableCell>${calculateTotal(1)}</TableCell>
+                          </TableRow>
+                          <TableRow key="Total">
+                            <TableCell>Combined Total</TableCell>
+                            <TableCell>${calculateTotal(2)}</TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                      <Spacer y="2"/>
+                      <RadioGroup
                     label="Select Mode of Payment"
                     orientation='horizontal'
                     onValueChange={setSelectedPayment}
@@ -377,6 +366,7 @@ const EmployeeDashboard = () => {
                     label="Card Number"
                     isClearable
                     bordered
+                    size="md"
                     placeholder='xxxxxxxxxxxxxxxx'
                     labelPlacement='outside-left'
                     value={payment.cardNumber}
@@ -388,6 +378,7 @@ const EmployeeDashboard = () => {
                     label="Card Expiration Date"
                     isClearable
                     bordered
+                    size="md"
                     labelPlacement='outside-left'
                     placeholder='x/xx'
                     value={payment.cardExpiration}
@@ -399,12 +390,15 @@ const EmployeeDashboard = () => {
                     label="Card Security Code"
                     isClearable
                     bordered
+                    size="md"
                     placeholder="xxx"
                     labelPlacement='outside-left'
                     value={payment.cardCode}
                     onChange={(e) => {setPayment({...payment,cardCode: e.target.value})}}
                   />
                   </div>
+                  <Spacer y='2.5' />
+                  <div bordered>
                   <div id="cashDiv">
                     <Input
                       id="cashGiven"
@@ -415,6 +409,7 @@ const EmployeeDashboard = () => {
                       labelPlacement='outside-left'
                       value={payment.cashGiven}
                       type="number"
+                      size="md"
                       startContent={
                         <div className="pointer-events-none flex items-center">
                           <span className="text-default-400 text-small">$</span>
@@ -431,6 +426,7 @@ const EmployeeDashboard = () => {
                       labelPlacement='outside-left'
                       type="number"
                       placeholder='0.00'
+                      size="md"
                       value={(payment.cashGiven - calculateTotal(2)).toFixed(2)}
                       startContent={
                         <div className="pointer-events-none flex items-center">
@@ -439,6 +435,10 @@ const EmployeeDashboard = () => {
                       }
                     /> 
                   </div>
+                  </div>
+                    </div>
+                </div>
+                {/* See Selected Products */}
                 </ModalBody>
                 <ModalFooter>
                    <Button 
@@ -452,10 +452,10 @@ const EmployeeDashboard = () => {
                   <Spacer x="2.5"/>
                   <Button
                    color="primary" 
-                   onPress={() => {handlePOSSubmit();}}
+                   onPress={() => {handlePOSSubmit(); clearTransaction();}}
                    size="lg"
                   >
-                    Submit Transaction - Change to not close the screen
+                    Submit Transaction
                   </Button>
                 </ModalFooter>
               </>
@@ -463,7 +463,7 @@ const EmployeeDashboard = () => {
           </ModalContent>
         </Modal>
         <h3>POS System</h3>
-        <p>Image of POS Modal Here Possibly Idk</p>
+        <p>Open the POS system to assist a customer take home their purchases.</p>
       </div>
       
     </div>

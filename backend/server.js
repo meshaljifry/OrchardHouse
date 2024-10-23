@@ -160,7 +160,7 @@ app.post('/api/createTask', (req, res) => {
 // });
 
 app.post('/api/createTransaction', (req, res) => {
-  const { date, userID, cart } = req.body;
+  const { date, userID, cart, paymentType, cardNumber, cardExpiration, cardCode} = req.body;
 
   // Insert into the Transaction table
   const insertTransactionSql = `INSERT INTO Transaction (date, userID) VALUES (?, ?)`;
@@ -173,7 +173,8 @@ app.post('/api/createTransaction', (req, res) => {
     //Get transactionID Back
     const transactionID = result.insertId; // Get the last inserted ID
 
-    const insertTransactionItemSql = `INSERT INTO TransactionItem (transactionID, itemID, cartRentalID, price, discountID, quantity) VALUES (?)`;
+    // Insert into the TransactionItem table
+    const insertTransactionItemSql = `INSERT INTO TransactionItem (transactionID, itemID, cartRentalID, unitPrice, discountID, quantity) VALUES ?`;
 
     const itemsToInsert = cart.map(item => [transactionID, item.itemID || null, item.cartRentalID || null, item.price, item.discountID || null, item.quantity]);
 
@@ -181,25 +182,21 @@ app.post('/api/createTransaction', (req, res) => {
       if (err) {
         console.error('Error inserting transaction items:', err);
       }
-
       res.status(201).json({ transactionID, message: 'Transaction created successfully' });
+    });
+
+    // Insert into the TransactionPayment table
+    const insertTransactionPaymentSql = `INSERT INTO TransactionPayment (transactionID, paymentType, cardNumber, cardExpiration, cardCode) VALUES (?, ?, ?, ?, ?)`;
+
+    db.query(insertTransactionPaymentSql, [transactionID, paymentType, cardNumber || null, cardExpiration || null, cardCode || null] , (err, result) => {
+      if (err) {
+        console.error('Error inserting transaction:', err);
+        return res.status(500).send('Error inserting transaction');
+      }
+    });
+
   });
 });
-});
-
-
-// app.post('/api/createTransactionItem', (req, res) => {   
-//   const {transactionID, itemID, cartRentalID, price, discountID, quantity } = req.body;   
-//   const sql = `INSERT INTO TransactionItem (transactionID, itemID, cartRentalID, price, discountID)   
-//   VALUES (?, ?, ?, ?, ?)   `;     
-//   db.query(sql, [transactionID, itemID || null, cartRentalID || null, price, discountID || null], (err, result) => {    //fix row  
-//   if (err) { 
-//     console.error('Error inserting transaction item:', err);       
-//     return res.status(500).send('Error inserting transaction item'); 
-//   } 
-//   res.status(201).send('TransactionItem created successfully'); 
-//   }); 
-// });
 
 // app.post('/api/createPayment', (req, res) => {   
 //   const {transactionID, paymentType, cardNumber, cardExpiration, cardCode } = req.body;   
