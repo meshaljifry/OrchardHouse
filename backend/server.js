@@ -141,6 +141,80 @@ app.post('/api/createTask', (req, res) => {
   }); 
 });
 
+// app.post('/api/createTransaction', (req, res) => {   
+//   const {date, userID } = req.body;   
+//   const sql = `CREATE TEMPORARY TABLE OutputTbl (transactionID INT) 
+//   INSERT INTO Transaction (date, userID) 
+//   VALUES (?, ?);
+//   INSERT INTO OutputTbl (transactionID)
+//   VALUES (LAST_INSERT_ID());
+//   SELECT * FROM OutputTbl`;     
+//   db.query(sql, [date || null, userID], (err, result) => {     
+//   if (err) { 
+//     console.error('Error inserting transaction:', err);       
+//     return res.status(500).send('Error inserting transaction'); 
+//   } 
+//   res.status(201).send('Transaction created successfully'); 
+//   res.json(result); //send transactionID back
+//   }); 
+// });
+
+app.post('/api/createTransaction', (req, res) => {
+  const { date, userID, cart } = req.body;
+
+  // Insert into the Transaction table
+  const insertTransactionSql = `INSERT INTO Transaction (date, userID) VALUES (?, ?)`;
+  
+  db.query(insertTransactionSql, [date || null, userID], (err, result) => {
+    if (err) {
+      console.error('Error inserting transaction:', err);
+      return res.status(500).send('Error inserting transaction');
+    }
+    //Get transactionID Back
+    const transactionID = result.insertId; // Get the last inserted ID
+
+    const insertTransactionItemSql = `INSERT INTO TransactionItem (transactionID, itemID, cartRentalID, price, discountID, quantity) VALUES (?)`;
+
+    const itemsToInsert = cart.map(item => [transactionID, item.itemID || null, item.cartRentalID || null, item.price, item.discountID || null, item.quantity]);
+
+    db.query(insertTransactionItemSql, [itemsToInsert], (err) => {
+      if (err) {
+        console.error('Error inserting transaction items:', err);
+      }
+
+      res.status(201).json({ transactionID, message: 'Transaction created successfully' });
+  });
+});
+});
+
+
+// app.post('/api/createTransactionItem', (req, res) => {   
+//   const {transactionID, itemID, cartRentalID, price, discountID, quantity } = req.body;   
+//   const sql = `INSERT INTO TransactionItem (transactionID, itemID, cartRentalID, price, discountID)   
+//   VALUES (?, ?, ?, ?, ?)   `;     
+//   db.query(sql, [transactionID, itemID || null, cartRentalID || null, price, discountID || null], (err, result) => {    //fix row  
+//   if (err) { 
+//     console.error('Error inserting transaction item:', err);       
+//     return res.status(500).send('Error inserting transaction item'); 
+//   } 
+//   res.status(201).send('TransactionItem created successfully'); 
+//   }); 
+// });
+
+// app.post('/api/createPayment', (req, res) => {   
+//   const {transactionID, paymentType, cardNumber, cardExpiration, cardCode } = req.body;   
+//   const sql = `INSERT INTO Payment (transactionID, paymentType, cardNumber, cardExpiration, cardCode)   
+//   VALUES (?, ?, ?, ?, ?)   `;     
+//   db.query(sql, [transactionID, paymentType, cardNumber || null, cardExpiration || null, cardCode || null], (err, result) => {  
+//   if (err) { 
+//     console.error('Error inserting payment', err);       
+//     return res.status(500).send('Error inserting payment'); 
+//   } 
+//   res.status(201).send('Payment created successfully'); 
+//   }); 
+// });
+
+
 app.get('/', (req, res) => {
   res.send('API is running. Use /api/Item to fetch items and /api/UserAccount to handle login.');
 });
