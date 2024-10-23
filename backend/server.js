@@ -45,9 +45,10 @@ app.get('/api/Item', (req, res) => {
 
 app.get('/api/UserAccount', (req, res) => {
   const username = req.query.username;
+ 
   const passwordHash = req.query.passwordHash;
   const query = `
-    SELECT UA.passwordHash, U.roleID
+    SELECT UA.passwordHash, U.roleID , UA.userID
     FROM AppleOrchardSystem.UserAccount UA
     JOIN AppleOrchardSystem.User U ON UA.userID = U.userID
     WHERE UA.username = ? AND UA.passwordHash = sha2(?, 512)
@@ -61,9 +62,10 @@ app.get('/api/UserAccount', (req, res) => {
     }
 
     if (results.length > 0) {
-      const { passwordHash, roleID } = results[0];
-      console.log('roleID fetched from database:', roleID); // Logging roleID for visibility
-      res.json({ passwordHash, roleID });
+      const { passwordHash, roleID,userID } = results[0];
+      console.log('roleID fetched from database:', roleID);
+      console.log('userID fetched from database:', userID); // Logging roleID for visibility
+      res.json({ passwordHash, roleID,userID });
     } else {
       res.status(401).send('Incorrect username or password');
     }
@@ -162,6 +164,9 @@ app.get('/api/getAssignedTasks', (req, res) => {
     res.json(results);
   });
 });
+
+
+
 
 app.get('/api/getComments', (req, res) => {
   const sql = 'SELECT assignedTaskID, comment FROM AssignedTaskComment';

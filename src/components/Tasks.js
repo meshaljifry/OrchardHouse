@@ -25,6 +25,10 @@ const Tasks = () => {
   const [comments, setComments] = useState([]);
   const [comment, setComment] = useState('');
 
+  // Fetch the logged-in user's userID and roleID
+  const loggedInUserID = localStorage.getItem('userID');
+  const roleID = localStorage.getItem('roleID'); // Fetch roleID to check if the user is admin
+
   // Fetch Animal, Plant, Supply, Report, User, and Task Lists
   useEffect(() => {
     fetchAnimals();
@@ -108,12 +112,13 @@ const Tasks = () => {
   };
 
   const fetchAssignedTasks = async () => {
+    const loggedInUserID = localStorage.getItem('userID'); // Get the logged-in user ID
     try {
-      const response = await fetch('http://localhost:5000/api/getAssignedTasks');
+      const response = await fetch(`http://localhost:5000/api/getAssignedTasks?userID=${loggedInUserID}`);
       const data = await response.json();
       setAssignedTasks(data);
     } catch (error) {
-      console.error('Error fetching tasks:', error);
+      console.error('Error fetching assigned tasks:', error);
     }
   };
 
@@ -198,10 +203,17 @@ const Tasks = () => {
     setNewTask({ code: '', name: '', description: '', animalID: '', plantID: '', supplyID: '', reportID: '' });
   };
 
+  // Filter tasks for the logged-in user if not an admin (roleID !== 1)
+  const userAssignedTasks = roleID === '1' ? tasks : tasks.filter(task => 
+    assignedTasks.some(assignedTask => 
+      assignedTask.taskID === task.taskID && assignedTask.userID === parseInt(loggedInUserID)
+    )
+  );
+
   return (
     <div>
       <h1 className="text-2xl font-semibold mb-4">Tasks</h1>
-      {/* 'Create Task' Button and Pop-up Modal*/}
+      {/* 'Create Task' Button and Pop-up Modal */}
       <Button onPress={() => {onOpen(); clearNewTask();}} className="button-spacing">Create Task</Button>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
       <ModalContent>
@@ -403,48 +415,53 @@ const Tasks = () => {
 
       {/* Display tasks and enable row selection */}
       <div>
-        <h2 className="text-lg font-semibold mt-4">Tasks List</h2>
-        <Table
-          color={"primary"}
-          selectionMode="single" 
-          aria-label="Example static collection table"
-          className="custom-table"
-          selectedKeys={selectedTaskID ? [selectedTaskID] : []}
-          onSelectionChange={(keys) => setSelectedTaskID(Array.from(keys)[0])} // Handle row selection
-        >
-          <TableHeader>
-            <TableColumn>TASK ID</TableColumn>
-            <TableColumn>NAME</TableColumn>
-            <TableColumn>DESCRIPTION</TableColumn>
-            <TableColumn>STATUS</TableColumn>
-            <TableColumn>COMMENTS</TableColumn>
-          </TableHeader>
-          <TableBody>
-            {tasks.map((task) => (
-              <TableRow key={task.taskID}>
-                <TableCell>{task.taskID}</TableCell>
-                <TableCell>{task.name}</TableCell>
-                <TableCell>{task.description}</TableCell>
-                <TableCell>
-                  {assignedTasks
-                  .filter((assignedTask) => assignedTask.taskID === task.taskID)
-                  .map((filteredAssignedTask, index) => (
-                    <div key={index}>
-                      {filteredAssignedTask.statusID === 3 ? 'Incomplete' : filteredAssignedTask.statusID === 4 ? 'Complete' : ''}
-                    </div>
-                  ))}
-                </TableCell>
-                <TableCell>
-                {comments
-                  .filter((comment) => comment.assignedTaskID === task.taskID)
-                  .map((filteredComment, index) => (
-                    <div key={index}>{filteredComment.comment}</div>
-                  ))}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <h2 className="text-lg font-semibold mt-4">Tasks Assigned to You</h2>
+
+        {userAssignedTasks.length === 0 ? (
+          <p>No tasks are assigned to you.</p>
+        ) : (
+          <Table
+            color={"primary"}
+            selectionMode="single" 
+            aria-label="Example static collection table"
+            className="custom-table"
+            selectedKeys={selectedTaskID ? [selectedTaskID] : []}
+            onSelectionChange={(keys) => setSelectedTaskID(Array.from(keys)[0])} // Handle row selection
+          >
+            <TableHeader>
+              <TableColumn>TASK ID</TableColumn>
+              <TableColumn>NAME</TableColumn>
+              <TableColumn>DESCRIPTION</TableColumn>
+              <TableColumn>STATUS</TableColumn>
+              <TableColumn>COMMENTS</TableColumn>
+            </TableHeader>
+            <TableBody>
+              {userAssignedTasks.map((task) => (
+                <TableRow key={task.taskID}>
+                  <TableCell>{task.taskID}</TableCell>
+                  <TableCell>{task.name}</TableCell>
+                  <TableCell>{task.description}</TableCell>
+                  <TableCell>
+                    {assignedTasks
+                    .filter((assignedTask) => assignedTask.taskID === task.taskID)
+                    .map((filteredAssignedTask, index) => (
+                      <div key={index}>
+                        {filteredAssignedTask.statusID === 3 ? 'Incomplete' : filteredAssignedTask.statusID === 4 ? 'Complete' : ''}
+                      </div>
+                    ))}
+                  </TableCell>
+                  <TableCell>
+                  {comments
+                    .filter((comment) => comment.assignedTaskID === task.taskID)
+                    .map((filteredComment, index) => (
+                      <div key={index}>{filteredComment.comment}</div>
+                    ))}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </div>
     </div>
   );

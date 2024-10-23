@@ -25,11 +25,12 @@ export default function Login() {
         throw new Error("Login failed. Incorrect username or password.");
       }
 
-      const { passwordHash, roleID } = await response.json();
+      const { passwordHash, roleID,userID } = await response.json();
 
       if (response.ok) {
         // Store roleID and username for session management
         localStorage.setItem('roleID', roleID);
+        localStorage.setItem('userID', userID);
         localStorage.setItem('username', username); // Store the username in localStorage
 
         // Redirect to the dashboard and reload the page to update Layout.js
@@ -50,6 +51,7 @@ export default function Login() {
       console.error('Error during login:', error);
       setErrorMessage('Login failed. Incorrect username or password.');
     }
+  
   };
 
   return (
