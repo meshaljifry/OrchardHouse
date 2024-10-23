@@ -24,6 +24,9 @@ const Tasks = () => {
   const [assignedTasks, setAssignedTasks] = useState([]);
   const [comments, setComments] = useState([]);
   const [comment, setComment] = useState('');
+  const [dateScheduledFor, setDateScheduledFor] = useState('');
+  const currentDate = new Date();
+  const formattedDate = currentDate.toISOString().split('T')[0];
 
   // Fetch Animal, Plant, Supply, Report, User, and Task Lists
   useEffect(() => {
@@ -164,7 +167,7 @@ const Tasks = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ taskID: selectedTaskID, userID: selectedUser, assignerID: localStorage.getItem('roleID') }),
+        body: JSON.stringify({ taskID: selectedTaskID, userID: selectedUser, assignerID: localStorage.getItem('roleID'), dateScheduledFor: dateScheduledFor, date: formattedDate }),
       });
       await fetchTasks();
       await fetchAssignedTasks();
@@ -336,7 +339,7 @@ const Tasks = () => {
       </Modal>
 
       {/* 'Assign Task' Button and Modal */}
-      <Button onPress={onAssignOpen} className="button-spacing">Assign Task</Button>
+      <Button onPress={onAssignOpen}>Assign Task</Button>
       <Modal isOpen={isAssignOpen} onOpenChange={onAssignOpenChange}>
         <ModalContent>
           {(onClose) => (
@@ -359,6 +362,13 @@ const Tasks = () => {
                     );
                   })}
                 </Autocomplete>
+                {/* Select Date for Task */}
+                <Input
+                  label="Choose Scheduled Date"
+                  type="date"
+                  value={dateScheduledFor}
+                  onChange={(e) => setDateScheduledFor(e.target.value)}
+                />
               </ModalBody>
               <ModalFooter>
                 <Button onPress={onClose}>Close</Button>
