@@ -20,3 +20,17 @@
     background-color: #f2f2f2;
     padding: 20px;
   }
+  
+  .button-spacing {
+    margin-right: 10px;
+  }
+
+  .custom-table {
+    background-color: transparent;
+  }
+
+  .custom-table th,
+  .custom-table td {
+    border: none; /* Remove borders from table cells */
+    
+  }

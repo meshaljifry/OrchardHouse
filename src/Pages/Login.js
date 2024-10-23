@@ -25,21 +25,25 @@ export default function Login() {
         throw new Error("Login failed. Incorrect username or password.");
       }
 
-      const { passwordHash, roleID } = await response.json();
-      console.log('roleID fetched from database:', roleID); // Logging roleID
+      const { passwordHash, roleID,userID } = await response.json();
 
       if (response.ok) {
-        console.log('Login successful!');
-        localStorage.setItem('roleID', roleID); // Store roleID for role-based routing
+        // Store roleID and username for session management
+        localStorage.setItem('roleID', roleID);
+        localStorage.setItem('userID', userID);
+        localStorage.setItem('username', username); // Store the username in localStorage
 
-        // Redirect based on roleID with consistent route paths
+        // Redirect to the dashboard and reload the page to update Layout.js
         if (roleID === 1 || roleID === 2) {
-          navigate('/Dashboard');
+          navigate('/');
         } else if (roleID === 3) {
           navigate('/employee-dashboard');
         } else {
           navigate('/user-dashboard');
         }
+
+        // Force a reload of the layout to immediately reflect login status
+        window.location.reload();
       } else {
         alert('Login failed. Incorrect username or password.');
       }
@@ -47,6 +51,7 @@ export default function Login() {
       console.error('Error during login:', error);
       setErrorMessage('Login failed. Incorrect username or password.');
     }
+  
   };
 
   return (
@@ -82,7 +87,7 @@ export default function Login() {
       />
       <Spacer y={2} />
       <Button onPress={handleLogin}>Login</Button>
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>} {/* Display error message */}
+      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
     </div>
   );
 }

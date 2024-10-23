@@ -23,20 +23,34 @@ db.connect(err => {
 });
 
 app.get('/api/Item', (req, res) => {
+
   const sql = 'SELECT itemID, Name AS name, Description AS description, price FROM Item';
+
   db.query(sql, (err, results) => {
     if (err) {
-      return res.status(500).send(err);
+      console.error("Database query error:", err);
+      return res.status(500).send("An error occurred while fetching items");
     }
-    res.json(results);
+
+    // Convert the blob to a Base64 string for each item
+    const items = results.map(item => {
+      return {
+        ...item,
+        image: item.image ? `data:image/png;base64,${item.image.toString('base64')}` : null
+      };
+    });
+
+    res.setHeader('Content-Type', 'application/json');
+    res.json(items);
   });
 });
 
 app.get('/api/UserAccount', (req, res) => {
   const username = req.query.username;
+ 
   const passwordHash = req.query.passwordHash;
   const query = `
-    SELECT UA.passwordHash, U.roleID
+    SELECT UA.passwordHash, U.roleID , UA.userID
     FROM AppleOrchardSystem.UserAccount UA
     JOIN AppleOrchardSystem.User U ON UA.userID = U.userID
     WHERE UA.username = ? AND UA.passwordHash = sha2(?, 512)
@@ -50,9 +64,10 @@ app.get('/api/UserAccount', (req, res) => {
     }
 
     if (results.length > 0) {
-      const { passwordHash, roleID } = results[0];
-      console.log('roleID fetched from database:', roleID); // Logging roleID for visibility
-      res.json({ passwordHash, roleID });
+      const { passwordHash, roleID,userID } = results[0];
+      console.log('roleID fetched from database:', roleID);
+      console.log('userID fetched from database:', userID); // Logging roleID for visibility
+      res.json({ passwordHash, roleID,userID });
     } else {
       res.status(401).send('Incorrect username or password');
     }
@@ -128,6 +143,45 @@ app.get('/api/getReportList', (req, res) => {
   });
 });
 
+
+// Fetch tasks from the Task table
+app.get('/api/getTasks', (req, res) => {
+  const sql = 'SELECT taskID, code, name, description, animalID, plantID, supplyID, reportID FROM Task';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error querying the Task table:', err);
+      return res.status(500).send('Error querying the Task table');
+    }
+    res.json(results);
+  });
+});
+
+app.get('/api/getAssignedTasks', (req, res) => {
+  const sql = 'SELECT assignedTaskID, userID, assignerID, taskID, statusID, dateScheduledFor, date FROM AssignedTask';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error querying the AssignedTask table:', err);
+      return res.status(500).send('Error querying the AssignedTask table');
+    }
+    res.json(results);
+  });
+});
+
+
+
+
+app.get('/api/getComments', (req, res) => {
+  const sql = 'SELECT assignedTaskID, comment FROM AssignedTaskComment';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error querying the Task table:', err);
+      return res.status(500).send('Error querying the Task table');
+    }
+    res.json(results);
+  });
+});
+
+// Create a new task
 app.post('/api/createTask', (req, res) => {   
   const {code, name, description, animalID, plantID, supplyID, reportID } = req.body;   
   const sql = `INSERT INTO Task (code, name, description, animalID, plantID, supplyID, reportID)     
@@ -140,24 +194,6 @@ app.post('/api/createTask', (req, res) => {
   res.status(201).send('Task created successfully'); 
   }); 
 });
-
-// app.post('/api/createTransaction', (req, res) => {   
-//   const {date, userID } = req.body;   
-//   const sql = `CREATE TEMPORARY TABLE OutputTbl (transactionID INT) 
-//   INSERT INTO Transaction (date, userID) 
-//   VALUES (?, ?);
-//   INSERT INTO OutputTbl (transactionID)
-//   VALUES (LAST_INSERT_ID());
-//   SELECT * FROM OutputTbl`;     
-//   db.query(sql, [date || null, userID], (err, result) => {     
-//   if (err) { 
-//     console.error('Error inserting transaction:', err);       
-//     return res.status(500).send('Error inserting transaction'); 
-//   } 
-//   res.status(201).send('Transaction created successfully'); 
-//   res.json(result); //send transactionID back
-//   }); 
-// });
 
 app.post('/api/createTransaction', (req, res) => {
   const { date, userID, cart, paymentType, cardNumber, cardExpiration, cardCode} = req.body;
@@ -198,19 +234,58 @@ app.post('/api/createTransaction', (req, res) => {
   });
 });
 
-// app.post('/api/createPayment', (req, res) => {   
-//   const {transactionID, paymentType, cardNumber, cardExpiration, cardCode } = req.body;   
-//   const sql = `INSERT INTO Payment (transactionID, paymentType, cardNumber, cardExpiration, cardCode)   
-//   VALUES (?, ?, ?, ?, ?)   `;     
-//   db.query(sql, [transactionID, paymentType, cardNumber || null, cardExpiration || null, cardCode || null], (err, result) => {  
-//   if (err) { 
-//     console.error('Error inserting payment', err);       
-//     return res.status(500).send('Error inserting payment'); 
-//   } 
-//   res.status(201).send('Payment created successfully'); 
-//   }); 
-// });
+// Assign Task Endpoint
+app.post('/api/assignTask', async (req, res) => {
+  const {userID, assignerID, taskID, statusID, dateScheduledFor, date} = req.body;   
+  const sql = `INSERT INTO AssignedTask (userID, assignerID, taskID, statusID, dateScheduledFor, date)     
+  VALUES (?, ?, ?, ?, ?, ?)   `;
+  const values = [userID, assignerID, taskID, statusID || 3, dateScheduledFor || null, date || null];
+  db.query(sql, values, (err, result) => {     
+  if (err) { 
+    console.error('Error inserting AssignedTask:', err);       
+    return res.status(500).send('Error inserting AssignedTask'); 
+  } 
+  res.status(201).send('Task created successfully'); 
+  }); 
+});
 
+app.put('/api/TaskStatus/:taskID', (req, res) => {
+  const { taskID } = req.params;
+  const { statusID } = req.body;
+  const sql = 'UPDATE AssignedTask SET statusID = ? WHERE taskID = ?';
+  db.query(sql, [statusID, taskID], (err, results) => {
+    if (err) {
+      console.error('Error updating product:', err);
+      return res.status(500).send('Error updating product');
+    }
+    res.sendStatus(200);
+  });
+});
+
+app.post('/api/commentTask', async (req,res) => {
+  const {assignedTaskID, comment} = req.body;
+  const sql = 'INSERT INTO AssignedTaskComment (assignedTaskID, comment) VALUES (?, ?)';
+  const values = [assignedTaskID, comment]
+  db.query(sql, values, (err, result) =>{
+  if (err) { 
+    console.error('Error inserting AssignedTaskComment:', err);       
+    return res.status(500).send('Error inserting AssignedTaskComment'); 
+  } 
+  res.status(201).send('Task comment created successfully'); 
+  });
+});
+
+// Get User List Endpoint
+app.get('/api/getUserList', async (req, res) => {
+  const sql = 'SELECT userID, firstName, lastName FROM User';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error querying the User table:', err);
+      return res.status(500).send('Error querying the User table');
+    }
+    res.json(results);
+  });
+});
 
 app.get('/', (req, res) => {
   res.send('API is running. Use /api/Item to fetch items and /api/UserAccount to handle login.');

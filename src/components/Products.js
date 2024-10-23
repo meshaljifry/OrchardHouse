@@ -1,13 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Input } from '@nextui-org/react';
-import { FaShoppingCart } from 'react-icons/fa'; // Import cart icon from react-icons
+import React, { useState, useEffect, useRef } from 'react'; 
+import { Button, Input, Modal, Spacer } from '@nextui-org/react';
+import { FaShoppingCart } from 'react-icons/fa';
 import './products.css';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
-  const [cart, setCart] = useState([]);  
+  const [cart, setCart] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isCartOpen, setIsCartOpen] = useState(false); // State to toggle cart visibility
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const cartRef = useRef(null);
+
+  useEffect(() => {
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      setCart(JSON.parse(savedCart));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }, [cart]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -24,30 +36,26 @@ const Products = () => {
   }, []);
 
   const addToCart = (product) => {
-    setCart((prevCart) => {
-      const productInCart = prevCart.find((item) => item.id === product.id);
-      if (productInCart) {
-        // Update quantity if product already in cart
-        return prevCart.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      } else {
-        // Add new product to cart
-        return [...prevCart, { ...product, quantity: 1 }];
-      }
-    });
+    setCart((prevCart) => [
+      ...prevCart,
+      { ...product, cartItemId: `${product.id}-${Date.now()}`, quantity: 1 }
+    ]);
   };
 
-  const handleCartQuantityChange = (productId, delta) => {
+  const handleCartQuantityChange = (cartItemId, delta) => {
     setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.id === productId
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
-      )
+      prevCart
+        .map((item) =>
+          item.cartItemId === cartItemId
+            ? { ...item, quantity: Math.max(1, item.quantity + delta) }
+            : item
+        )
+        .filter((item) => item.quantity > 0)
     );
+  };
+
+  const removeFromCart = (cartItemId) => {
+    setCart((prevCart) => prevCart.filter((item) => item.cartItemId !== cartItemId));
   };
 
   const calculateTotal = () => {
@@ -58,8 +66,20 @@ const Products = () => {
     setSearchTerm(event.target.value);
   };
 
-  const toggleCart = () => {
-    setIsCartOpen(!isCartOpen);
+  const scrollToCart = () => {
+    if (cartRef.current) {
+      cartRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleCheckoutOpen = () => setIsCheckoutOpen(true);
+  const handleCheckoutClose = () => setIsCheckoutOpen(false);
+
+  const handleCheckout = () => {
+    alert('Thank you for your purchase!');
+    setCart([]);
+    localStorage.removeItem('cart');
+    handleCheckoutClose();
   };
 
   const filteredProducts = products.filter((product) =>
@@ -79,7 +99,7 @@ const Products = () => {
           bordered
           fullWidth
         />
-        <button className="cart-icon" onClick={toggleCart}>
+        <button className="cart-icon" onClick={scrollToCart}>
           <FaShoppingCart size={24} />
         </button>
       </div>
@@ -111,45 +131,102 @@ const Products = () => {
         )}
       </div>
 
-      {/* Shopping Cart Dropdown/Modal */}
-      {isCartOpen && (
-        <div className="cart-dropdown">
-          <h2 className="cart-title">Shopping Cart</h2>
-          {cart.length > 0 ? (
-            <div>
-              {cart.map((item) => (
-                <div key={item.id} className="cart-item">
-                  <span>{item.name}</span>
-                  <div className="quantity-controls">
-                    <button
-                      className="quantity-button"
-                      onClick={() => handleCartQuantityChange(item.id, -1)}
-                    >
-                      -
-                    </button>
-                    <Input
-                      type="number"
-                      value={item.quantity}
-                      readOnly
-                      className="quantity-input"
-                    />
-                    <button
-                      className="quantity-button"
-                      onClick={() => handleCartQuantityChange(item.id, 1)}
-                    >
-                      +
-                    </button>
-                  </div>
-                  <span>${(item.price * item.quantity).toFixed(2)}</span>
+      {/* Shopping Cart Section */}
+      <div ref={cartRef} className="cart-section">
+        <h2 className="cart-title">Shopping Cart</h2>
+        {cart.length > 0 ? (
+          <div className="cart-items">
+            {cart.map((item) => (
+              <div key={item.cartItemId} className="cart-item">
+                <span>{item.name}</span>
+                <div className="quantity-controls">
+                  <button
+                    className="quantity-button"
+                    onClick={() => handleCartQuantityChange(item.cartItemId, -1)}
+                  >
+                    -
+                  </button>
+                  <Input
+                    type="number"
+                    value={item.quantity}
+                    readOnly
+                    className="quantity-input"
+                  />
+                  <button
+                    className="quantity-button"
+                    onClick={() => handleCartQuantityChange(item.cartItemId, 1)}
+                  >
+                    +
+                  </button>
                 </div>
-              ))}
-              <p className="total">Total: ${calculateTotal()}</p>
-            </div>
-          ) : (
-            <p>Your cart is empty.</p>
-          )}
-        </div>
-      )}
+                <span>${(item.price * item.quantity).toFixed(2)}</span>
+                <button
+                  className="remove-button"
+                  onClick={() => removeFromCart(item.cartItemId)}
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+            <p className="total">Total: ${calculateTotal()}</p>
+            <Button color="success" onClick={handleCheckoutOpen}>
+              Checkout
+            </Button>
+          </div>
+        ) : (
+          <p>Your cart is empty.</p>
+        )}
+      </div>
+
+      {/* Checkout Modal */}
+      <Modal open={isCheckoutOpen} onClose={handleCheckoutClose}>
+        <Modal.Header>
+          <h3>Checkout</h3>
+        </Modal.Header>
+        <Modal.Body>
+          <Input
+            label="First Name"
+            placeholder="Enter your first name"
+            fullWidth
+            required
+          />
+          <Input
+            label="Last Name"
+            placeholder="Enter your last name"
+            fullWidth
+            required
+          />
+          <Input
+            label="Card Number"
+            placeholder="1234 5678 9012 3456"
+            fullWidth
+            required
+            type="number"
+          />
+          <Input
+            label="CVV"
+            placeholder="123"
+            fullWidth
+            required
+            type="number"
+          />
+          <Input
+            label="Zip Code"
+            placeholder="Enter your zip code"
+            fullWidth
+            required
+            type="number"
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button auto flat color="error" onClick={handleCheckoutClose}>
+            Cancel
+          </Button>
+          <Button auto onClick={handleCheckout}>
+            Confirm Purchase
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
