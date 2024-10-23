@@ -2,6 +2,7 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDi
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react";
 import './Tasks.css';
 import React, { useState, useEffect } from 'react';
+import { filter } from "framer-motion/m";
 
 const Tasks = () => {
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
@@ -427,6 +428,7 @@ const Tasks = () => {
             <TableColumn>NAME</TableColumn>
             <TableColumn>DESCRIPTION</TableColumn>
             <TableColumn>STATUS</TableColumn>
+            <TableColumn>DATE SCHEDULED FOR</TableColumn>
             <TableColumn>COMMENTS</TableColumn>
           </TableHeader>
           <TableBody>
@@ -442,6 +444,13 @@ const Tasks = () => {
                     <div key={index}>
                       {filteredAssignedTask.statusID === 3 ? 'Incomplete' : filteredAssignedTask.statusID === 4 ? 'Complete' : ''}
                     </div>
+                  ))}
+                </TableCell>
+                <TableCell>
+                  {assignedTasks
+                  .filter((assignedTask) => assignedTask.taskID === task.taskID)
+                  .map((filteredAssignedTask, index) => (
+                    <div key={index}>{new Date(filteredAssignedTask.dateScheduledFor).toISOString().split('T')[0]}</div>
                   ))}
                 </TableCell>
                 <TableCell>
