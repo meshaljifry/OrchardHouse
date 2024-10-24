@@ -23,7 +23,9 @@ db.connect(err => {
 });
 
 app.get('/api/Item', (req, res) => {
+
   const sql = 'SELECT Name AS name, Description AS description, price, Image AS image FROM Item';
+
   db.query(sql, (err, results) => {
     if (err) {
       console.error("Database query error:", err);
@@ -191,6 +193,45 @@ app.post('/api/createTask', (req, res) => {
   } 
   res.status(201).send('Task created successfully'); 
   }); 
+});
+
+app.post('/api/createTransaction', (req, res) => {
+  const { date, userID, cart, paymentType, cardNumber, cardExpiration, cardCode} = req.body;
+
+  // Insert into the Transaction table
+  const insertTransactionSql = `INSERT INTO Transaction (date, userID) VALUES (?, ?)`;
+  
+  db.query(insertTransactionSql, [date || null, userID], (err, result) => {
+    if (err) {
+      console.error('Error inserting transaction:', err);
+      return res.status(500).send('Error inserting transaction');
+    }
+    //Get transactionID Back
+    const transactionID = result.insertId; // Get the last inserted ID
+
+    // Insert into the TransactionItem table
+    const insertTransactionItemSql = `INSERT INTO TransactionItem (transactionID, itemID, cartRentalID, unitPrice, discountID, quantity) VALUES ?`;
+
+    const itemsToInsert = cart.map(item => [transactionID, item.itemID || null, item.cartRentalID || null, item.price, item.discountID || null, item.quantity]);
+
+    db.query(insertTransactionItemSql, [itemsToInsert], (err) => {
+      if (err) {
+        console.error('Error inserting transaction items:', err);
+      }
+      res.status(201).json({ transactionID, message: 'Transaction created successfully' });
+    });
+
+    // Insert into the TransactionPayment table
+    const insertTransactionPaymentSql = `INSERT INTO TransactionPayment (transactionID, paymentType, cardNumber, cardExpiration, cardCode) VALUES (?, ?, ?, ?, ?)`;
+
+    db.query(insertTransactionPaymentSql, [transactionID, paymentType, cardNumber || null, cardExpiration || null, cardCode || null] , (err, result) => {
+      if (err) {
+        console.error('Error inserting transaction:', err);
+        return res.status(500).send('Error inserting transaction');
+      }
+    });
+
+  });
 });
 
 // Assign Task Endpoint
