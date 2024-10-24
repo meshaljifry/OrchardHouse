@@ -398,7 +398,7 @@ const EmployeeDashboard = () => {
                   />
                   </div>
                   <Spacer y='2.5' />
-                  <div bordered>
+                  <div>
                   <div id="cashDiv">
                     <Input
                       id="cashGiven"
