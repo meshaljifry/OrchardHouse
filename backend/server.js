@@ -74,6 +74,36 @@ app.get('/api/UserAccount', (req, res) => {
   });
 });
 
+app.post('/api/registerUser', async (req, res) => {
+  const {roleID, firstName, lastName, hiredate, reportToID} = req.body;   
+  const sql = `INSERT INTO UserAccount (roleID, firstName, lastName, hiredate, reportToID)     
+  VALUES (?, ?, ?, ?, ?)   `;
+  const values = [roleID || 4, firstName, lastName, hiredate || null, reportToID || null];
+  db.query(sql, values, (err, result) => {     
+  if (err) { 
+    console.error('Error inserting User:', err);       
+    return res.status(500).send('Error inserting User'); 
+  } 
+  
+  const userID = result.insertId;
+  res.status(201).send('User created successfully'); 
+  }); 
+});
+
+app.post('/api/registerAccount', async (req, res) => {
+  const {userID, username, passwordHash} = req.body;   
+  const sql = `INSERT INTO UserAccount ( userID, username, passwordHash)     
+  VALUES (?, ?, ?, sha2(?, 512))   `;
+  const values = [userID, username, passwordHash];
+  db.query(sql, values, (err, result) => {     
+  if (err) { 
+    console.error('Error inserting UserAccount:', err);       
+    return res.status(500).send('Error inserting UserAccount'); 
+  } 
+  res.status(201).send('UserAccount created successfully'); 
+  }); 
+});
+
 app.put('/api/Item/:id', (req, res) => {
   const { id } = req.params;
   const { name, price } = req.body;
@@ -166,9 +196,6 @@ app.get('/api/getAssignedTasks', (req, res) => {
     res.json(results);
   });
 });
-
-
-
 
 app.get('/api/getComments', (req, res) => {
   const sql = 'SELECT assignedTaskID, comment FROM AssignedTaskComment';
