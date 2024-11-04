@@ -1,6 +1,16 @@
 // File: src/components/Dashboard.js
-import React, { useState, useEffect, useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend } from 'recharts';
+
+import React, { useState, useEffect } from 'react';
+import {
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend
+} from 'recharts';
+
 import './Dashboard.css';
 import { Modal, ModalContent, ModalHeader, ModalBody, useDisclosure, Table, TableBody, TableRow, TableHeader, TableCell, TableColumn, Button, Input, Pagination, RadioGroup, Radio } from '@nextui-org/react';
 
@@ -10,6 +20,10 @@ const Dashboard = () => {
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
   const [products, setProducts] = useState([]);
   const [newProduct, setNewProduct] = useState({ name: '', price: '' });
+  const [totalRevenue, setTotalRevenue] = useState(null);
+  const [mostOrderedProducts, setMostOrderedProducts] = useState([]);
+  const [orderComparisonData, setOrderComparisonData] = useState([]);
+  const [employeeTasks, setEmployeeTasks] = useState([]); // New state for employee tasks data
   const [discounts, setDiscounts] = useState([]);
   const [nonActiveDiscounts, setNonActiveDiscounts] = useState([]);
   const [newDiscount, setNewDiscount] = useState({code: '', name: '', description: '', percentOff: '', expireyDate: formattedDate});
@@ -34,11 +48,17 @@ const Dashboard = () => {
     return nonActiveDiscounts.slice(start, end);
   }, [page2, nonActiveDiscounts]);
 
-  // Load initial products
+
   useEffect(() => {
     fetchProducts();
+
+    fetchRevenue();
+    fetchMostOrderedProducts();
+    fetchOrderComparison();
+    fetchEmployeeTasks(); // Fetch employee tasks data on component load
     fetchDiscounts();
     fetchNonActiveDiscounts();
+
   }, []);
 
   const fetchProducts = async () => {
@@ -51,6 +71,47 @@ const Dashboard = () => {
     }
   };
 
+
+  const fetchRevenue = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/totalRevenue');
+      const data = await response.json();
+      setTotalRevenue(data.totalRevenue);
+    } catch (error) {
+      console.error('Error fetching revenue:', error);
+    }
+  };
+
+  const fetchMostOrderedProducts = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/mostOrderedProducts');
+      const data = await response.json();
+      setMostOrderedProducts(data);
+    } catch (error) {
+      console.error('Error fetching most ordered products:', error);
+    }
+  };
+
+  const fetchOrderComparison = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/orderComparison');
+      const data = await response.json();
+      setOrderComparisonData(data);
+    } catch (error) {
+      console.error('Error fetching order comparison data:', error);
+    }
+  };
+
+  // Fetch employee tasks data from backend
+  const fetchEmployeeTasks = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/employeeTasks');
+      const data = await response.json();
+      setEmployeeTasks(data);
+    } catch (error) {
+      console.error('Error fetching employee tasks data:', error);
+    }
+  };
   const fetchDiscounts = async () => {
     try {
       const response = await fetch('http://localhost:5000/api/getDiscounts');
@@ -122,7 +183,7 @@ const Dashboard = () => {
         },
         body: JSON.stringify({ name: product.name, price: product.price }),
       });
-      fetchProducts(); // Refresh product list
+      fetchProducts();
     } catch (error) {
       console.error('Error updating product:', error);
     }
@@ -137,8 +198,8 @@ const Dashboard = () => {
         },
         body: JSON.stringify(newProduct),
       });
-      setNewProduct({ name: '', price: '' }); // Clear form
-      fetchProducts(); // Refresh product list
+      setNewProduct({ name: '', price: '' });
+      fetchProducts();
     } catch (error) {
       console.error('Error adding product:', error);
     }
@@ -146,37 +207,38 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
-      {/* Existing Dashboard Content */}
+      {/* Revenue Display */}
       <div className="dashboard-item revenue">
-        <h3>Revenue</h3>
-        <BarChart width={350} height={200} data={[
-          { name: 'Jan', revenue: 4000 },
-          { name: 'Feb', revenue: 3000 },
-          { name: 'Mar', revenue: 2000 },
-          { name: 'Apr', revenue: 2780 },
-          { name: 'May', revenue: 1890 },
-        ]}>
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="revenue" fill="#8884d8" />
-        </BarChart>
+        <h3>Total Revenue</h3>
+        <p className="revenue-amount">
+          {totalRevenue !== null ? `$${totalRevenue.toFixed(2)}` : 'Loading...'}
+        </p>
       </div>
 
-      <div className="dashboard-item time-pie">
-        <h3>Your Time</h3>
-        <PieChart width={350} height={200}>
-          <Pie data={[
-            { name: 'Tasks', value: 70 },
-            { name: 'Farm', value: 30 },
-          ]} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#8884d8">
-            <Cell fill="#0088FE" />
-            <Cell fill="#00C49F" />
-          </Pie>
-          <Tooltip />
-        </PieChart>
+      {/* Employee Tasks Table */}
+      <div className="dashboard-item employee-tasks">
+        <h3>Your Time - Employee Tasks</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Employee Name</th>
+              <th>Tasks Assigned</th>
+              <th>Tasks Completed</th>
+            </tr>
+          </thead>
+          <tbody>
+            {employeeTasks.map((task, index) => (
+              <tr key={index}>
+                <td>{task.employeeName}</td>
+                <td>{task.tasksAssigned}</td>
+                <td>{task.tasksCompleted}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
+      {/* Most Ordered Products Table */}
       <div className="dashboard-item products">
         <h3>Most Ordered Products</h3>
         <table>
@@ -188,32 +250,23 @@ const Dashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {[
-              { product: 'Product A', orders: 100, revenue: 1200 },
-              { product: 'Product B', orders: 80, revenue: 950 },
-              { product: 'Product C', orders: 60, revenue: 700 },
-            ].map((product, index) => (
+            {mostOrderedProducts.map((product, index) => (
               <tr key={index}>
-                <td>{product.product}</td>
-                <td>{product.orders}</td>
-                <td>${product.revenue}</td>
+                <td>{product.productName}</td>
+                <td>{product.totalOrders}</td>
+                <td>${product.totalRevenue.toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
+      {/* Order Comparison Chart */}
       <div className="dashboard-item order-comparison">
         <h3>Orders Comparison (This Week vs Last Week)</h3>
-        <LineChart width={350} height={200} data={[
-          { name: 'Monday', lastWeek: 20, thisWeek: 25 },
-          { name: 'Tuesday', lastWeek: 40, thisWeek: 35 },
-          { name: 'Wednesday', lastWeek: 50, thisWeek: 45 },
-          { name: 'Thursday', lastWeek: 30, thisWeek: 40 },
-          { name: 'Friday', lastWeek: 35, thisWeek: 50 },
-        ]}>
+        <LineChart width={350} height={200} data={orderComparisonData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
+          <XAxis dataKey="dayName" />
           <YAxis />
           <Tooltip />
           <Legend />

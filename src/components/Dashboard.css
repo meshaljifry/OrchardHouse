@@ -5,7 +5,13 @@
   gap: 24px;
   padding: 20px;
 }
-
+.revenue-amount {
+  font-size: 2.5rem;       /* Large font size */
+  font-weight: bold;       /* Bold text */
+  font-family: Arial, sans-serif; /* Different font */
+  color: #4CAF50;          /* Optional: green color for revenue */
+  margin-top: 10px;
+}
 /* Dashboard Item */
 .dashboard-item {
   padding: 20px;
