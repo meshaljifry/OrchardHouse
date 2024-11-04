@@ -89,3 +89,14 @@
       grid-template-columns: 1fr; /* Full width for smaller screens */
   }
 }
+
+.discountShowTableData {
+  border: none;
+  padding: 0;
+  margin: 0;
+  white-space: nowrap
+}
+
+#discountShowTable {
+  border-collapse: collapse;
+}
