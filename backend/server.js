@@ -59,6 +59,94 @@ app.put('/api/Item/:id', (req, res) => {
   });
 });
 
+// New Endpoint: Fetch the top 3 most ordered products with their total orders and revenue
+app.get('/api/mostOrderedProducts', (req, res) => {
+  const sql = `
+    SELECT 
+      i.Name AS productName,
+      SUM(ti.quantity) AS totalOrders,
+      SUM(ti.unitPrice * ti.quantity) AS totalRevenue
+    FROM TransactionItem ti
+    JOIN Item i ON ti.itemID = i.itemID
+    GROUP BY i.itemID
+    ORDER BY totalOrders DESC
+    LIMIT 3;
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Database query error:", err);
+      return res.status(500).send("An error occurred while fetching the most ordered products");
+    }
+
+    res.json(results);
+  });
+});
+app.get('/api/TotalRevenue', (req, res) => {
+  const sql = `SELECT SUM(unitPrice * quantity) AS totalRevenue FROM TransactionItem`;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Database query error:", err);
+      return res.status(500).send("An error occurred while calculating revenue");
+    }
+
+    res.json({ totalRevenue: results[0].totalRevenue || 0 });
+  });
+});
+
+// New Endpoint: Fetch order counts for this week and last week
+app.get('/api/orderComparison', (req, res) => {
+  const sql = `
+    SELECT 
+      DAYNAME(t.date) AS dayName,
+      SUM(CASE WHEN WEEK(t.date) = WEEK(CURDATE()) THEN 1 ELSE 0 END) AS thisWeek,
+      SUM(CASE WHEN WEEK(t.date) = WEEK(CURDATE()) - 1 THEN 1 ELSE 0 END) AS lastWeek
+    FROM Transaction t
+    JOIN TransactionItem ti ON t.transactionID = ti.transactionID
+    WHERE t.date >= DATE_SUB(CURDATE(), INTERVAL 2 WEEK)
+    GROUP BY DAYOFWEEK(t.date)
+    ORDER BY DAYOFWEEK(t.date);
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Database query error:", err);
+      return res.status(500).send("An error occurred while fetching order comparison data");
+    }
+
+    res.json(results);
+  });
+});
+
+app.get('/api/employeeTasks', (req, res) => {
+  const sql = `
+    SELECT 
+      u.firstName AS employeeName,
+      u.lastName AS employeeLastName,
+      COUNT(at.assignedTaskID) AS tasksAssigned,
+      SUM(CASE WHEN at.statusID = 3 THEN 1 ELSE 0 END) AS tasksCompleted
+    FROM AssignedTask at
+    JOIN User u ON at.userID = u.userID
+    GROUP BY at.userID;
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Database query error:", err);
+      return res.status(500).send("An error occurred while fetching employee tasks data");
+    }
+
+    // Combine first name and last name for full employee name
+    const formattedResults = results.map(row => ({
+      employeeName: `${row.employeeName} ${row.employeeLastName}`,
+      tasksAssigned: row.tasksAssigned,
+      tasksCompleted: row.tasksCompleted,
+    }));
+
+    res.json(formattedResults);
+  });
+});
 // POST (add) a new product - used in Dashboard.js for adding products
 app.post('/api/Item', (req, res) => {
   const { name, price } = req.body;
