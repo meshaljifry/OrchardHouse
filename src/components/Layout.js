@@ -74,11 +74,19 @@ export default function Layout({ children }) {
           <li><Link to="/tasks" className="sidebar-link">Tasks</Link></li>
         </>
       );
+    } else if (roleID === '4') {
+      return (
+        <>
+          <li><Link to="/" className="sidebar-link">Dashboard</Link></li>
+          <li><Link to="/products" className="sidebar-link">Products</Link></li>
+        </>
+      );
     } else {
       return (
         <>
           <li><Link to="/" className="sidebar-link">Dashboard</Link></li>
           <li><Link to="/products" className="sidebar-link">Products</Link></li>
+          <li><Link to="/register" className="sidebar-link">Register</Link></li>
         </>
       );
     }
@@ -96,8 +104,6 @@ export default function Layout({ children }) {
             <h3 className="sidebar-heading">Others</h3>
             <ul className="sidebar-menu">
               <li><Link to="/help" className="sidebar-link">Help</Link></li>
-              {!username && <li><Link to="/login" className="sidebar-link">Login</Link></li>}
-              <Test />
             </ul>
           </div>
         </div>
