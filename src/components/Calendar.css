@@ -1,0 +1,81 @@
+/* General layout for the calendar page */
+.calendar-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    color: #333;
+    padding: 20px;
+    max-width: 600px;
+    margin: auto;
+}
+
+/* Header section with title and search bar */
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.calendar-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #444;
+}
+
+/* Search bar styling */
+.calendar-search {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 180px;
+}
+
+/* Calendar container styling */
+.calendar-container {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #fff;
+    padding: 20px;
+}
+
+/* Styling for each calendar tile */
+.react-calendar__tile {
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 500;
+    color: #444;
+}
+
+/* Hover and selected date styling */
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile--now {
+    background-color: #f0f0f0;
+}
+
+.react-calendar__tile--active {
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 8px;
+}
+
+/* Styling for special event */
+.special-event {
+    background-color: #FFD700;
+    color: #fff;
+    padding: 3px 5px;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 0.8rem;
+}
+
+/* Selected date section styling */
+.selected-date {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 1.2rem;
+    color: #666;
+}

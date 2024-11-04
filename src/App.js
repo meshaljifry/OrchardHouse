@@ -13,6 +13,7 @@ import Accounts from './components/Accounts';
 import Help from './components/Help';
 import Login from './Pages/Login';
 import Register from './components/Register';
+import Calendar from './components/Calendar';
 import { useState, useEffect } from 'react';
 
 function App() {
@@ -50,6 +51,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
             <Route path="/user-dashboard" element={<UserDashboard />} />
+            <Route path="/calendar" element={<Calendar />} />
 
             {/* Conditional dashboard route based on role */}
             <Route path="/" element={renderDashboard()} />
