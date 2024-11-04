@@ -136,7 +136,7 @@ app.get('/api/getReportList', (req, res) => {
   const sql = 'SELECT reportID, description FROM Report';
   db.query(sql, (err, results) => {
     if (err) {
-      console.error('Error querying the Report table:', err);
+      console.error('Error querying the Report table');
       return res.status(500).send('Error querying the Report table');
     }
     res.json(results);
@@ -167,8 +167,41 @@ app.get('/api/getAssignedTasks', (req, res) => {
   });
 });
 
+app.get('/api/getDiscounts', (req, res) => {
+  const sql = 'SELECT discountID, code, name, percentOff, description, expireyDate, statusID FROM Discount WHERE statusID = 16';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error querying the Discount table:', err);
+      return res.status(500).send('Error querying the Discount table');
+    }
+    res.json(results);
+  });
+});
 
+app.get('/api/getNonActiveDiscounts', (req, res) => {
+  const sql = 'SELECT discountID, code, name, percentOff, description, expireyDate, statusID FROM Discount WHERE statusID = 17';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error querying the Discount table:', err);
+      return res.status(500).send('Error querying the Discount table');
+    }
+    res.json(results);
+  });
+});
 
+// Create a new discount
+app.post('/api/createDiscount', (req, res) => {   
+  const {code, name, description, percentOff, expireyDate } = req.body;   
+  const sql = `INSERT INTO Discount (code, name, description, percentOff, expireyDate, statusID)     
+  VALUES (?, ?, ?, ?, ?, 16)   `;     
+  db.query(sql, [code, name, description, percentOff, expireyDate || null], (err, result) => {     
+  if (err) { 
+    console.error('Error inserting task:', err);       
+    return res.status(500).send('Error inserting task'); 
+  } 
+  res.status(201).send('Task created successfully'); 
+  }); 
+});
 
 app.get('/api/getComments', (req, res) => {
   const sql = 'SELECT assignedTaskID, comment FROM AssignedTaskComment';
