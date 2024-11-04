@@ -44,7 +44,34 @@ app.get('/api/Item', (req, res) => {
     res.json(items);
   });
 });
+// PUT (update) an existing product - used in Dashboard.js for editing products
+app.put('/api/Item/:id', (req, res) => {
+  const { id } = req.params;
+  const { name, price } = req.body;
+  
+  const sql = 'UPDATE Item SET Name = ?, Price = ? WHERE itemID = ?';
+  db.query(sql, [name, price, id], (err, results) => {
+    if (err) {
+      console.error('Error updating product:', err);
+      return res.status(500).send('Error updating product');
+    }
+    res.sendStatus(200); // Successfully updated product
+  });
+});
 
+// POST (add) a new product - used in Dashboard.js for adding products
+app.post('/api/Item', (req, res) => {
+  const { name, price } = req.body;
+  
+  const sql = 'INSERT INTO Item (Name, Price) VALUES (?, ?)';
+  db.query(sql, [name, price], (err, results) => {
+    if (err) {
+      console.error('Error adding product:', err);
+      return res.status(500).send('Error adding product');
+    }
+    res.sendStatus(201); // Successfully added product
+  });
+});
 app.get('/api/UserAccount', (req, res) => {
   const username = req.query.username;
  

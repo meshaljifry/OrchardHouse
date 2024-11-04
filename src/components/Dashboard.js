@@ -1,6 +1,19 @@
 // File: src/components/Dashboard.js
 import React, { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  CartesianGrid,
+  Legend
+} from 'recharts';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -12,6 +25,7 @@ const Dashboard = () => {
     fetchProducts();
   }, []);
 
+  // Fetch products from backend
   const fetchProducts = async () => {
     try {
       const response = await fetch('http://localhost:5000/api/Item');
@@ -22,6 +36,7 @@ const Dashboard = () => {
     }
   };
 
+  // Update product state when editing in input fields
   const handleEditProduct = (id, field, value) => {
     setProducts((prevProducts) =>
       prevProducts.map((product) =>
@@ -30,6 +45,7 @@ const Dashboard = () => {
     );
   };
 
+  // Send updated product data to backend
   const updateProduct = async (product) => {
     try {
       await fetch(`http://localhost:5000/api/Item/${product.id}`, {
@@ -39,12 +55,13 @@ const Dashboard = () => {
         },
         body: JSON.stringify({ name: product.name, price: product.price }),
       });
-      fetchProducts(); // Refresh product list
+      fetchProducts(); // Refresh product list after update
     } catch (error) {
       console.error('Error updating product:', error);
     }
   };
 
+  // Add new product via POST request
   const addProduct = async () => {
     try {
       await fetch('http://localhost:5000/api/Item', {
@@ -54,8 +71,8 @@ const Dashboard = () => {
         },
         body: JSON.stringify(newProduct),
       });
-      setNewProduct({ name: '', price: '' }); // Clear form
-      fetchProducts(); // Refresh product list
+      setNewProduct({ name: '', price: '' }); // Clear form fields after adding
+      fetchProducts(); // Refresh product list after addition
     } catch (error) {
       console.error('Error adding product:', error);
     }
@@ -63,7 +80,7 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
-      {/* Existing Dashboard Content */}
+      {/* Original Dashboard Content */}
       <div className="dashboard-item revenue">
         <h3>Revenue</h3>
         <BarChart width={350} height={200} data={[
@@ -139,7 +156,7 @@ const Dashboard = () => {
         </LineChart>
       </div>
 
-      {/* Product Management Section */}
+      {/* New Product Management Section */}
       <div className="dashboard-item product-management">
         <h3>Manage Products</h3>
         <table className="product-table">
