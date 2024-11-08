@@ -79,3 +79,15 @@
     font-size: 1.2rem;
     color: #666;
 }
+
+.event-list {
+    padding: 5px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    text-align: center;
+    margin-top: 2px;
+}
+
+.event-item {
+    margin: 2px 0;
+}
