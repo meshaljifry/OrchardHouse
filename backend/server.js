@@ -147,6 +147,22 @@ app.get('/api/employeeTasks', (req, res) => {
     res.json(formattedResults);
   });
 });
+app.get('/api/employees', (req, res) => {
+  const sql = `
+    SELECT 
+      userID AS id, 
+      CONCAT(firstName, ' ', lastName) AS name 
+    FROM User
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return res.status(500).send("An error occurred while fetching employees");
+    }
+    res.json(results); // Return the list of employees as JSON
+  });
+});
 // POST (add) a new product - used in Dashboard.js for adding products
 app.post('/api/Item', (req, res) => {
   const { name, price } = req.body;
