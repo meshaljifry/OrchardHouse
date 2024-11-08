@@ -80,6 +80,7 @@
     color: #666;
 }
 
+/* Event list styling */
 .event-list {
     padding: 5px;
     border-radius: 4px;
@@ -88,6 +89,8 @@
     margin-top: 2px;
 }
 
+/* Event item styling */
 .event-item {
     margin: 2px 0;
+    font-size: 1rem;
 }
