@@ -19,6 +19,14 @@
     margin-bottom: 20px;
 }
 
+.button-div {
+    display: flex;
+    justify-content: space-between;
+    align-items: left;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
 .calendar-title {
     font-size: 2rem;
     font-weight: bold;

@@ -299,6 +299,21 @@ app.get('/api/getEventList', async (req, res) => {
   });
 });
 
+// Create event endpoint
+app.post('/api/createEvent', async (req, res) => {
+  const {scheduledDate, title, description} = req.body;
+  const sql = `INSERT INTO Event (scheduledDate, title, description)     
+  VALUES (?, ?, ?)`;
+  const values = [scheduledDate, title, description];
+  db.query(sql, values, (err, result) => {     
+  if (err) { 
+    console.error('Error creating event:', err);       
+    return res.status(500).send('Error creating event'); 
+  } 
+  res.status(201).send('Event created successfully'); 
+  }); 
+});
+
 app.get('/', (req, res) => {
   res.send('API is running. Use /api/Item to fetch items and /api/UserAccount to handle login.');
 });
