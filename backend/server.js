@@ -517,10 +517,10 @@ app.get('/api/getEventList', async (req, res) => {
 
 // Create event endpoint
 app.post('/api/createEvent', async (req, res) => {
-  const {scheduledDate, title, description} = req.body;
-  const sql = `INSERT INTO Event (scheduledDate, title, description)     
-  VALUES (?, ?, ?)`;
-  const values = [scheduledDate, title, description];
+  const {scheduledDate, isPrivate, title, description} = req.body;
+  const sql = `INSERT INTO Event (scheduledDate, isPrivate, title, description)     
+  VALUES (?, ?, ?, ?)`;
+  const values = [scheduledDate, isPrivate, title, description];
   db.query(sql, values, (err, result) => {     
   if (err) { 
     console.error('Error creating event:', err);       

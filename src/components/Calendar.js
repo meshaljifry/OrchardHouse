@@ -1,5 +1,5 @@
 import Calendar from 'react-calendar';
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Input } from "@nextui-org/react";
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Input, Checkbox } from "@nextui-org/react";
 import React, { useState, useEffect } from 'react';
 import './Calendar.css';
 
@@ -14,6 +14,7 @@ const CalendarPage = () => {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTitle, setSelectedTitle] = useState('');
   const [selectedDescription, setSelectedDescription] = useState('');
+  const [isPrivate, setIsPrivate] = useState(false);
 
   useEffect(() => {
     fetchEvents();
@@ -42,7 +43,7 @@ const CalendarPage = () => {
     }
     else {
       try {
-        const response = await fetch('http://localhost:5000/api/getEventList?isPrivate=1');
+        const response = await fetch('http://localhost:5000/api/getEventList?isPrivate=0');
         const data = await response.json();
         console.log(data);
         setEvents(data);
@@ -59,7 +60,7 @@ const CalendarPage = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ scheduledDate: selectedDate, title: selectedTitle, description: selectedDescription }),
+        body: JSON.stringify({ scheduledDate: selectedDate, isPrivate: isPrivate, title: selectedTitle, description: selectedDescription }),
       });
       await fetchEvents();
     } catch (error) {
@@ -86,6 +87,13 @@ const CalendarPage = () => {
     return null;
   };
 
+  const clearNewEvent = () => {
+    setSelectedDate('');
+    setIsPrivate('');
+    setSelectedTitle('');
+    setSelectedDescription('');
+  };
+
   return (
     <div className="calendar-page">
       <header className="calendar-header">
@@ -94,13 +102,14 @@ const CalendarPage = () => {
       </header>
 
       <div className="button-div">
-      <Button onPress={onCreateOpen} className="button-spacing">Create Event</Button>
+      <Button onPress={() => {onCreateOpen(); clearNewEvent();}} className="button-spacing">Create Event</Button>
       <Modal isOpen={isCreateOpen} onOpenChange={onCreateOpenChange}>
         <ModalContent>
           {(onClose) => (
             <>
               <ModalHeader>Create Event</ModalHeader>
               <ModalBody>
+
                 {/* Select Date for Event */}
                 <Input
                   color="primary"
@@ -109,6 +118,7 @@ const CalendarPage = () => {
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
                 />
+
                 {/* Choose Event Title */}
                 <Input
                   clearable
@@ -122,6 +132,7 @@ const CalendarPage = () => {
                   value={selectedTitle}
                   onChange={(e) => setSelectedTitle(e.target.value)}
                 />
+
                 {/* Choose Event Description */}
                 <Input
                   clearable
@@ -135,6 +146,16 @@ const CalendarPage = () => {
                   value={selectedDescription}
                   onChange={(e) => setSelectedDescription(e.target.value)}
                 />
+
+                {/* Checkbox to determine if the event is public or private */}
+                <Checkbox
+                  isSelected={isPrivate}
+                  color="primary"
+                  onChange={(e) => setIsPrivate(e.target.checked)}
+                >
+                  Private Event?
+                </Checkbox>
+
               </ModalBody>
               <ModalFooter>
                 <Button onPress={onClose}>Close</Button>
