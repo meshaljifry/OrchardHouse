@@ -102,3 +102,7 @@
     margin: 2px 0;
     font-size: 1rem;
 }
+
+.button-spacing {
+    margin-right: 10px;
+  }
