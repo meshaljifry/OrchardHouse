@@ -5,6 +5,7 @@ import './products.css';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
+  const [mostOrderedProducts, setMostOrderedProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('');
@@ -33,7 +34,18 @@ const Products = () => {
       }
     };
 
+    const fetchMostOrderedProducts = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/mostOrderedProducts');
+        const data = await response.json();
+        setMostOrderedProducts(data);
+      } catch (error) {
+        console.error('Error fetching most ordered products:', error);
+      }
+    };
+
     fetchProducts();
+    fetchMostOrderedProducts();
   }, []);
 
   const addToCart = (product) => {
@@ -101,6 +113,10 @@ const Products = () => {
           return a.name.localeCompare(b.name);
         case 'zToA':
           return b.name.localeCompare(a.name);
+        case 'mostOrdered':
+          const aOrders = mostOrderedProducts.find(p => p.productName === a.name)?.totalOrders || 0;
+          const bOrders = mostOrderedProducts.find(p => p.productName === b.name)?.totalOrders || 0;
+          return bOrders - aOrders;
         default:
           return 0;
       }
@@ -131,6 +147,7 @@ const Products = () => {
           <SelectItem key="highToLow">Price: High to Low</SelectItem>
           <SelectItem key="aToZ">Name: A-Z</SelectItem>
           <SelectItem key="zToA">Name: Z-A</SelectItem>
+          <SelectItem key="mostOrdered">Most Popular</SelectItem>
         </Select>
         <button className="cart-icon" onClick={scrollToCart}>
           <FaShoppingCart size={24} />

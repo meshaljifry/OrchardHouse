@@ -69,8 +69,7 @@ app.get('/api/mostOrderedProducts', (req, res) => {
     FROM TransactionItem ti
     JOIN Item i ON ti.itemID = i.itemID
     GROUP BY i.itemID
-    ORDER BY totalOrders DESC
-    LIMIT 3;
+    ORDER BY totalOrders DESC;
   `;
 
   db.query(sql, (err, results) => {
