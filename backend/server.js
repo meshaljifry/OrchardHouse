@@ -229,7 +229,7 @@ app.post('/api/createTask', (req, res) => {
 });
 
 app.post('/api/createTransaction', (req, res) => {
-  const { date, userID, cart, paymentType, cardNumber, cardExpiration, cardCode} = req.body;
+  const { date, userID, cart, paymentType, cardNumber, cardExpiration, cardCode, discount} = req.body;
 
   // Insert into the Transaction table
   const insertTransactionSql = `INSERT INTO Transaction (date, userID) VALUES (?, ?)`;
@@ -243,9 +243,9 @@ app.post('/api/createTransaction', (req, res) => {
     const transactionID = result.insertId; // Get the last inserted ID
 
     // Insert into the TransactionItem table
-    const insertTransactionItemSql = `INSERT INTO TransactionItem (transactionID, itemID, cartRentalID, unitPrice, discountID, quantity) VALUES ?`;
+    const insertTransactionItemSql = `INSERT INTO TransactionItem (transactionID, itemID, cartRentalID, unitPrice, quantity) VALUES ?`;
 
-    const itemsToInsert = cart.map(item => [transactionID, item.itemID || null, item.cartRentalID || null, item.price, item.discountID || null, item.quantity]);
+    const itemsToInsert = cart.map(item => [transactionID, item.itemID || null, item.cartRentalID || null, item.price, item.quantity]);
 
     db.query(insertTransactionItemSql, [itemsToInsert], (err) => {
       if (err) {
@@ -255,9 +255,9 @@ app.post('/api/createTransaction', (req, res) => {
     });
 
     // Insert into the TransactionPayment table
-    const insertTransactionPaymentSql = `INSERT INTO TransactionPayment (transactionID, paymentType, cardNumber, cardExpiration, cardCode) VALUES (?, ?, ?, ?, ?)`;
+    const insertTransactionPaymentSql = `INSERT INTO TransactionPayment (transactionID, paymentType, cardNumber, cardExpiration, cardCode, discountID) VALUES (?, ?, ?, ?, ?, ?)`;
 
-    db.query(insertTransactionPaymentSql, [transactionID, paymentType, cardNumber || null, cardExpiration || null, cardCode || null] , (err, result) => {
+    db.query(insertTransactionPaymentSql, [transactionID, paymentType, cardNumber || null, cardExpiration || null, cardCode || null, discount] , (err, result) => {
       if (err) {
         console.error('Error inserting transaction:', err);
         return res.status(500).send('Error inserting transaction');
