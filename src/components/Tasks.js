@@ -2,7 +2,6 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDi
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react";
 import './Tasks.css';
 import React, { useState, useEffect } from 'react';
-import { filter } from "framer-motion/m";
 
 const Tasks = () => {
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
@@ -207,12 +206,30 @@ const Tasks = () => {
     setNewTask({ code: '', name: '', description: '', animalID: '', plantID: '', supplyID: '', reportID: '' });
   };
 
+  
   // Filter tasks for the logged-in user if not an admin (roleID !== 1)
-  const userAssignedTasks = roleID === '1' ? tasks : tasks.filter(task => 
-    assignedTasks.some(assignedTask => 
-      assignedTask.taskID === task.taskID && assignedTask.userID === parseInt(loggedInUserID)
-    )
+const userAssignedTasks = tasks.filter(task => {
+  const isAssignedToUser = assignedTasks.some(assignedTask => 
+    assignedTask.taskID === task.taskID && assignedTask.userID === parseInt(loggedInUserID)
   );
+
+  const isIncomplete = assignedTasks.some(assignedTask => 
+    assignedTask.taskID === task.taskID && assignedTask.statusID === 3
+  );
+
+  // If roleID is 1 or 2, show all tasks
+  if (roleID === '1' || roleID === '2') {
+    return true; // Show all tasks
+  }
+
+  // If roleID is 3, exclude completed tasks
+  if (roleID === '3') {
+    return isAssignedToUser && isIncomplete;
+  }
+
+  // Otherwise, include all assigned tasks
+  return isAssignedToUser;
+});
 
   return (
     <div>
@@ -455,16 +472,14 @@ const Tasks = () => {
                   <TableCell>{task.description}</TableCell>
                   <TableCell>
                     {assignedTasks
-                    .filter((assignedTask) => assignedTask.taskID === task.taskID)
+                    .filter((assignedTask) => assignedTask.taskID === task.taskID && assignedTask.statusID === 3)
                     .map((filteredAssignedTask, index) => (
-                      <div key={index}>
-                        {filteredAssignedTask.statusID === 3 ? 'Incomplete' : filteredAssignedTask.statusID === 4 ? 'Complete' : ''}
-                      </div>
+                      <div key={index}>Incomplete</div>
                     ))}
                   </TableCell>
                   <TableCell>
                     {assignedTasks
-                    .filter((assignedTask) => assignedTask.taskID === task.taskID)
+                    .filter((assignedTask) => assignedTask.taskID === task.taskID && assignedTask.statusID === 3)
                     .map((filteredAssignedTask, index) => (
                       <div key={index}>{new Date(filteredAssignedTask.dateScheduledFor).toISOString().split('T')[0]}</div>
                     ))}
