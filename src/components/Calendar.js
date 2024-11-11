@@ -29,12 +29,26 @@ const CalendarPage = () => {
   }, [date, events]);
 
   const fetchEvents = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/getEventList');
-      const data = await response.json();
-      setEvents(data);
-    } catch (error) {
-      console.error('Error fetching events:', error);
+    const roleID = localStorage.getItem('roleID');
+    console.log(roleID);
+    if (roleID >= 1 && roleID <= 3) {
+      try {
+        const response = await fetch('http://localhost:5000/api/getEventList');
+        const data = await response.json();
+        setEvents(data);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
+    }
+    else {
+      try {
+        const response = await fetch('http://localhost:5000/api/getEventList?isPrivate=1');
+        const data = await response.json();
+        console.log(data);
+        setEvents(data);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
     }
   };
 
