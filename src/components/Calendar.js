@@ -15,6 +15,7 @@ const CalendarPage = () => {
   const [selectedTitle, setSelectedTitle] = useState('');
   const [selectedDescription, setSelectedDescription] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
+  const roleIDInt = parseInt(localStorage.getItem('roleID'), 10); // Parse roleID as an integer
 
   useEffect(() => {
     fetchEvents();
@@ -60,7 +61,7 @@ const CalendarPage = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ scheduledDate: selectedDate, isPrivate: isPrivate, title: selectedTitle, description: selectedDescription }),
+        body: JSON.stringify({ scheduledDate: selectedDate, isPrivate: isPrivate || 0, title: selectedTitle, description: selectedDescription }),
       });
       await fetchEvents();
     } catch (error) {
@@ -94,6 +95,79 @@ const CalendarPage = () => {
     setSelectedDescription('');
   };
 
+  const renderCreateButton = () => {
+    if (roleIDInt === 1 || roleIDInt === 2) {
+      return (
+        <div className="button-div">
+          <Button onPress={() => { onCreateOpen(); clearNewEvent(); }} className="button-spacing">Create Event</Button>
+          <Modal isOpen={isCreateOpen} onOpenChange={onCreateOpenChange}>
+            <ModalContent>
+              {(onClose) => (
+                <>
+                  <ModalHeader>Create Event</ModalHeader>
+                  <ModalBody>
+
+                    {/* Select Date for Event */}
+                    <Input
+                      color="primary"
+                      label="Choose Scheduled Date for Event"
+                      type="date"
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                    />
+
+                    {/* Choose Event Title */}
+                    <Input
+                      clearable
+                      bordered
+                      fullWidth
+                      color="primary"
+                      size="lg"
+                      labelPlacement="inside"
+                      label="Enter Event Title"
+                      id="eventTitle"
+                      value={selectedTitle}
+                      onChange={(e) => setSelectedTitle(e.target.value)}
+                    />
+
+                    {/* Choose Event Description */}
+                    <Input
+                      clearable
+                      bordered
+                      fullWidth
+                      color="primary"
+                      size="lg"
+                      labelPlacement="inside"
+                      label="Enter Event Description"
+                      id="eventDescription"
+                      value={selectedDescription}
+                      onChange={(e) => setSelectedDescription(e.target.value)}
+                    />
+
+                    {/* Checkbox to determine if the event is public or private */}
+                    <Checkbox
+                      isSelected={isPrivate}
+                      color="primary"
+                      onChange={(e) => setIsPrivate(e.target.checked)}
+                    >
+                      Private Event?
+                    </Checkbox>
+
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button onPress={onClose}>Close</Button>
+                    <Button onPress={() => { createEvent(); onClose(); }}>Create</Button>
+                  </ModalFooter>
+                </>
+              )}
+            </ModalContent>
+          </Modal>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="calendar-page">
       <header className="calendar-header">
@@ -101,71 +175,7 @@ const CalendarPage = () => {
         <input type="text" placeholder="Search events..." className="calendar-search" />
       </header>
 
-      <div className="button-div">
-      <Button onPress={() => {onCreateOpen(); clearNewEvent();}} className="button-spacing">Create Event</Button>
-      <Modal isOpen={isCreateOpen} onOpenChange={onCreateOpenChange}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader>Create Event</ModalHeader>
-              <ModalBody>
-
-                {/* Select Date for Event */}
-                <Input
-                  color="primary"
-                  label="Choose Scheduled Date for Event"
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                />
-
-                {/* Choose Event Title */}
-                <Input
-                  clearable
-                  bordered
-                  fullWidth
-                  color="primary"
-                  size="lg"
-                  labelPlacement="inside"
-                  label="Enter Event Title"
-                  id="eventTitle"
-                  value={selectedTitle}
-                  onChange={(e) => setSelectedTitle(e.target.value)}
-                />
-
-                {/* Choose Event Description */}
-                <Input
-                  clearable
-                  bordered
-                  fullWidth
-                  color="primary"
-                  size="lg"
-                  labelPlacement="inside"
-                  label="Enter Event Description"
-                  id="eventDescription"
-                  value={selectedDescription}
-                  onChange={(e) => setSelectedDescription(e.target.value)}
-                />
-
-                {/* Checkbox to determine if the event is public or private */}
-                <Checkbox
-                  isSelected={isPrivate}
-                  color="primary"
-                  onChange={(e) => setIsPrivate(e.target.checked)}
-                >
-                  Private Event?
-                </Checkbox>
-
-              </ModalBody>
-              <ModalFooter>
-                <Button onPress={onClose}>Close</Button>
-                <Button onPress={() => { createEvent(); onClose(); }}>Create</Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-      </div>
+      {renderCreateButton()}
 
       <div className="calendar-container">
         <Calendar
