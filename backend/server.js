@@ -493,6 +493,24 @@ app.get('/api/getUserList', async (req, res) => {
     res.json(results);
   });
 });
+app.get('/api/employeesWithRoles', (req, res) => {
+  const sql = `
+    SELECT 
+      userID AS id, 
+      CONCAT(firstName, ' ', lastName) AS name 
+    FROM User
+    WHERE roleID IN (2, 3)
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return res.status(500).send("An error occurred while fetching employees with specific roles");
+    }
+    res.json(results); // Return the list of filtered employees as JSON
+  });
+});
+
 
 // Get Event List Endpoint
 app.get('/api/getEventList', async (req, res) => {
