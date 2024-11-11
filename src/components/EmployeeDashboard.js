@@ -30,6 +30,8 @@ const EmployeeDashboard = () => {
   const [selectedPayment, setSelectedPayment] = useState("card");
   const [payment, setPayment] = useState({paymentType: '', cardNumber: '', cardExpiration: '', cardCode: '', cashGiven: ''});
   const [newTransaction, setNewTransaction] = useState({date: '', userID: ''});
+  const [selectedDiscount, setSelectedDiscount] = useState([]);
+  const [discounts, setDiscounts] = useState([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -41,9 +43,33 @@ const EmployeeDashboard = () => {
         console.error('Error fetching products:', error);
       }
     };
-
+    fetchDiscount();
     fetchProducts();
   }, []);
+
+  const changeDiscount = () => {
+
+    const codeInput = document.getElementById('discountInput').value;
+    const isFound = discounts.find(discount => discount.code === codeInput);
+
+    if (isFound != null) {
+      //Set found discount
+      setSelectedDiscount(isFound);
+
+    } else {
+      alert(codeInput + " is not a valid discount code.");
+    }
+  }
+
+  const fetchDiscount = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/getDiscounts');
+      const data = await response.json();
+      setDiscounts(data);
+    } catch (error) {
+      console.error('Error fetching discounts', error);
+    }
+  }
 
   const handlePaymentOptionVisibility = () => {
     const cardDiv = document.getElementById("cardDiv");
@@ -81,7 +107,12 @@ const EmployeeDashboard = () => {
   const calculateTotal = (toCalculate) => {
     
     const totalItemsCombined = cart.reduce((total, item) => total + item.price * item.quantity, 0);
-    const tax = totalItemsCombined * 0.06;
+    var discount = 0;
+
+    if(selectedDiscount.discountID != null){
+      discount = totalItemsCombined * (selectedDiscount.percentOff*.01);
+    }
+    const tax = (totalItemsCombined - discount) * 0.06;
 
     if (toCalculate === 0) {
       //Return Pre-Tax Total
@@ -91,10 +122,13 @@ const EmployeeDashboard = () => {
       //Return Tax
       return tax.toFixed(2);
 
+    } else if (toCalculate === 4){
+      //Return amount taken off by discounts
+      return discount.toFixed(2)
+      
     } else {
       //Return Total
-      return (totalItemsCombined + tax).toFixed(2);
-
+      return (totalItemsCombined + tax - discount).toFixed(2);
     }
   }
 
@@ -111,6 +145,8 @@ const EmployeeDashboard = () => {
     document.getElementById('cashGiven').value = '';
     document.getElementById('changeGiven').value = '';
     document.getElementById('search').value = '';
+    document.getElementById('discountInput').value = '';
+    setSelectedDiscount(0);
   }
 
   const handlePOSSubmit = async () => {
@@ -133,14 +169,14 @@ const EmployeeDashboard = () => {
 
     if (safeToSubmit) {
     //submit transaction and recieve id back
-      //const current = new Date();
-      newTransaction.date = null; //"10/23/2024";//current.getDate();
-      newTransaction.userID = 3; //localStorage.getItem("userID") 
+      newTransaction.date = new Date().toISOString().split('T')[0];
+      newTransaction.userID = localStorage.getItem('userID');
       newTransaction.cart = cart;
       newTransaction.paymentType = payment.paymentType;
       newTransaction.cardNumber = payment.cardNumber;
       newTransaction.cardExpiration = payment.cardExpiration;
       newTransaction.cardCode = payment.cardCode;
+      newTransaction.discount = selectedDiscount.discountID;
       try {
         await fetch('http://localhost:5000/api/createTransaction', {
           method: 'POST',
@@ -336,8 +372,12 @@ const EmployeeDashboard = () => {
                         </TableHeader>
                         <TableBody emptyContent={"No rows to display."}>
                           <TableRow key="PreTotal">
-                            <TableCell>Pre-Tax Total</TableCell>
+                            <TableCell>Sub Total</TableCell>
                             <TableCell>${calculateTotal(0)}</TableCell>
+                          </TableRow>
+                          <TableRow key="Discounts">
+                            <TableCell>Discount</TableCell>
+                            <TableCell>-${calculateTotal(4)}</TableCell>
                           </TableRow>
                           <TableRow key="Tax">
                             <TableCell>Tax</TableCell>
@@ -349,92 +389,118 @@ const EmployeeDashboard = () => {
                           </TableRow>
                         </TableBody>
                       </Table>
-                      <Spacer y="2"/>
-                      <RadioGroup
-                    label="Select Mode of Payment"
-                    orientation='horizontal'
-                    onValueChange={setSelectedPayment}
-                    onChange={handlePaymentOptionVisibility}
-                    value={selectedPayment}
-                  >
-                    <Radio value="card">Credit/Debit</Radio>
-                    <Radio value="cash">Cash</Radio>
-                  </RadioGroup>
-                  <div id="cardDiv">
-                  <Input
-                    id="cardNumber"
-                    label="Card Number"
-                    isClearable
-                    bordered
-                    size="md"
-                    placeholder='xxxxxxxxxxxxxxxx'
-                    labelPlacement='outside-left'
-                    value={payment.cardNumber}
-                    onChange={(e) => {setPayment({...payment, cardNumber: e.target.value})}}
-                  />
-<Spacer y="2.5"/>
-                  <Input
-                    id="cardExpiration"
-                    label="Card Expiration Date"
-                    isClearable
-                    bordered
-                    size="md"
-                    labelPlacement='outside-left'
-                    placeholder='x/xx'
-                    value={payment.cardExpiration}
-                    onChange={(e) => {setPayment({...payment, cardExpiration: e.target.value})}}
-                  />
-<Spacer y="2.5"/>
-                  <Input
-                    id="cardCode"
-                    label="Card Security Code"
-                    isClearable
-                    bordered
-                    size="md"
-                    placeholder="xxx"
-                    labelPlacement='outside-left'
-                    value={payment.cardCode}
-                    onChange={(e) => {setPayment({...payment,cardCode: e.target.value})}}
-                  />
-                  </div>
-                  <Spacer y='2.5' />
-                  <div>
-                  <div id="cashDiv">
-                    <Input
-                      id="cashGiven"
-                      label="Cash Received"
+                      <Spacer y="3"/>
+                      <div className="flex w-full flex-wrap md:flex-nowrap mb-6 md:mb-0 gap-4">
+                      <Input
+                      id="discountInput"
+                      label="Enter Discount Code"
                       isClearable
-                      placeholder='0.00'
                       bordered
-                      labelPlacement='outside-left'
-                      value={payment.cashGiven}
-                      type="number"
+                      className="max-w-xs"
                       size="md"
-                      startContent={
-                        <div className="pointer-events-none flex items-center">
-                          <span className="text-default-400 text-small">$</span>
-                        </div>
-                      }
-                      onChange={(e) => {setPayment({...payment,cashGiven: e.target.value})}}
                     />
-                    <Spacer y="2.5"/>
-                    <Input
-                      id="changeGiven"
-                      label="Change"
-                      bordered
-                      readOnly
-                      labelPlacement='outside-left'
-                      type="number"
-                      placeholder='0.00'
+                    <Button
+                      color="primary" 
+                      onPress={() => {changeDiscount();}}
                       size="md"
-                      value={(payment.cashGiven - calculateTotal(2)).toFixed(2)}
-                      startContent={
-                        <div className="pointer-events-none flex items-center">
-                          <span className="text-default-400 text-small">$</span>
-                        </div>
-                      }
-                    /> 
+                      className="max-w-xs"
+                    >
+                      Try Discount Code
+                    </Button>
+                    </div>
+                      <Spacer y="3"/>
+
+                      <RadioGroup
+                        label="Select Mode of Payment"
+                        orientation='horizontal'
+                        onValueChange={setSelectedPayment}
+                        onChange={handlePaymentOptionVisibility}
+                        value={selectedPayment}
+                      >
+                        <Radio value="card">Credit/Debit</Radio>
+                        <Radio value="cash">Cash</Radio>
+                      </RadioGroup>
+                  <div id="cardDiv">
+                    <Input
+                      id="cardNumber"
+                      label="Card Number"
+                      isClearable
+                      bordered
+                      size="md"
+                      placeholder='xxxxxxxxxxxxxxxx'
+                      labelPlacement='outside-left'
+                      value={payment.cardNumber}
+                      onChange={(e) => {setPayment({...payment,cardCode: e.target.value})}}
+                    />
+
+                    <Spacer y="2.5"/>
+
+                    <Input
+                      id="cardExpiration"
+                      label="Card Expiration Date"
+                      isClearable
+                      bordered
+                      size="md"
+                      labelPlacement='outside-left'
+                      placeholder='x/xx'
+                      value={payment.cardExpiration}
+                      onChange={(e) => {setPayment({...payment, cardExpiration: e.target.value})}}
+                    />
+
+                    <Spacer y="2.5"/>
+
+                    <Input
+                      id="cardCode"
+                      label="Card Security Code"
+                      isClearable
+                      bordered
+                      size="md"
+                      placeholder="xxx"
+                      labelPlacement='outside-left'
+                      value={payment.cardCode}
+                      onChange={(e) => {setPayment({...payment,cardCode: e.target.value})}}
+                      />
                   </div>
+
+                  <Spacer y='2.5' />
+
+                  <div>
+                    <div id="cashDiv">
+                      <Input
+                        id="cashGiven"
+                        label="Cash Received"
+                        isClearable
+                        placeholder='0.00'
+                        bordered
+                        labelPlacement='outside-left'
+                        value={payment.cashGiven}
+                        type="number"
+                        size="md"
+                        startContent={
+                          <div className="pointer-events-none flex items-center">
+                            <span className="text-default-400 text-small">$</span>
+                          </div>
+                        }
+                        onChange={(e) => {setPayment({...payment,cashGiven: e.target.value})}}
+                      />
+                      <Spacer y="2.5"/>
+                      <Input
+                        id="changeGiven"
+                        label="Change"
+                        bordered
+                        readOnly
+                        labelPlacement='outside-left'
+                        type="number"
+                        placeholder='0.00'
+                        size="md"
+                        value={(payment.cashGiven - calculateTotal(2)).toFixed(2)}
+                        startContent={
+                          <div className="pointer-events-none flex items-center">
+                            <span className="text-default-400 text-small">$</span>
+                          </div>
+                        }
+                      /> 
+                    </div>
                   </div>
                     </div>
                 </div>
