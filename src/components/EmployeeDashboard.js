@@ -26,14 +26,39 @@ const EmployeeDashboard = () => {
   const [schedule, setSchedule] = useState([]); // State for employee schedule
   const [selectedDiscount, setSelectedDiscount] = useState([]);
   const [discounts, setDiscounts] = useState([]);
+ 
+  const [mySchedule, setMySchedule] = useState([]); // State for filtered employee schedule
 
   useEffect(() => {
-    // Load the schedule from local storage
+    // Load the full schedule from local storage
     const savedSchedule = localStorage.getItem('generatedSchedule');
     if (savedSchedule) {
-      setSchedule(JSON.parse(savedSchedule));
+      const parsedSchedule = JSON.parse(savedSchedule);
+      setSchedule(parsedSchedule);
+
+      console.log("Full Schedule:", parsedSchedule); // Log full schedule for debugging
+
+      // Get the logged-in employee's ID from local storage
+      const userID = localStorage.getItem('userID'); // Assume 'employeeID' is stored in localStorage
+
+      console.log("Logged-in Employee ID:", userID); // Log employee ID for debugging
+
+      // Filter the schedule for the current employee by ID
+      if (userID) {
+        const filteredSchedule = parsedSchedule
+          .map(day => ({
+            day: day.day,
+            shifts: day.shifts.filter(shift => shift.userID === +userID) // Check if shift.employeeID matches employeeID
+          }))
+          .filter(day => day.shifts.length > 0); // Only include days with shifts for this employee
+
+        console.log("Filtered Schedule for Employee:", filteredSchedule); // Log filtered schedule for debugging
+
+        setMySchedule(filteredSchedule); // Set the filtered schedule
+      }
     }
   }, []);
+  
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -255,26 +280,25 @@ const EmployeeDashboard = () => {
           <p>No schedule available.</p>
         )}
       </div>
-
-      {/* My Schedule Section */}
-      <div className="dashboard-item my-schedule">
+   {/* My Schedule Section */}
+   <div className="dashboard-item my-schedule">
         <h3>My Weekly Schedule</h3>
-        {schedule.length > 0 ? (
+        {mySchedule.length > 0 ? (
           <table>
             <thead>
               <tr>
                 <th>Day</th>
                 <th>Shift</th>
-                <th>Role</th>
               </tr>
             </thead>
             <tbody>
-              {schedule.map((shift, index) => (
-                <tr key={index}>
-                  <td>{shift.day}</td>
-                  <td>{shift.shift}</td>
-                  <td>{shift.role}</td>
-                </tr>
+              {mySchedule.map((day, index) => (
+                day.shifts.map((shift, shiftIndex) => (
+                  <tr key={`${index}-${shiftIndex}`}>
+                    {shiftIndex === 0 && <td rowSpan={day.shifts.length}>{day.day}</td>}
+                    <td>{shift.shift}</td>
+                  </tr>
+                ))
               ))}
             </tbody>
           </table>
