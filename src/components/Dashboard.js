@@ -22,6 +22,7 @@ const Dashboard = () => {
   const [products, setProducts] = useState([]);
   const [newProduct, setNewProduct] = useState({ name: '', price: '' });
   const [totalRevenue, setTotalRevenue] = useState(null);
+  const [totalDiscount, setTotalDiscount] = useState(null);
   const [mostOrderedProducts, setMostOrderedProducts] = useState([]);
   const [orderComparisonData, setOrderComparisonData] = useState([]);
   const [employeeTasks, setEmployeeTasks] = useState([]); // New state for employee tasks data
@@ -44,7 +45,7 @@ const Dashboard = () => {
 
   const pages2 = Math.ceil(nonActiveDiscounts.length / rowsPerPage);
   const changedDiscounts2 = useMemo(() => {
-    const start = (page - 1) * rowsPerPage;
+    const start = (page2 - 1) * rowsPerPage;
     const end = start + rowsPerPage;
 
     return nonActiveDiscounts.slice(start, end);
@@ -54,6 +55,7 @@ const Dashboard = () => {
   const usedProductsChange = useMemo(() => {
     const start = (usedProductsPage - 1) * rowsPerPage;
     const end = start + rowsPerPage;
+    
     return mostOrderedProducts.slice(start, end);
  }, [usedProductsPage, mostOrderedProducts]);
 
@@ -66,6 +68,7 @@ const Dashboard = () => {
     fetchEmployeeTasks(); // Fetch employee tasks data on component load
     fetchDiscounts();
     fetchNonActiveDiscounts();
+    fetchDiscount();
 
   }, []);
 
@@ -89,6 +92,17 @@ const Dashboard = () => {
       console.error('Error fetching revenue:', error);
     }
   };
+
+  // For Revenue Totals Table
+  const fetchDiscount = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/totalDiscount');
+      const data = await response.json();
+      setTotalDiscount(data.totalDiscount);
+    } catch (error) {
+      console.error('Error fetching discount:', error);
+    }
+  }
 
   const fetchMostOrderedProducts = async () => {
     try {
@@ -125,7 +139,6 @@ const Dashboard = () => {
       const response = await fetch('http://localhost:5000/api/getDiscounts');
       const data = await response.json();
       setDiscounts(data);
-      console.log(data);
     } catch (error) {
       console.error('Error fetching discounts:', error);
     }
@@ -136,7 +149,6 @@ const Dashboard = () => {
       const response = await fetch('http://localhost:5000/api/getNonActiveDiscounts');
       const data = await response.json();
       setNonActiveDiscounts(data);
-      console.log(data);
     } catch (error) {
       console.error('Error fetching discounts:', error);
     }
@@ -215,35 +227,51 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
+
       {/* Revenue Display */}
       <div className="dashboard-item revenue">
-        <h3>Total Revenue</h3>
-        <p className="revenue-amount">
-          {totalRevenue !== null ? `$${totalRevenue.toFixed(2)}` : 'Loading...'}
-        </p>
+        <h3>Revenue Totals</h3>
+        <Table>
+          <TableHeader>
+            <TableColumn>Total Finding</TableColumn>
+            <TableColumn>Amount</TableColumn>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell>Revenue</TableCell>
+              <TableCell>{totalRevenue !== null ? `$${totalRevenue.toFixed(2)}` : 'Loading...'}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Discounts</TableCell>
+              <TableCell>{totalDiscount !== null ? `-$${totalDiscount.toFixed(2)}` : 'Loading...'}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Profit</TableCell>
+              <TableCell><b>{totalRevenue !== null ? `$${totalRevenue.toFixed(2) - totalDiscount.toFixed(2)}` : 'Loading...'}</b></TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </div>
 
       {/* Employee Tasks Table */}
       <div className="dashboard-item employee-tasks">
         <h3>Your Time - Employee Tasks</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Employee Name</th>
-              <th>Tasks Assigned</th>
-              <th>Tasks Completed</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table>
+          <TableHeader>
+              <TableColumn>Employee Name</TableColumn>
+              <TableColumn>Tasks Assigned</TableColumn>
+              <TableColumn>Tasks Completed</TableColumn>
+          </TableHeader>
+          <TableBody>
             {employeeTasks.map((task, index) => (
-              <tr key={index}>
-                <td>{task.employeeName}</td>
-                <td>{task.tasksAssigned}</td>
-                <td>{task.tasksCompleted}</td>
-              </tr>
+              <TableRow key={index}>
+                <TableCell>{task.employeeName}</TableCell>
+                <TableCell>{task.tasksAssigned}</TableCell>
+                <TableCell>{task.tasksCompleted}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       {/* Most Ordered Products Table */}
@@ -420,18 +448,6 @@ const Dashboard = () => {
                         <TableCell>{discount.percentOff}%</TableCell>
                         <TableCell>{discount.description}</TableCell>
                         <TableCell>{new Date(discount.expireyDate).toISOString().split('T')[0]}</TableCell>
-                        {/* <TableCell>
-                          <div className="flex gap-3 items-center">
-                            <Button
-                              className="quantity-button"
-                              onClick={() => handleDiscountStatusChange(discount.id, 0)}
-                              size="sm"
-                              color="danger"
-                            >
-                              Deactivate
-                            </Button>
-                          </div>
-                        </TableCell> */}
                       </TableRow>
                       ))}
                     </TableBody>
@@ -579,30 +595,13 @@ const Dashboard = () => {
                   > 
                     Create New Discount 
                   </Button>
-
-                  {/* <h3>Add New Product</h3>
-                  <div className="add-product-form">
-                    <input
-                      type="text"
-                      placeholder="Product Name"
-                      value={newProduct.name}
-                      onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                    />
-                    <input
-                      type="number"
-                      placeholder="Price"
-                      value={newProduct.price}
-                      onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })}
-                    />
-                    <button onClick={addProduct}>Add Product</button>
-                  </div> */}
                 </ModalBody>
               </>
             )}
           </ModalContent>
         </Modal>
         <h3>Discount Management</h3>
-        <p>Click to open the Discount Management Modal to see and create discounts.</p>
+        <h2><b>Click Me!</b></h2>
     </div>
   </div>
   );

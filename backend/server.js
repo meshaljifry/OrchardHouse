@@ -59,7 +59,7 @@ app.put('/api/Item/:id', (req, res) => {
   });
 });
 
-// New Endpoint: Fetch the top 3 most ordered products with their total orders and revenue
+// New Endpoint: Fetch most ordered products with their total orders and revenue
 app.get('/api/mostOrderedProducts', (req, res) => {
   const sql = `
     SELECT 
@@ -81,6 +81,7 @@ app.get('/api/mostOrderedProducts', (req, res) => {
     res.json(results);
   });
 });
+
 app.get('/api/TotalRevenue', (req, res) => {
   const sql = `SELECT SUM(unitPrice * quantity) AS totalRevenue FROM TransactionItem`;
 
@@ -91,6 +92,24 @@ app.get('/api/TotalRevenue', (req, res) => {
     }
 
     res.json({ totalRevenue: results[0].totalRevenue || 0 });
+  });
+});
+
+app.get('/api/TotalDiscount', (req, res) => {
+  const sql = `SELECT 
+                SUM(D.percentOff * .01 * TI.unitPrice * TI.quantity) AS totalDiscount 
+              FROM Transaction AS T
+              JOIN TransactionPayment AS TP ON TP.transactionID = T.transactionID
+              JOIN Discount AS D ON D.discountID = TP.discountID
+              JOIN TransactionItem AS TI ON TI.transactionID = T.transactionID;`;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Database query error:", err);
+      return res.status(500).send("An error occurred while calculating discount total");
+    }
+
+    res.json({ totalDiscount: results[0].totalDiscount || 0 });
   });
 });
 
