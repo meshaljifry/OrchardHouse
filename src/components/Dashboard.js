@@ -55,9 +55,10 @@ const Dashboard = () => {
   const usedProductsChange = useMemo(() => {
     const start = (usedProductsPage - 1) * rowsPerPage;
     const end = start + rowsPerPage;
-    
+
     return mostOrderedProducts.slice(start, end);
- }, [usedProductsPage, mostOrderedProducts]);
+  }, [usedProductsPage, mostOrderedProducts]);
+
 
   useEffect(() => {
     fetchProducts();
@@ -230,7 +231,7 @@ const Dashboard = () => {
 
       {/* Revenue Display */}
       <div className="dashboard-item revenue">
-        <h3>Revenue Totals</h3>
+        <h3>Financial Totals</h3>
         <Table>
           <TableHeader>
             <TableColumn>Total Finding</TableColumn>
@@ -247,7 +248,7 @@ const Dashboard = () => {
             </TableRow>
             <TableRow>
               <TableCell>Profit</TableCell>
-              <TableCell><b>{totalRevenue !== null ? `$${totalRevenue.toFixed(2) - totalDiscount.toFixed(2)}` : 'Loading...'}</b></TableCell>
+              <TableCell><b>{totalRevenue !== null ? `$${(totalRevenue - totalDiscount).toFixed(2)}` : 'Loading...'}</b></TableCell>
             </TableRow>
           </TableBody>
         </Table>
@@ -275,39 +276,39 @@ const Dashboard = () => {
       </div>
 
       {/* Most Ordered Products Table */}
-     <div className="dashboard-item products">
-       <h3>Most Purchased Products</h3>
-       <Table
-       className='mostOrderedProductsTable'
-       bottomContent={
-         <div className="flex w-full justify-center">
-           <Pagination
-             isCompact
-             showControls
-             showShadow
-             color="secondary"
-             page={usedProductsPage}
-             total={usedProductsPages}
-             onChange={(usedProductsPage) => setUsedProductsPage(usedProductsPage)}
-           />
-         </div>
-       }>
-         <TableHeader>
-             <TableColumn>Product</TableColumn>
-             <TableColumn>Purchased</TableColumn>
-             <TableColumn>Total Revenue</TableColumn>
-         </TableHeader>
-         <TableBody>
-           {usedProductsChange.map((product, index) => (
-             <TableRow key={index}>
-               <TableCell>{product.productName}</TableCell>
-               <TableCell>{product.totalOrders}</TableCell>
-               <TableCell>${product.totalRevenue.toFixed(2)}</TableCell>
-             </TableRow>
-           ))}
-         </TableBody>
-       </Table>
-     </div>
+      <div className="dashboard-item products">
+        <h3>Most Purchased Products</h3>
+        <Table
+        className='mostOrderedProductsTable'
+        bottomContent={
+          <div className="flex w-full justify-center">
+            <Pagination
+              isCompact
+              showControls
+              showShadow
+              color="secondary"
+              page={usedProductsPage}
+              total={usedProductsPages}
+              onChange={(usedProductsPage) => setUsedProductsPage(usedProductsPage)}
+            />
+          </div>
+        }>
+          <TableHeader>
+              <TableColumn>Product</TableColumn>
+              <TableColumn>Purchased</TableColumn>
+              <TableColumn>Total Revenue</TableColumn>
+          </TableHeader>
+          <TableBody>
+            {usedProductsChange.map((product, index) => (
+              <TableRow key={index}>
+                <TableCell>{product.productName}</TableCell>
+                <TableCell>{product.totalOrders}</TableCell>
+                <TableCell>${product.totalRevenue.toFixed(2)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
       {/* Order Comparison Chart */}
       <div className="dashboard-item order-comparison">
