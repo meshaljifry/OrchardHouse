@@ -25,7 +25,8 @@ const UserDashboard = () => {
   const [forecast, setForecast] = useState(null);
   const [loadingWeather, setLoadingWeather] = useState(true);
   const [errorWeather, setErrorWeather] = useState(null);
-
+  const [discounts, setDiscounts] = useState([]);
+  const [loadingDiscounts, setLoadingDiscounts] = useState(true);
   // Coordinates for weather api
   const lat = 44.8755; // provided latitude
   const lon = -91.9193; // provided longitude
@@ -158,7 +159,23 @@ const UserDashboard = () => {
     const date = new Date(dateString + 'T00:00:00'); // Force midnight time to avoid time zone issues
     return date.toLocaleDateString('en-US', { weekday: 'short' });
   };
+  // Fetch discounts from API
+  const fetchDiscounts = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/getDiscounts');
+      const data = await response.json();
+      setDiscounts(data);
+      setLoadingDiscounts(false);
+    } catch (error) {
+      console.error('Error fetching discounts:', error);
+      setLoadingDiscounts(false);
+    }
+  };
 
+  // Fetch discounts when the component mounts
+  useEffect(() => {
+    fetchDiscounts();
+  }, []);
   // HTML return
   return (
     <div className="dashboard-container">
@@ -220,14 +237,24 @@ const UserDashboard = () => {
         )}
       </div>
 
-      {/* Farm Photos Section */}
-      <div className="dashboard-item farm-photos">
-        <h3>Farm Photos</h3>
-        <div className="photo-grid">
-          {farmPhotos.map((url, index) => (
-            <img key={index} src={url} alt={`Farm ${index}`} className="farm-photo" />
-          ))}
-        </div>
+      {/* Discounts Section */}
+      <div className="dashboard-item discounts-section">
+        <h3>Available Discounts</h3>
+        {loadingDiscounts ? (
+          <p>Loading discounts...</p>
+        ) : (
+          <div className="discounts-grid">
+            {discounts.map((discount, index) => (
+              <div key={index} className="discount-card">
+                <h4>{discount.name}</h4>
+                <p><strong>Code:</strong> {discount.code}</p>
+                <p><strong>Discount:</strong> {discount.percentOff}%</p>
+                <p>{discount.description}</p>
+                <p><strong>Expires on:</strong> {new Date(discount.expireyDate).toLocaleDateString()}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Events Section */}

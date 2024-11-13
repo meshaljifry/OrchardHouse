@@ -195,6 +195,8 @@ const Dashboard = () => {
     );
   };
 
+
+
   const updateProduct = async (product) => {
     try {
       await fetch(`http://localhost:5000/api/Item/${product.id}`, {
@@ -204,7 +206,7 @@ const Dashboard = () => {
         },
         body: JSON.stringify({ name: product.name, price: product.price }),
       });
-      fetchProducts();
+      fetchProducts(); // Refresh the product list after update
     } catch (error) {
       console.error('Error updating product:', error);
     }
@@ -225,6 +227,7 @@ const Dashboard = () => {
       console.error('Error adding product:', error);
     }
   };
+
 
   return (
     <div className="dashboard-container">
