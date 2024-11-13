@@ -1,0 +1,75 @@
+/* HelpPage.css */
+.help-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    color: #333;
+    background-color: #f2f3ae;
+  }
+  
+  .help-title {
+    text-align: center;
+    color: #64291b;
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+  
+  .help-description {
+    text-align: center;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    color: #666;
+  }
+  
+  .faq-list {
+    margin-bottom: 30px;
+  }
+  
+  .faq-item {
+    margin-bottom: 20px;
+    padding: 10px;
+  }
+  
+  .faq-question {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .faq-answer {
+    font-size: 1rem;
+    color: #555;
+  }
+
+  .hours-list li {
+    margin: 2px 0;
+    text-align: center;
+  }
+  
+  .hours-note {
+    font-size: 0.9rem;
+    color: #888;
+    text-align: center;
+  }
+  
+  .contact-info {
+    text-align: center;
+    padding: 15px;
+    background-color: #f2f3ae;
+    border-radius: 8px;
+  }
+  
+  .contact-info h2 {
+    font-size: 1.5rem;
+    color: #64291b;
+    margin-bottom: 5px;
+  }
+  
+  .contact-info p {
+    font-size: 1rem;
+    color: #333;
+    margin: 5px 0;
+  }
+  
