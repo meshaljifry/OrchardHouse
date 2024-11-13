@@ -371,6 +371,19 @@ app.get('/api/getDiscounts', (req, res) => {
   });
 });
 
+app.put('/api/setDiscountStatus/:id', (req, res) => {
+  const { id } = req.params;
+  const { statusID } = req.body;
+  const sql = 'UPDATE Discount SET statusID = ? WHERE discountID = ?';
+  db.query(sql, [statusID, id], (err, results) => {
+    if (err) {
+      console.error('Error updating product:', err);
+      return res.status(500).send('Error updating product');
+    }
+    res.sendStatus(200);
+  });
+});
+
 app.get('/api/getNonActiveDiscounts', (req, res) => {
   const sql = 'SELECT discountID, code, name, percentOff, description, expireyDate, statusID FROM Discount WHERE statusID = 17';
   db.query(sql, (err, results) => {

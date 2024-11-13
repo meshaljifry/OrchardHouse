@@ -168,6 +168,22 @@ const Dashboard = () => {
     }
   }
 
+  const handleDiscountStatusChange = async (discountID, statusID) => {
+    try {
+      await fetch(`http://localhost:5000/api/setDiscountStatus/${discountID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({statusID: statusID}),
+      });
+      fetchDiscounts();
+      fetchNonActiveDiscounts();
+    } catch (error) {
+      console.error('Error updating discount status', error);
+    }
+  };
+
   const createNewDiscount = async () => {
     try {
       await fetch('http://localhost:5000/api/createDiscount', {
@@ -436,8 +452,8 @@ const Dashboard = () => {
                         <TableColumn key="Dname">Name</TableColumn>
                         <TableColumn key="DpercentOff">PercentOff</TableColumn>
                         <TableColumn key="Ddescription">Description</TableColumn>
-                        <TableColumn key="Ddate">Date</TableColumn>
-                        {/* <TableColumn key="Dactions">Actions</TableColumn> */}
+                        <TableColumn key="Ddate">Official Expiration</TableColumn>
+                        <TableColumn key="Dactions">Action</TableColumn>
                     </TableHeader>
                     <TableBody
                       emptyContent={"No discounts to show."}
@@ -449,6 +465,18 @@ const Dashboard = () => {
                         <TableCell>{discount.percentOff}%</TableCell>
                         <TableCell>{discount.description}</TableCell>
                         <TableCell>{new Date(discount.expireyDate).toISOString().split('T')[0]}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-3 items-center">
+                            <Button
+                              className="quantity-button"
+                              onClick={() => handleDiscountStatusChange(discount.discountID, 17)}
+                              size="sm"
+                              color="danger"
+                            >
+                              Deactivate
+                            </Button>
+                          </div>
+                        </TableCell>
                       </TableRow>
                       ))}
                     </TableBody>
@@ -477,8 +505,8 @@ const Dashboard = () => {
                         <TableColumn key="D2name">Name</TableColumn>
                         <TableColumn key="D2percentOff">PercentOff</TableColumn>
                         <TableColumn key="D2description">Description</TableColumn>
-                        <TableColumn key="D2date">Date</TableColumn>
-                        {/* <TableColumn key="D2actions">Actions</TableColumn> */}
+                        <TableColumn key="D2date">Official Expiration</TableColumn>
+                        <TableColumn key="D2actions">Action</TableColumn>
                     </TableHeader>
                     <TableBody
                       emptyContent={"No discounts to show."}
@@ -490,18 +518,18 @@ const Dashboard = () => {
                         <TableCell>{discount.percentOff}%</TableCell>
                         <TableCell>{discount.description}</TableCell>
                         <TableCell>{new Date(discount.expireyDate).toISOString().split('T')[0]}</TableCell>
-                        {/* <TableCell>
+                        <TableCell>
                           <div className="flex gap-3 items-center">
                             <Button
                               className="quantity-button"
-                              onClick={() => handleDiscountStatusChange(discount.id, 1)}
+                              onClick={() => handleDiscountStatusChange(discount.discountID, 16)}
                               size="sm"
                               color="success"
                             >
                               Activate
                             </Button>
                           </div>
-                        </TableCell> */}
+                        </TableCell>
                       </TableRow>
                       ))}
                     </TableBody>
