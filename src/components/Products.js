@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react'; 
-import { Button, Input, Modal, Spacer } from '@nextui-org/react';
+import { Button, Input, Modal, Spacer, Select, SelectItem } from '@nextui-org/react';
 import { FaShoppingCart } from 'react-icons/fa';
 import './products.css';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
+  const [mostOrderedProducts, setMostOrderedProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortOrder, setSortOrder] = useState('');
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const cartRef = useRef(null);
 
@@ -32,7 +34,18 @@ const Products = () => {
       }
     };
 
+    const fetchMostOrderedProducts = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/mostOrderedProducts');
+        const data = await response.json();
+        setMostOrderedProducts(data);
+      } catch (error) {
+        console.error('Error fetching most ordered products:', error);
+      }
+    };
+
     fetchProducts();
+    fetchMostOrderedProducts();
   }, []);
 
   const addToCart = (product) => {
@@ -66,6 +79,10 @@ const Products = () => {
     setSearchTerm(event.target.value);
   };
 
+  const handleSortOrderChange = (event) => {
+    setSortOrder(event.target.value);
+  };
+
   const scrollToCart = () => {
     if (cartRef.current) {
       cartRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -82,9 +99,28 @@ const Products = () => {
     handleCheckoutClose();
   };
 
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = products
+    .filter((product) =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      switch (sortOrder) {
+        case 'lowToHigh':
+          return a.price - b.price;
+        case 'highToLow':
+          return b.price - a.price;
+        case 'aToZ':
+          return a.name.localeCompare(b.name);
+        case 'zToA':
+          return b.name.localeCompare(a.name);
+        case 'mostOrdered':
+          const aOrders = mostOrderedProducts.find(p => p.productName === a.name)?.totalOrders || 0;
+          const bOrders = mostOrderedProducts.find(p => p.productName === b.name)?.totalOrders || 0;
+          return bOrders - aOrders;
+        default:
+          return 0;
+      }
+    });
 
   return (
     <div className="products-container">
@@ -99,6 +135,20 @@ const Products = () => {
           bordered
           fullWidth
         />
+        <Select
+          placeholder="Sort by"
+          value={sortOrder}
+          onChange={handleSortOrderChange}
+          clearable
+          bordered
+          style={{ width: '200px', marginLeft: 'auto' }}
+        >
+          <SelectItem key="lowToHigh">Price: Low to High</SelectItem>
+          <SelectItem key="highToLow">Price: High to Low</SelectItem>
+          <SelectItem key="aToZ">Name: A-Z</SelectItem>
+          <SelectItem key="zToA">Name: Z-A</SelectItem>
+          <SelectItem key="mostOrdered">Most Popular</SelectItem>
+        </Select>
         <button className="cart-icon" onClick={scrollToCart}>
           <FaShoppingCart size={24} />
         </button>

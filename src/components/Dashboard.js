@@ -1,5 +1,6 @@
 // File: src/components/Dashboard.js
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   LineChart,
@@ -54,10 +55,9 @@ const Dashboard = () => {
   const usedProductsChange = useMemo(() => {
     const start = (usedProductsPage - 1) * rowsPerPage;
     const end = start + rowsPerPage;
-
+    
     return mostOrderedProducts.slice(start, end);
-  }, [usedProductsPage, mostOrderedProducts]);
-
+ }, [usedProductsPage, mostOrderedProducts]);
 
   useEffect(() => {
     fetchProducts();
@@ -275,39 +275,39 @@ const Dashboard = () => {
       </div>
 
       {/* Most Ordered Products Table */}
-      <div className="dashboard-item products">
-        <h3>Most Purchased Products</h3>
-        <Table
-        className='mostOrderedProductsTable'
-        bottomContent={
-          <div className="flex w-full justify-center">
-            <Pagination
-              isCompact
-              showControls
-              showShadow
-              color="secondary"
-              page={usedProductsPage}
-              total={usedProductsPages}
-              onChange={(usedProductsPage) => setUsedProductsPage(usedProductsPage)}
-            />
-          </div>
-        }>
-          <TableHeader>
-              <TableColumn>Product</TableColumn>
-              <TableColumn>Purchased</TableColumn>
-              <TableColumn>Total Revenue</TableColumn>
-          </TableHeader>
-          <TableBody>
-            {usedProductsChange.map((product, index) => (
-              <TableRow key={index}>
-                <TableCell>{product.productName}</TableCell>
-                <TableCell>{product.totalOrders}</TableCell>
-                <TableCell>${product.totalRevenue.toFixed(2)}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+     <div className="dashboard-item products">
+       <h3>Most Purchased Products</h3>
+       <Table
+       className='mostOrderedProductsTable'
+       bottomContent={
+         <div className="flex w-full justify-center">
+           <Pagination
+             isCompact
+             showControls
+             showShadow
+             color="secondary"
+             page={usedProductsPage}
+             total={usedProductsPages}
+             onChange={(usedProductsPage) => setUsedProductsPage(usedProductsPage)}
+           />
+         </div>
+       }>
+         <TableHeader>
+             <TableColumn>Product</TableColumn>
+             <TableColumn>Purchased</TableColumn>
+             <TableColumn>Total Revenue</TableColumn>
+         </TableHeader>
+         <TableBody>
+           {usedProductsChange.map((product, index) => (
+             <TableRow key={index}>
+               <TableCell>{product.productName}</TableCell>
+               <TableCell>{product.totalOrders}</TableCell>
+               <TableCell>${product.totalRevenue.toFixed(2)}</TableCell>
+             </TableRow>
+           ))}
+         </TableBody>
+       </Table>
+     </div>
 
       {/* Order Comparison Chart */}
       <div className="dashboard-item order-comparison">

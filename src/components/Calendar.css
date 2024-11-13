@@ -19,6 +19,14 @@
     margin-bottom: 20px;
 }
 
+.button-div {
+    display: flex;
+    justify-content: space-between;
+    align-items: left;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
 .calendar-title {
     font-size: 2rem;
     font-weight: bold;
@@ -79,3 +87,22 @@
     font-size: 1.2rem;
     color: #666;
 }
+
+/* Event list styling */
+.event-list {
+    padding: 5px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    text-align: center;
+    margin-top: 2px;
+}
+
+/* Event item styling */
+.event-item {
+    margin: 2px 0;
+    font-size: 1rem;
+}
+
+.button-spacing {
+    margin-right: 10px;
+  }

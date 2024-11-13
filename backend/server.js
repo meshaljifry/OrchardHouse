@@ -165,6 +165,22 @@ app.get('/api/employeeTasks', (req, res) => {
     res.json(formattedResults);
   });
 });
+app.get('/api/employees', (req, res) => {
+  const sql = `
+    SELECT 
+      userID AS id, 
+      CONCAT(firstName, ' ', lastName) AS name 
+    FROM User
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return res.status(500).send("An error occurred while fetching employees");
+    }
+    res.json(results); // Return the list of employees as JSON
+  });
+});
 // POST (add) a new product - used in Dashboard.js for adding products
 app.post('/api/Item', (req, res) => {
   const { name, price } = req.body;
@@ -495,6 +511,59 @@ app.get('/api/getUserList', async (req, res) => {
     }
     res.json(results);
   });
+});
+app.get('/api/employeesWithRoles', (req, res) => {
+  const sql = `
+    SELECT 
+      userID AS id, 
+      CONCAT(firstName, ' ', lastName) AS name 
+    FROM User
+    WHERE roleID IN (2, 3)
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return res.status(500).send("An error occurred while fetching employees with specific roles");
+    }
+    res.json(results); // Return the list of filtered employees as JSON
+  });
+});
+
+
+// Get Event List Endpoint
+app.get('/api/getEventList', async (req, res) => {
+  const { isPrivate } = req.query;
+  let sql = 'SELECT eventID, scheduledDate, isPrivate, title, description FROM Event';
+
+  const values = [];
+  if (isPrivate) {
+    sql += ' WHERE isPrivate = ?';
+    values.push(isPrivate);
+  }
+
+  db.query(sql, values, (err, results) => {
+    if (err) {
+      console.error('Error querying the Event table:', err);
+      return res.status(500).send('Error querying the Events table');
+    }
+    res.json(results);
+  });
+});
+
+// Create event endpoint
+app.post('/api/createEvent', async (req, res) => {
+  const {scheduledDate, isPrivate, title, description} = req.body;
+  const sql = `INSERT INTO Event (scheduledDate, isPrivate, title, description)     
+  VALUES (?, ?, ?, ?)`;
+  const values = [scheduledDate, isPrivate, title, description];
+  db.query(sql, values, (err, result) => {     
+  if (err) { 
+    console.error('Error creating event:', err);       
+    return res.status(500).send('Error creating event'); 
+  } 
+  res.status(201).send('Event created successfully'); 
+  }); 
 });
 
 app.get('/', (req, res) => {

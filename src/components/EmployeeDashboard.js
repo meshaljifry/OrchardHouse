@@ -1,18 +1,12 @@
-
+// File: src/components/EmployeeDashboard.js
 import React, { useState, useEffect } from 'react';
-import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Spacer, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Autocomplete, AutocompleteItem, RadioGroup, Radio, Input} from "@nextui-org/react";
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Spacer, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Autocomplete, AutocompleteItem, RadioGroup, Radio, Input } from "@nextui-org/react";
 import './Dashboard.css';
 
 const mockTasks = [
   { task: 'Feed the animals', assignedTo: 'John Doe', dueDate: 'Oct 7, 2023' },
   { task: 'Clean the barn', assignedTo: 'Jane Smith', dueDate: 'Oct 8, 2023' },
   { task: 'Repair fences', assignedTo: 'Alex Brown', dueDate: 'Oct 9, 2023' },
-];
-
-const mockSchedule = [
-  { employee: 'John Doe', shift: '8:00 AM - 4:00 PM', day: 'Monday' },
-  { employee: 'Jane Smith', shift: '9:00 AM - 5:00 PM', day: 'Tuesday' },
-  { employee: 'Alex Brown', shift: '10:00 AM - 6:00 PM', day: 'Wednesday' },
 ];
 
 const mockAnimalStatus = [
@@ -22,16 +16,49 @@ const mockAnimalStatus = [
 ];
 
 const EmployeeDashboard = () => {
-  //const [posInput, setPosInput] = useState({ itemNumber: '', price: '', creditCard: '' });
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [productValue, setProductValue] = useState();
   const [selectedPayment, setSelectedPayment] = useState("card");
-  const [payment, setPayment] = useState({paymentType: '', cardNumber: '', cardExpiration: '', cardCode: '', cashGiven: ''});
-  const [newTransaction, setNewTransaction] = useState({date: '', userID: ''});
+  const [payment, setPayment] = useState({ paymentType: '', cardNumber: '', cardExpiration: '', cardCode: '', cashGiven: '' });
+  const [newTransaction, setNewTransaction] = useState({ date: '', userID: '' });
+  const [schedule, setSchedule] = useState([]); // State for employee schedule
   const [selectedDiscount, setSelectedDiscount] = useState([]);
   const [discounts, setDiscounts] = useState([]);
+ 
+  const [mySchedule, setMySchedule] = useState([]); // State for filtered employee schedule
+
+  useEffect(() => {
+    // Load the full schedule from local storage
+    const savedSchedule = localStorage.getItem('generatedSchedule');
+    if (savedSchedule) {
+      const parsedSchedule = JSON.parse(savedSchedule);
+      setSchedule(parsedSchedule);
+
+      console.log("Full Schedule:", parsedSchedule); // Log full schedule for debugging
+
+      // Get the logged-in employee's ID from local storage
+      const userID = localStorage.getItem('userID'); // Assume 'employeeID' is stored in localStorage
+
+      console.log("Logged-in Employee ID:", userID); // Log employee ID for debugging
+
+      // Filter the schedule for the current employee by ID
+      if (userID) {
+        const filteredSchedule = parsedSchedule
+          .map(day => ({
+            day: day.day,
+            shifts: day.shifts.filter(shift => shift.userID === +userID) // Check if shift.employeeID matches employeeID
+          }))
+          .filter(day => day.shifts.length > 0); // Only include days with shifts for this employee
+
+        console.log("Filtered Schedule for Employee:", filteredSchedule); // Log filtered schedule for debugging
+
+        setMySchedule(filteredSchedule); // Set the filtered schedule
+      }
+    }
+  }, []);
+  
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -223,27 +250,61 @@ const EmployeeDashboard = () => {
         </ul>
       </div>
 
-      {/* Employee Schedule Section */}
-      <div className="dashboard-item employee-schedule">
+  {/* Employee Schedule Section */}
+  <div className="dashboard-item employee-schedule">
         <h3>Employee Schedule</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Employee</th>
-              <th>Shift</th>
-              <th>Day</th>
-            </tr>
-          </thead>
-          <tbody>
-            {mockSchedule.map((schedule, index) => (
-              <tr key={index}>
-                <td>{schedule.employee}</td>
-                <td>{schedule.shift}</td>
-                <td>{schedule.day}</td>
+        {schedule.length > 0 ? (
+          <table>
+            <thead>
+              <tr>
+                <th>Day</th>
+                <th>Shift</th>
+                <th>Employee</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {schedule.map((daySchedule, index) => (
+                <React.Fragment key={index}>
+                  {daySchedule.shifts.map((shift, shiftIndex) => (
+                    <tr key={shiftIndex}>
+                      {shiftIndex === 0 && <td rowSpan="2">{daySchedule.day}</td>}
+                      <td>{shift.shift}</td>
+                      <td>{shift.employee}</td>
+                    </tr>
+                  ))}
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>No schedule available.</p>
+        )}
+      </div>
+   {/* My Schedule Section */}
+   <div className="dashboard-item my-schedule">
+        <h3>My Weekly Schedule</h3>
+        {mySchedule.length > 0 ? (
+          <table>
+            <thead>
+              <tr>
+                <th>Day</th>
+                <th>Shift</th>
+              </tr>
+            </thead>
+            <tbody>
+              {mySchedule.map((day, index) => (
+                day.shifts.map((shift, shiftIndex) => (
+                  <tr key={`${index}-${shiftIndex}`}>
+                    {shiftIndex === 0 && <td rowSpan={day.shifts.length}>{day.day}</td>}
+                    <td>{shift.shift}</td>
+                  </tr>
+                ))
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>No schedule available.</p>
+        )}
       </div>
 
       {/* Animal Status Section */}
