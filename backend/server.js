@@ -514,10 +514,18 @@ app.get('/api/employeesWithRoles', (req, res) => {
 
 // Get Event List Endpoint
 app.get('/api/getEventList', async (req, res) => {
-  const sql = 'SELECT eventID, scheduledDate, title, description FROM Event';
-  db.query(sql, (err, results) => {
+  const { isPrivate } = req.query;
+  let sql = 'SELECT eventID, scheduledDate, isPrivate, title, description FROM Event';
+
+  const values = [];
+  if (isPrivate) {
+    sql += ' WHERE isPrivate = ?';
+    values.push(isPrivate);
+  }
+
+  db.query(sql, values, (err, results) => {
     if (err) {
-      console.error('Error querying the User table:', err);
+      console.error('Error querying the Event table:', err);
       return res.status(500).send('Error querying the Events table');
     }
     res.json(results);
@@ -526,10 +534,10 @@ app.get('/api/getEventList', async (req, res) => {
 
 // Create event endpoint
 app.post('/api/createEvent', async (req, res) => {
-  const {scheduledDate, title, description} = req.body;
-  const sql = `INSERT INTO Event (scheduledDate, title, description)     
-  VALUES (?, ?, ?)`;
-  const values = [scheduledDate, title, description];
+  const {scheduledDate, isPrivate, title, description} = req.body;
+  const sql = `INSERT INTO Event (scheduledDate, isPrivate, title, description)     
+  VALUES (?, ?, ?, ?)`;
+  const values = [scheduledDate, isPrivate, title, description];
   db.query(sql, values, (err, result) => {     
   if (err) { 
     console.error('Error creating event:', err);       
