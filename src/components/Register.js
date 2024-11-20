@@ -51,6 +51,15 @@ export default function Register() {
   };
 
   const createUser = async () => {
+    if (!username || !password || !password2) {
+      setErrorMessage('Please enter a username and password.');
+      return;
+    }
+    if (password !== password2) {
+      setErrorMessage('Passwords do not match');
+      return;
+    }
+    
     const usernameExists = await checkUsername();
     if (usernameExists) {
         setErrorMessage('Username already exists.');
@@ -164,7 +173,7 @@ export default function Register() {
       <Spacer y={2} />
       <Input
         isRequired
-        label="Password2"
+        label="Confirm Password"
         placeholder="Enter your password again"
         onValueChange={setPassword2}
         endContent={
