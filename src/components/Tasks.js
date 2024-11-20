@@ -7,6 +7,7 @@ const Tasks = () => {
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
   const { isOpen: isAssignOpen, onOpen: onAssignOpen, onOpenChange: onAssignOpenChange } = useDisclosure();
   const { isOpen: isCommentOpen, onOpen: onCommentOpen, onOpenChange: onCommentOpenChange } = useDisclosure();
+  const { isOpen: isDetailsOpen, onOpen: onDetailsOpen, onOpenChange: onDetailsOpenChange } = useDisclosure();
 
   const [animals, setAnimals] = useState([]);
   const [plants, setPlants] = useState([]);
@@ -25,6 +26,7 @@ const Tasks = () => {
   const [comments, setComments] = useState([]);
   const [comment, setComment] = useState('');
   const [dateScheduledFor, setDateScheduledFor] = useState('');
+  const [taskDetails, setTaskDetails] = useState(null);
   const currentDate = new Date();
   const formattedDate = currentDate.toISOString().split('T')[0];
 
@@ -230,6 +232,17 @@ const userAssignedTasks = tasks.filter(task => {
   // Otherwise, include all assigned tasks
   return isAssignedToUser;
 });
+
+const openTaskDetails = (taskID) => {
+  console.log('Opening details for Task ID:', taskID); // Debugging line
+  const task = tasks.find(t => t.taskID.toString() === taskID.toString());
+  if (task) {
+    setTaskDetails(task);
+    onDetailsOpen();
+  } else {
+    console.error('Task not found for Task ID:', taskID);
+  }
+};
 
   return (
     <div>
@@ -440,6 +453,35 @@ const userAssignedTasks = tasks.filter(task => {
       </Modal>
 
       <Button onPress={updateStatus} className="button-spacing">Mark Complete</Button>
+
+      <Button onPress={() => openTaskDetails(selectedTaskID)} className="button-spacing" disabled={!selectedTaskID}>View Details</Button>
+      <Modal isOpen={isDetailsOpen} onOpenChange={onDetailsOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader>Task Details</ModalHeader>
+              <ModalBody>
+                {taskDetails ? (
+                  <div>
+                    <p><strong>Task ID:</strong> {taskDetails.taskID}</p>
+                    <p><strong>Name:</strong> {taskDetails.name}</p>
+                    <p><strong>Description:</strong> {taskDetails.description}</p>
+                    <p><strong>Animal ID:</strong> {taskDetails.animalID || "N/A"}</p>
+                    <p><strong>Plant ID:</strong> {taskDetails.plantID || "N/A"}</p>
+                    <p><strong>Supply ID:</strong> {taskDetails.supplyID || "N/A"}</p>
+                    <p><strong>Report ID:</strong> {taskDetails.reportID || "N/A"}</p>
+                  </div>
+                ) : (
+                  <p>No task selected.</p>
+                )}
+              </ModalBody>
+              <ModalFooter>
+                <Button onPress={onClose}>Close</Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
 
       {/* Display tasks and enable row selection */}
       <div>
