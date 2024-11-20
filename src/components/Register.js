@@ -14,6 +14,7 @@ export default function Register() {
   const [password2, setPassword2] = useState('');
   const [isVisible, setIsVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isTosChecked, setIsTosChecked] = useState(false);
   const navigate = useNavigate();
   const toggleVisibility = () => setIsVisible(!isVisible);
 
@@ -57,6 +58,11 @@ export default function Register() {
     }
     if (password !== password2) {
       setErrorMessage('Passwords do not match');
+      return;
+    }
+
+    if (!isTosChecked) {
+      setErrorMessage('You must agree to the Terms of Service.');
       return;
     }
     
@@ -188,6 +194,17 @@ export default function Register() {
         type={isVisible ? 'text' : 'password'}
         className="max-w-xs m-2"
       />
+      <Spacer y={2} />
+      <div>
+        <input
+          type="checkbox"
+          checked={isTosChecked}
+          onChange={(e) => setIsTosChecked(e.target.checked)}
+        />
+        <label>
+          I agree to the <a href="/fake-tos" target="_blank" rel="noopener noreferrer">Terms of Service</a>
+        </label>
+      </div>
       <Spacer y={2} />
       <Button onPress={createUser}>Register</Button>
       {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
