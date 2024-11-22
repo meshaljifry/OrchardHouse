@@ -13,7 +13,9 @@ import {
 } from 'recharts';
 
 import './Dashboard.css';
-import { Modal, ModalContent, ModalHeader, ModalBody, useDisclosure, Table, TableBody, TableRow, TableHeader, TableCell, TableColumn, Button, Input, Pagination, RadioGroup, Radio } from '@nextui-org/react';
+import { Modal, ModalContent, ModalHeader, ModalBody, useDisclosure, Table, TableBody, TableRow, TableHeader, TableCell, TableColumn, Button, Input, Pagination, RadioGroup, Radio ,Card,
+  CardHeader,
+  CardBody,  Snackbar, } from '@nextui-org/react';
 
 const Dashboard = () => {
   const currentDate = new Date();
@@ -33,6 +35,11 @@ const Dashboard = () => {
   const [selectedDiscount, setSelectedDiscount] = useState();
   const [page2, setPage2] = useState(1);
   const [usedProductsPage, setUsedProductsPage] = useState(1);
+  const { isOpen: isAddModalOpen, onOpen: openAddModal, onOpenChange: closeAddModal } = useDisclosure();
+  const { isOpen: isModifyModalOpen, onOpen: openModifyModal, onOpenChange: closeModifyModal } = useDisclosure();
+  const [notification, setNotification] = useState({ message: '', visible: false });
+
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const rowsPerPage = 5;
   const pages = Math.ceil(discounts.length / rowsPerPage);
@@ -212,38 +219,69 @@ const Dashboard = () => {
   };
 
 
-
-  const updateProduct = async (product) => {
-    try {
-      await fetch(`http://localhost:5000/api/Item/${product.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name: product.name, price: product.price }),
-      });
-      fetchProducts(); // Refresh the product list after update
-    } catch (error) {
-      console.error('Error updating product:', error);
-    }
-  };
-
   const addProduct = async () => {
     try {
+      if (!newProduct.name || newProduct.price == null) {
+        showNotification('Please provide a valid name and price for the new product.');
+        return;
+      }
+
       await fetch('http://localhost:5000/api/Item', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newProduct),
       });
+
       setNewProduct({ name: '', price: '' });
       fetchProducts();
+      closeAddModal();
+      showNotification('New product added successfully!');
     } catch (error) {
       console.error('Error adding product:', error);
+      showNotification('Error adding product.');
     }
   };
 
+  const updateProduct = async () => {
+    try {
+      if (selectedProduct) {
+        console.log('Selected Product before update:', selectedProduct);
+
+        // Check for required fields
+        if (!selectedProduct.itemID || !selectedProduct.name || selectedProduct.price == null) {
+          showNotification('Selected product is missing required fields.');
+          return;
+        }
+
+        const response = await fetch(`http://localhost:5000/api/Item/${selectedProduct.itemID}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: selectedProduct.name,
+            price: selectedProduct.price,
+          }),
+        });
+
+        if (!response.ok) {
+          console.error('Failed to update product:', response.statusText);
+          showNotification('Failed to update product.');
+          return;
+        }
+
+        fetchProducts();
+        closeModifyModal();
+        showNotification('Product updated successfully!');
+      }
+    } catch (error) {
+      console.error('Error updating product:', error);
+      showNotification('Error updating product.');
+    }
+  };
+
+  const showNotification = (message) => {
+    setNotification({ message, visible: true });
+    setTimeout(() => setNotification({ message: '', visible: false }), 3000); // Hide after 3 seconds
+  };
 
   return (
     <div className="dashboard-container">
@@ -346,57 +384,116 @@ const Dashboard = () => {
       {/* Product Management Section */}
       <div className="dashboard-item product-management">
         <h3>Manage Products</h3>
-        <table className="product-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Price</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((product) => (
-              <tr key={product.id}>
-                <td>
-                  <input
-                    type="text"
-                    value={product.name}
-                    onChange={(e) => handleEditProduct(product.id, 'name', e.target.value)}
+        <Button onClick={openAddModal} color="success">
+          Add New Product
+        </Button>
+        <Button onClick={openModifyModal} color="primary" style={{ marginLeft: '1rem' }}>
+          Modify Existing Products
+        </Button>
+
+        {/* Add New Product Modal */}
+        <Modal isOpen={isAddModalOpen} onOpenChange={closeAddModal}>
+          <ModalContent>
+            <ModalHeader>Add New Product</ModalHeader>
+            <ModalBody>
+              <Input
+                label="Product Name"
+                value={newProduct.name}
+                onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+              />
+              <Input
+                label="Price"
+                type="number"
+                value={newProduct.price}
+                onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })}
+              />
+              <Button onClick={addProduct} color="success" style={{ marginTop: '1rem' }}>
+                Add Product
+              </Button>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+
+        {/* Modify Existing Products Modal */}
+        <Modal isOpen={isModifyModalOpen} onOpenChange={closeModifyModal}>
+          <ModalContent>
+            <ModalHeader>Modify Existing Products</ModalHeader>
+            <ModalBody>
+              <div className="product-list">
+                {products && products.length > 0 ? (
+                  products.map((product) => (
+                    <Card
+                      key={product.itemID}
+                      isHoverable
+                      isPressable
+                      style={{
+                        marginBottom: '1rem',
+                        border: selectedProduct?.itemID === product.itemID ? '2px solid #0070f3' : '1px solid #eaeaea',
+                      }}
+                    >
+                      <CardHeader>
+                        <h4>{product.name}</h4>
+                      </CardHeader>
+                      <CardBody>
+                        <p>Price: ${product.price.toFixed(2)}</p>
+                        <Button
+                          onClick={() => {
+                            console.log('Selecting product:', product);
+                            setSelectedProduct({ ...product });
+                          }}
+                          color={selectedProduct?.itemID === product.itemID ? 'secondary' : 'primary'}
+                        >
+                          {selectedProduct?.itemID === product.itemID ? 'Selected' : 'Select'}
+                        </Button>
+                      </CardBody>
+                    </Card>
+                  ))
+                ) : (
+                  <p>No products available</p>
+                )}
+              </div>
+              {selectedProduct ? (
+                <div style={{ marginTop: '1rem' }}>
+                  <h4>Modify Product</h4>
+                  <Input
+                    label="Name"
+                    value={selectedProduct.name || ''}
+                    onChange={(e) =>
+                      setSelectedProduct((prev) => ({
+                        ...prev,
+                        name: e.target.value,
+                      }))
+                    }
                   />
-                </td>
-                <td>
-                  <input
+                  <Input
+                    label="Price"
                     type="number"
-                    value={product.price}
-                    onChange={(e) => handleEditProduct(product.id, 'price', parseFloat(e.target.value))}
+                    value={selectedProduct.price || 0}
+                    onChange={(e) =>
+                      setSelectedProduct((prev) => ({
+                        ...prev,
+                        price: parseFloat(e.target.value) || 0,
+                      }))
+                    }
                   />
-                </td>
-                <td>
-                  <button onClick={() => updateProduct(product)}>Update</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  <Button onClick={updateProduct} color="success" style={{ marginTop: '1rem' }}>
+                    Update Product
+                  </Button>
+                </div>
+              ) : (
+                <p>Select a product to modify.</p>
+              )}
+            </ModalBody>
+          </ModalContent>
+        </Modal>
 
-        <h3>Add New Product</h3>
-        <div className="add-product-form">
-          <input
-            type="text"
-            placeholder="Product Name"
-            value={newProduct.name}
-            onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-          />
-          <input
-            type="number"
-            placeholder="Price"
-            value={newProduct.price}
-            onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })}
-          />
-          <button onClick={addProduct}>Add Product</button>
+        {/* Custom Notification */}
+        {notification.visible && (
+          <div className="notification">
+            <p>{notification.message}</p>
+          </div>
+        )}
         </div>
-      </div>
-
       {/* Discount Management Section */}
       <div className="dashboard-item discount-management" onClick={onOpen}>
         <Modal
