@@ -1,7 +1,7 @@
 // Register.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Input, Button, Spacer } from '@nextui-org/react';
+import { Input, Button, Spacer, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from '@nextui-org/react';
 import { EyeFilledIcon } from "../components/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "../components/EyeSlashFilledIcon";
 
@@ -14,6 +14,8 @@ export default function Register() {
   const [password2, setPassword2] = useState('');
   const [isVisible, setIsVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isTosChecked, setIsTosChecked] = useState(false);
+  const [isTosOpen, setIsTosOpen] = useState(false);
   const navigate = useNavigate();
   const toggleVisibility = () => setIsVisible(!isVisible);
 
@@ -57,6 +59,11 @@ export default function Register() {
     }
     if (password !== password2) {
       setErrorMessage('Passwords do not match');
+      return;
+    }
+
+    if (!isTosChecked) {
+      setErrorMessage('You must agree to the Terms of Service.');
       return;
     }
     
@@ -189,8 +196,62 @@ export default function Register() {
         className="max-w-xs m-2"
       />
       <Spacer y={2} />
+      <div>
+        <input
+          type="checkbox"
+          checked={isTosChecked}
+          onChange={(e) => setIsTosChecked(e.target.checked)}
+        />
+        <label style={{ marginLeft: '8px' }}>
+          I agree to the <Button onPress={() => setIsTosOpen(true)}  auto flat style={{color:'blue', background:'none'}}>Terms of Service</Button>
+        </label>
+      </div>
+      <Spacer y={2} />
       <Button onPress={createUser}>Register</Button>
       {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+      <Modal isOpen={isTosOpen} onOpenChange={setIsTosOpen}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader>Apple Orchard Terms of Service</ModalHeader>
+              <ModalBody style={{ padding: '20px', maxHeight: '400px', overflowY: 'auto' }}>
+              <p>Welcome to Apple Orchard. By visiting our orchard, using our facilities, registering for an account, or purchasing our products, you agree to the following terms and conditions. Please read them carefully before engaging with our services or products.</p>
+          
+              <p><strong>1. Assumption of Risk</strong><br />
+              Visiting the Orchard and participating in activities such as apple picking, walking through our grounds, or other recreational events involve inherent risks. By entering our property, you voluntarily assume all risks associated with your visit, including but not limited to personal injury, property damage, or allergic reactions.</p>
+              
+              <p><strong>2. Product Use Disclaimer</strong><br />
+              All products, including fresh produce, baked goods, or beverages, are provided "as-is" without any express or implied warranty. While we take care to ensure the quality and safety of our products, we are not responsible for any adverse effects resulting from their use, consumption, or storage.</p>
+              
+              <p><strong>3. Limitation of Liability</strong><br />
+              To the maximum extent permitted by law, Apple Orchard, its owners, employees, and affiliates shall not be held liable for any injuries, accidents, or damages incurred while on our property or resulting from the use of our products. This includes, but is not limited to:</p>
+              <ul>
+                <li>Injuries from slips, trips, or falls.</li>
+                <li>Injuries from contact with equipment, trees, or other patrons.</li>
+                <li>Reactions to allergens, including but not limited to nuts, gluten, or pesticides.</li>
+              </ul>
+              
+              <p><strong>4. Compliance with Rules</strong><br />
+              Visitors are required to adhere to all posted safety guidelines and instructions provided by our staff. Failure to follow these guidelines may increase the risk of injury, for which the Orchard will not be held responsible.</p>
+              
+              <p><strong>5. Indemnification</strong><br />
+              By visiting the Orchard or purchasing our products, you agree to indemnify and hold harmless Apple Orchard and its representatives from any claims, damages, or legal fees arising from your actions or failure to comply with these Terms of Service.</p>
+              
+              <p><strong>6. Governing Law</strong><br />
+              These terms are governed by the laws of Wisconsin, and any disputes shall be resolved exclusively within the jurisdiction of Menomonie.</p>
+              
+              <p>If you have any questions about these terms, please contact us at info@appleorchard.com.</p>
+              
+              <p>By entering our property or purchasing our products, you acknowledge that you have read, understood, and agreed to these Terms of Service.</p>
+                
+              </ModalBody>
+              <ModalFooter>
+                <Button onPress={onClose}>Close</Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
