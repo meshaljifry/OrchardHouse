@@ -1,18 +1,12 @@
 // File: src/components/EmployeeDashboard.js
-import React, { useState, useEffect } from 'react';
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Spacer, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Autocomplete, AutocompleteItem, RadioGroup, Radio, Input } from "@nextui-org/react";
+import React, { useState, useEffect, useMemo } from 'react';
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Spacer, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Autocomplete, AutocompleteItem, RadioGroup, Radio, Input, Pagination } from "@nextui-org/react";
 import './Dashboard.css';
 
 const mockTasks = [
   { task: 'Feed the animals', assignedTo: 'John Doe', dueDate: 'Oct 7, 2023' },
   { task: 'Clean the barn', assignedTo: 'Jane Smith', dueDate: 'Oct 8, 2023' },
   { task: 'Repair fences', assignedTo: 'Alex Brown', dueDate: 'Oct 9, 2023' },
-];
-
-const mockAnimalStatus = [
-  { animal: 'Cow', healthStatus: 'Healthy', location: 'Barn A' },
-  { animal: 'Sheep', healthStatus: 'Sick', location: 'Pasture 1' },
-  { animal: 'Chicken', healthStatus: 'Healthy', location: 'Coop 2' },
 ];
 
 const EmployeeDashboard = () => {
@@ -26,10 +20,34 @@ const EmployeeDashboard = () => {
   const [schedule, setSchedule] = useState([]); // State for employee schedule
   const [selectedDiscount, setSelectedDiscount] = useState([]);
   const [discounts, setDiscounts] = useState([]);
+  const [animals, setAnimals] = useState([]);
+  const [plants, setPlants] = useState([]);
+  const [animalPage, setAnimalPage] = useState(1);
+  const [plantPage, setPlantPage] = useState(1);
+  const [conditions, setConditions] = useState([]);
  
   const [mySchedule, setMySchedule] = useState([]); // State for filtered employee schedule
 
+  //Pagination for plant and animal status lists
+  const rowsPerPage = 5;
+  const animalPages = Math.ceil(animals.length / rowsPerPage);
+  const changedAnimals = useMemo(() => {
+    const start = (animalPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    return animals.slice(start, end);
+  }, [animalPage, animals]);
+
+  const plantPages = Math.ceil(plants.length / rowsPerPage);
+  const changedPlants = useMemo(() => {
+    const start = (plantPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    return plants.slice(start, end);
+  }, [plantPage, plants]);
+
   useEffect(() => {
+
     // Load the full schedule from local storage
     const savedSchedule = localStorage.getItem('generatedSchedule');
     if (savedSchedule) {
@@ -57,7 +75,44 @@ const EmployeeDashboard = () => {
         setMySchedule(filteredSchedule); // Set the filtered schedule
       }
     }
+
+    //Load Animal and Plant Data
+    fetchAnimals();
+    fetchPlants();
+    fetchConditions();
   }, []);
+
+  const fetchAnimals = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/getAnimalList');
+      const data = await response.json();
+      setAnimals(data);
+    } catch (error) {
+      console.error('Error fetching animals:', error);
+    }
+  };
+
+  const fetchPlants = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/getPlantList');
+      const data = await response.json();
+      setPlants(data);
+    } catch (error) {
+      console.error('Error fetching plants:', error);
+    }
+  };
+
+  //Plant and Animal Conditions data
+  const fetchConditions = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/getFarmConditions');
+      const data = await response.json();
+      setConditions(data);
+      console.log(conditions);
+    } catch (error) {
+      console.error('Error fetching conditions:', error);
+    }
+  }
   
 
   useEffect(() => {
@@ -280,7 +335,112 @@ const EmployeeDashboard = () => {
           <p>No schedule available.</p>
         )}
       </div>
-   {/* My Schedule Section */}
+   
+
+      {/* Animal Status Section */}
+      <div className="dashboard-item animal-status">
+        <h3>Animal Status Overview</h3>
+        <Table
+        bottomContent={
+          <div className="flex w-full justify-center">
+            <Pagination
+              isCompact
+              showControls
+              showShadow
+              color="secondary"
+              page={animalPage}
+              total={animalPages}
+              onChange={(animalPage) => setAnimalPage(animalPage)}
+            />
+          </div>
+        }>
+          <TableHeader>
+              <TableColumn>Name</TableColumn>
+              <TableColumn>Species</TableColumn>
+              <TableColumn>Location</TableColumn>
+              <TableColumn>Status</TableColumn>
+          </TableHeader>
+          <TableBody>
+            {changedAnimals.map((animal, index) => (
+              <TableRow key={index}>
+                <TableCell>{animal.name}</TableCell>
+                <TableCell>{animal.species}</TableCell>
+                <TableCell>{animal.location}</TableCell>
+                <TableCell>{animal.status}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Plant Status Section */}
+      <div className="dashboard-item plant-status">
+        <h3>Plant Status Overview</h3>
+        <Table
+        bottomContent={
+          <div className="flex w-full justify-center">
+            <Pagination
+              isCompact
+              showControls
+              showShadow
+              color="secondary"
+              page={plantPage}
+              total={plantPages}
+              onChange={(plantPage) => setPlantPage(plantPage)}
+            />
+          </div>
+        }>
+          <TableHeader>
+              <TableColumn>Name</TableColumn>
+              <TableColumn>Location</TableColumn>
+              <TableColumn>Status</TableColumn>
+          </TableHeader>
+          <TableBody>
+            {changedPlants.map((plant, index) => (
+              <TableRow key={index}>
+                <TableCell>{plant.name}</TableCell>
+                <TableCell>{plant.location}</TableCell>
+                <TableCell>{plant.status}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Farm Condition Section*/}
+   <div className="dashboard-item farm-condition">
+   <h3>Farm Condition Overview</h3>
+        <Table
+        hideHeader>
+          <TableHeader>
+            <TableColumn>blah</TableColumn>
+            <TableColumn>blah blah</TableColumn>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell>Healthy Plants</TableCell>
+              <TableCell>{conditions[0]?.count || 'Loading...'}</TableCell>
+            </TableRow>
+              <TableRow><TableCell>Plants Under Care</TableCell>
+              <TableCell>{conditions[1]?.count || 'Loading...'}</TableCell>
+            </TableRow>
+              <TableRow><TableCell>Plants Gone</TableCell>
+              <TableCell>{conditions[2]?.count || 'Loading...'}</TableCell>
+            </TableRow>
+              <TableRow><TableCell>Healthy Animals</TableCell>
+              <TableCell>{conditions[3]?.count || 'Loading...'}</TableCell>
+            </TableRow>
+              <TableRow><TableCell>Animals Under Care </TableCell>
+              <TableCell>{conditions[4]?.count || 'Loading...'}</TableCell>
+            </TableRow>
+              <TableRow><TableCell>Animals Gone</TableCell>
+              <TableCell>{conditions[5]?.count || 'Loading...'}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* My Schedule Section */}
    <div className="dashboard-item my-schedule">
         <h3>My Weekly Schedule</h3>
         {mySchedule.length > 0 ? (
@@ -305,29 +465,6 @@ const EmployeeDashboard = () => {
         ) : (
           <p>No schedule available.</p>
         )}
-      </div>
-
-      {/* Animal Status Section */}
-      <div className="dashboard-item animal-status">
-        <h3>Animal Status</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Animal</th>
-              <th>Health Status</th>
-              <th>Location</th>
-            </tr>
-          </thead>
-          <tbody>
-            {mockAnimalStatus.map((animal, index) => (
-              <tr key={index}>
-                <td>{animal.animal}</td>
-                <td>{animal.healthStatus}</td>
-                <td>{animal.location}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
       </div>
 
       {/* POS System Section */}

@@ -292,7 +292,7 @@ app.post('/api/Item', (req, res) => {
 });
 
 app.get('/api/getAnimalList', (req, res) => {
-  const sql = 'SELECT animalID, name, species, location, statusID FROM Animal';
+  const sql = 'SELECT A.animalID, A.name, A.species, A.location, A.statusID, S.name as status FROM Animal AS A JOIN Status AS S ON S.statusID = A.statusID ORDER BY S.name desc';
   db.query(sql, (err, results) => {
     if (err) {
       console.error('Error querying the Animal table:', err);
@@ -303,7 +303,7 @@ app.get('/api/getAnimalList', (req, res) => {
 });
 
 app.get('/api/getPlantList', (req, res) => {
-  const sql = 'SELECT plantID, name, location, statusID FROM Plant';
+  const sql = 'SELECT P.plantID, P.name, P.location, P.statusID, S.name AS status FROM Plant AS P JOIN Status AS S ON S.statusID = P.statusID ORDER BY S.name desc';
   db.query(sql, (err, results) => {
     if (err) {
       console.error('Error querying the Plant table:', err);
@@ -312,6 +312,21 @@ app.get('/api/getPlantList', (req, res) => {
     res.json(results);
   });
 });
+
+app.get('/api/getFarmConditions', (req, res) => {
+  const sql = 'SELECT COUNT(P.plantID) AS count FROM AppleOrchardSystem.Plant AS P GROUP BY P.statusID UNION SELECT COUNT(A.animalID) AS count FROM Animal AS A GROUP BY A.statusID';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error querying conditions:', err);
+      return res.status(500).send('Error querying the conditions');
+    }
+    res.json(results);
+  });
+});
+
+
+
+
 
 app.get('/api/getSupplyList', (req, res) => {
   const sql = 'SELECT supplyID, name FROM Supply';
@@ -384,6 +399,18 @@ app.put('/api/setDiscountStatus/:id', (req, res) => {
   });
 });
 
+app.get('/api/getNonActiveDiscounts', (req, res) => {
+  const sql = 'SELECT discountID, code, name, percentOff, description, expireyDate, statusID FROM Discount WHERE statusID = 17';
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error querying the Discount table:', err);
+      return res.status(500).send('Error querying the Discount table');
+    }
+    res.json(results);
+  });
+});
+
+//get Animals
 app.get('/api/getNonActiveDiscounts', (req, res) => {
   const sql = 'SELECT discountID, code, name, percentOff, description, expireyDate, statusID FROM Discount WHERE statusID = 17';
   db.query(sql, (err, results) => {
