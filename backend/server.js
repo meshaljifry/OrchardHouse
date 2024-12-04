@@ -619,6 +619,19 @@ app.post('/api/createEvent', async (req, res) => {
   res.status(201).send('Event created successfully'); 
   }); 
 });
+//Count Tasks by userID 
+app.get('/api/assignedTaskCount/:userID', (req, res) => {
+  const { userID } = req.params;
+  const sql = 'SELECT COUNT(*) AS taskCount FROM AssignedTask WHERE userID = ? AND statusID = 3';
+  db.query(sql, [userID], (err, results) => {
+    if (err) {
+      console.error('Error fetching task count:', err);
+      return res.status(500).send('Error fetching task count');
+    }
+    res.json({ taskCount: results[0].taskCount });
+  });
+});
+
 
 app.get('/', (req, res) => {
   res.send('API is running. Use /api/Item to fetch items and /api/UserAccount to handle login.');
