@@ -58,7 +58,18 @@ export default function Layout({ children }) {
 
   // Render sidebar menu based on roleID
   const renderSidebarMenu = () => {
-    if (roleID === '1' || roleID === '2') {
+    if (roleID === '1') {
+      return (
+        <>
+          <li><Link to="/" className="sidebar-link">Dashboard</Link></li>
+          <li><Link to="/products" className="sidebar-link">Products</Link></li>
+          <li><Link to="/scheduler" className="sidebar-link">Scheduler</Link></li>
+          <li><Link to="/tasks" className="sidebar-link">Tasks</Link></li>
+          <li><Link to="/calendar" className="sidebar-link">Calendar</Link></li>
+          <li><Link to="/AccountManagement" className="sidebar-link">Account Management</Link></li>
+        </>
+      );
+    } else if (roleID === '2') {
       return (
         <>
           <li><Link to="/" className="sidebar-link">Dashboard</Link></li>
