@@ -1,4 +1,3 @@
-// Layout.js
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; 
 import { Input, Avatar, Badge, Button } from '@nextui-org/react';
@@ -12,6 +11,7 @@ import './Layout.css';
 export default function Layout({ children }) {
   const [username, setUsername] = useState(localStorage.getItem('username'));
   const [roleID, setRoleID] = useState(localStorage.getItem('roleID'));
+  const [taskCount, setTaskCount] = useState(0); // State for task count
   const navigate = useNavigate();
 
   // Fetch user data on component mount
@@ -22,13 +22,34 @@ export default function Layout({ children }) {
     setRoleID(storedRoleID);
   };
 
-  // Update user data on component mount and when localStorage changes
+  // Fetch task count from the server
+  const fetchTaskCount = async () => {
+    const userID = localStorage.getItem('userID');
+    if (userID) {
+      try {
+        const response = await fetch(`http://localhost:5000/api/assignedTaskCount/${userID}`);
+        if (response.ok) {
+          const data = await response.json();
+          setTaskCount(data.taskCount); // Update task count state
+        } else {
+          console.error('Failed to fetch task count');
+        }
+      } catch (error) {
+        console.error('Error fetching task count:', error);
+      }
+    }
+  };
+
+  // Update user data and fetch task count on component mount
   useEffect(() => {
     fetchUserData();
+    fetchTaskCount();
 
     const handleStorageChange = () => {
       fetchUserData();
+      fetchTaskCount();
     };
+
     window.addEventListener('storage', handleStorageChange);
 
     return () => {
@@ -40,6 +61,7 @@ export default function Layout({ children }) {
   const handleLogout = () => {
     localStorage.removeItem('username');
     localStorage.removeItem('roleID');
+    localStorage.removeItem('userID'); // Clear userID
     setUsername(null);
     setRoleID(null);
     navigate('/login');
@@ -95,7 +117,9 @@ export default function Layout({ children }) {
       );
     }
   };
-
+  const handleAlertClick = () => {
+    window.alert(`You have ${taskCount} tasks assigned to you.`);
+  };
   return (
     <div className="layout-background">
       <div className="layout-container">
@@ -124,9 +148,10 @@ export default function Layout({ children }) {
             </div>
 
             <div className="icons-section">
-              <Badge content={3} color="error">
-                <span className="alert-icon">🔔</span>
+              <Badge content={taskCount} color="error">
+                <span className="alert-icon" onClick={handleAlertClick}>🔔</span>
               </Badge>
+
 
               {username ? (
                 <div className="user-section">
