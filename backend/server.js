@@ -543,7 +543,7 @@ app.post('/api/commentTask', async (req,res) => {
 
 // Get User List Endpoint
 app.get('/api/getUserList', async (req, res) => {
-  const sql = 'SELECT userID, firstName, lastName FROM User';
+  const sql = 'SELECT userID, roleID, firstName, lastName FROM User';
   db.query(sql, (err, results) => {
     if (err) {
       console.error('Error querying the User table:', err);
@@ -552,6 +552,20 @@ app.get('/api/getUserList', async (req, res) => {
     res.json(results);
   });
 });
+
+app.post('/api/updateUserRole', (req, res) => {
+  const { userID, roleID } = req.body;
+
+  const sql = 'UPDATE User SET roleID = ? WHERE userID = ?';
+  db.query(sql, [roleID, userID], (err, results) => {
+    if (err) {
+      console.error('Error updating user role:', err);
+      return res.status(500).send('Error updating user role');
+    }
+    res.send('User role updated successfully');
+  });
+});
+
 app.get('/api/employeesWithRoles', (req, res) => {
   const sql = `
     SELECT 
