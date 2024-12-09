@@ -84,7 +84,7 @@ const EmployeeDashboard = () => {
 
   const fetchAnimals = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/getAnimalList');
+      const response = await fetch(`${BACKEND_URL}:5000/api/getAnimalList`);
       const data = await response.json();
       setAnimals(data);
     } catch (error) {
@@ -94,7 +94,7 @@ const EmployeeDashboard = () => {
 
   const fetchPlants = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/getPlantList');
+      const response = await fetch(`${BACKEND_URL}:5000/api/getPlantList`);
       const data = await response.json();
       setPlants(data);
     } catch (error) {
@@ -105,7 +105,7 @@ const EmployeeDashboard = () => {
   //Plant and Animal Conditions data
   const fetchConditions = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/getFarmConditions');
+      const response = await fetch(`${BACKEND_URL}:5000/api/getFarmConditions`);
       const data = await response.json();
       setConditions(data);
       console.log(conditions);
@@ -118,7 +118,7 @@ const EmployeeDashboard = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/Item');
+        const response = await fetch(`${BACKEND_URL}:5000/api/Item`);
         const data = await response.json();
         setProducts(data);
       } catch (error) {
@@ -145,7 +145,7 @@ const EmployeeDashboard = () => {
 
   const fetchDiscount = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/getDiscounts');
+      const response = await fetch(`${BACKEND_URL}:5000/api/getDiscounts`);
       const data = await response.json();
       setDiscounts(data);
     } catch (error) {
@@ -260,7 +260,7 @@ const EmployeeDashboard = () => {
       newTransaction.cardCode = payment.cardCode;
       newTransaction.discount = selectedDiscount.discountID;
       try {
-        await fetch('http://localhost:5000/api/createTransaction', {
+        await fetch(`${BACKEND_URL}:5000/api/createTransaction`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

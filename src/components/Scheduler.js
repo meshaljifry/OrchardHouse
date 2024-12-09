@@ -13,7 +13,7 @@ const Scheduler = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/employeesWithRoles');
+        const response = await fetch(`${BACKEND_URL}:5000/api/employeesWithRoles`);
         const data = await response.json();
 
         console.log("Filtered employees:", data); // Log to check if the correct data is fetched

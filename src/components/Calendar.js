@@ -35,7 +35,7 @@ const CalendarPage = () => {
     console.log(roleID);
     if (roleID >= 1 && roleID <= 3) {
       try {
-        const response = await fetch('http://localhost:5000/api/getEventList');
+        const response = await fetch(`${BACKEND_URL}:5000/api/getEventList`);
         const data = await response.json();
         setEvents(data);
       } catch (error) {
@@ -44,7 +44,7 @@ const CalendarPage = () => {
     }
     else {
       try {
-        const response = await fetch('http://localhost:5000/api/getEventList?isPrivate=0');
+        const response = await fetch(`${BACKEND_URL}:5000/api/getEventList?isPrivate=0`);
         const data = await response.json();
         console.log(data);
         setEvents(data);
@@ -56,7 +56,7 @@ const CalendarPage = () => {
 
   const createEvent = async () => {
     try {
-      await fetch('http://localhost:5000/api/createEvent', {
+      await fetch(`${BACKEND_URL}:5000/api/createEvent`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

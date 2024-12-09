@@ -48,7 +48,7 @@ const Tasks = () => {
 
   const fetchAnimals = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/getAnimalList');
+      const response = await fetch(`${BACKEND_URL}:5000/api/getAnimalList`);
       const data = await response.json();
       setAnimals(data);
     } catch (error) {
@@ -58,7 +58,7 @@ const Tasks = () => {
 
   const fetchPlants = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/getPlantList');
+      const response = await fetch(`${BACKEND_URL}:5000/api/getPlantList`);
       const data = await response.json();
       setPlants(data);
     } catch (error) {
@@ -68,7 +68,7 @@ const Tasks = () => {
 
   const fetchSupplies = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/getSupplyList');
+      const response = await fetch(`${BACKEND_URL}:5000/api/getSupplyList`);
       const data = await response.json();
       setSupplies(data);
     } catch (error) {
@@ -78,7 +78,7 @@ const Tasks = () => {
 
   const fetchReports = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/getReportList');
+      const response = await fetch(`${BACKEND_URL}:5000/api/getReportList`);
       const data = await response.json();
       setReports(data);
     } catch (error) {
@@ -88,7 +88,7 @@ const Tasks = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/getUserList');
+      const response = await fetch(`${BACKEND_URL}:5000/api/getUserList`);
       const data = await response.json();
       setUsers(data);
     } catch (error) {
@@ -98,7 +98,7 @@ const Tasks = () => {
 
   const fetchTasks = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/getTasks');
+      const response = await fetch(`${BACKEND_URL}:5000/api/getTasks`);
       const data = await response.json();
       setTasks(data);
     } catch (error) {
@@ -108,7 +108,7 @@ const Tasks = () => {
 
   const fetchComments = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/getComments');
+      const response = await fetch(`${BACKEND_URL}:5000/api/getComments`);
       const data = await response.json();
       setComments(data);
     } catch (error) {
@@ -119,7 +119,7 @@ const Tasks = () => {
   const fetchAssignedTasks = async () => {
     const loggedInUserID = localStorage.getItem('userID'); // Get the logged-in user ID
     try {
-      const response = await fetch(`http://localhost:5000/api/getAssignedTasks?userID=${loggedInUserID}`);
+      const response = await fetch(`${BACKEND_URL}:5000/api/getAssignedTasks?userID=${loggedInUserID}`);
       const data = await response.json();
       setAssignedTasks(data);
     } catch (error) {
@@ -129,7 +129,7 @@ const Tasks = () => {
 
   const updateStatus = async () => {
     try {
-      await fetch(`http://localhost:5000/api/TaskStatus/${selectedTaskID}`, {
+      await fetch(`${BACKEND_URL}:5000/api/TaskStatus/${selectedTaskID}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -150,7 +150,7 @@ const Tasks = () => {
     newTask.reportID = reportValue;
     try {
       console.log(newTask);
-      await fetch('http://localhost:5000/api/createTask', {
+      await fetch(`${BACKEND_URL}:5000/api/createTask`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -169,7 +169,7 @@ const Tasks = () => {
       return;
     }
     try {
-      await fetch('http://localhost:5000/api/assignTask', {
+      await fetch(`${BACKEND_URL}:5000/api/assignTask`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -189,7 +189,7 @@ const Tasks = () => {
       return;
     }
     try {
-      await fetch('http://localhost:5000/api/commentTask', {
+      await fetch(`${BACKEND_URL}:5000/api/commentTask`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

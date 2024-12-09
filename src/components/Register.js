@@ -29,7 +29,7 @@ export default function Register() {
 
   const checkUsername = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/checkUsername', {
+      const response = await fetch(`${BACKEND_URL}:5000/api/checkUsername`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ export default function Register() {
         return;
     }
     try {
-        const response = await fetch('http://localhost:5000/api/registerUser', {
+        const response = await fetch(`${BACKEND_URL}:5000/api/registerUser`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -111,7 +111,7 @@ export default function Register() {
     }
     
     try {   
-      await fetch('http://localhost:5000/api/registerAccount', {
+      await fetch(`${BACKEND_URL}:5000/api/registerAccount`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

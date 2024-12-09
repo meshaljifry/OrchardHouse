@@ -11,7 +11,7 @@ const AccountManagement = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/getUserList');
+      const response = await fetch(`${BACKEND_URL}:5000/api/getUserList`);
       const data = await response.json();
       setUsers(data);
     } catch (error) {
@@ -26,7 +26,7 @@ const AccountManagement = () => {
 
   const updateUserRole = async (userID, newRoleID) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/updateUserRole`, {
+      const response = await fetch(`${BACKEND_URL}:5000/api/updateUserRole`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -82,7 +82,7 @@ const Dashboard = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/Item');
+      const response = await fetch(`${BACKEND_URL}:5000/api/Item`);
       const data = await response.json();
       setProducts(data);
     } catch (error) {
@@ -93,7 +93,7 @@ const Dashboard = () => {
 
   const fetchRevenue = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/totalRevenue');
+      const response = await fetch(`${BACKEND_URL}:5000/api/totalRevenue`);
       const data = await response.json();
       setTotalRevenue(data.totalRevenue);
     } catch (error) {
@@ -104,7 +104,7 @@ const Dashboard = () => {
   // For Revenue Totals Table
   const fetchDiscount = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/totalDiscount');
+      const response = await fetch(`${BACKEND_URL}:5000/api/totalDiscount`);
       const data = await response.json();
       setTotalDiscount(data.totalDiscount);
     } catch (error) {
@@ -114,7 +114,7 @@ const Dashboard = () => {
 
   const fetchMostOrderedProducts = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/mostOrderedProducts');
+      const response = await fetch(`${BACKEND_URL}:5000/api/mostOrderedProducts`);
       const data = await response.json();
       setMostOrderedProducts(data);
     } catch (error) {
@@ -124,7 +124,7 @@ const Dashboard = () => {
 
   const fetchOrderComparison = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/orderComparison');
+      const response = await fetch(`${BACKEND_URL}:5000/api/orderComparison`);
       const data = await response.json();
       setOrderComparisonData(data);
     } catch (error) {
@@ -135,7 +135,7 @@ const Dashboard = () => {
   // Fetch employee tasks data from backend
   const fetchEmployeeTasks = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/employeeTasks');
+      const response = await fetch(`${BACKEND_URL}:5000/api/employeeTasks`);
       const data = await response.json();
       setEmployeeTasks(data);
     } catch (error) {
@@ -144,7 +144,7 @@ const Dashboard = () => {
   };
   const fetchDiscounts = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/getDiscounts');
+      const response = await fetch(`${BACKEND_URL}:5000/api/getDiscounts`);
       const data = await response.json();
       setDiscounts(data);
     } catch (error) {
@@ -154,7 +154,7 @@ const Dashboard = () => {
 
   const fetchNonActiveDiscounts = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/getNonActiveDiscounts');
+      const response = await fetch(`${BACKEND_URL}:5000/api/getNonActiveDiscounts`);
       const data = await response.json();
       setNonActiveDiscounts(data);
     } catch (error) {
@@ -177,7 +177,7 @@ const Dashboard = () => {
 
   const handleDiscountStatusChange = async (discountID, statusID) => {
     try {
-      await fetch(`http://localhost:5000/api/setDiscountStatus/${discountID}`, {
+      await fetch(`${BACKEND_URL}:5000/api/setDiscountStatus/${discountID}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -193,7 +193,7 @@ const Dashboard = () => {
 
   const createNewDiscount = async () => {
     try {
-      await fetch('http://localhost:5000/api/createDiscount', {
+      await fetch(`${BACKEND_URL}:5000/api/createDiscount`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -226,7 +226,7 @@ const Dashboard = () => {
         return;
       }
 
-      await fetch('http://localhost:5000/api/Item', {
+      await fetch(`${BACKEND_URL}:5000/api/Item`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newProduct),
@@ -253,7 +253,7 @@ const Dashboard = () => {
           return;
         }
 
-        const response = await fetch(`http://localhost:5000/api/Item/${selectedProduct.itemID}`, {
+        const response = await fetch(`${BACKEND_URL}:5000/api/Item/${selectedProduct.itemID}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
