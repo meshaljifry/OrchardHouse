@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Dashboard.css';
+import { BACKEND_URL } from '../config.js';
 
 // Create mock events to display
 const mockEvents = [
@@ -162,7 +163,7 @@ const UserDashboard = () => {
   // Fetch discounts from API
   const fetchDiscounts = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/getDiscounts');
+      const response = await fetch(`${BACKEND_URL}:5000/api/getDiscounts`);
       const data = await response.json();
       setDiscounts(data);
       setLoadingDiscounts(false);

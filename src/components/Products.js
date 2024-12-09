@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button, Input, Modal, Spacer, Select, SelectItem } from '@nextui-org/react';
 import { FaShoppingCart } from 'react-icons/fa';
 import './products.css';
+import { BACKEND_URL } from '../config.js';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -26,7 +27,7 @@ const Products = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/Item');
+        const response = await fetch(`${BACKEND_URL}:5000/api/Item`);
         const data = await response.json();
         setProducts(data);
       } catch (error) {
@@ -36,7 +37,7 @@ const Products = () => {
 
     const fetchMostOrderedProducts = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/mostOrderedProducts');
+        const response = await fetch(`${BACKEND_URL}:5000/api/mostOrderedProducts`);
         const data = await response.json();
         setMostOrderedProducts(data);
       } catch (error) {

@@ -1,6 +1,7 @@
 // File: src/components/Scheduler.js
 import React, { useState, useEffect } from 'react';
 import './Scheduler.css';
+import { BACKEND_URL } from '../config.js';
 
 const Scheduler = () => {
   const [availableEmployees, setAvailableEmployees] = useState([]);
@@ -13,7 +14,7 @@ const Scheduler = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/employeesWithRoles');
+        const response = await fetch(`${BACKEND_URL}:5000/api/employeesWithRoles`);
         const data = await response.json();
 
         console.log("Filtered employees:", data); // Log to check if the correct data is fetched

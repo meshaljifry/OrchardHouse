@@ -7,6 +7,7 @@ import Dashboard from './Dashboard';
 import EmployeeDashboard from './EmployeeDashboard';
 import UserDashboard from './UserDashboard';
 import './Layout.css';
+import { BACKEND_URL } from '../config.js';
 
 export default function Layout({ children }) {
   const [username, setUsername] = useState(localStorage.getItem('username'));
@@ -27,7 +28,7 @@ export default function Layout({ children }) {
     const userID = localStorage.getItem('userID');
     if (userID) {
       try {
-        const response = await fetch(`http://localhost:5000/api/assignedTaskCount/${userID}`);
+        const response = await fetch(`${BACKEND_URL}:5000/api/assignedTaskCount/${userID}`);
         if (response.ok) {
           const data = await response.json();
           setTaskCount(data.taskCount); // Update task count state
