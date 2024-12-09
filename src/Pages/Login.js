@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Input, Button, Spacer } from '@nextui-org/react';
 import { EyeFilledIcon } from "../components/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "../components/EyeSlashFilledIcon";
+import { BACKEND_URL } from '../config.js';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -20,7 +21,7 @@ export default function Login() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/UserAccount?username=${username}&passwordHash=${password}`);
+      const response = await fetch(`${BACKEND_URL}:5000/api/UserAccount?username=${username}&passwordHash=${password}`);
       if (!response.ok) {
         throw new Error("Login failed. Incorrect username or password.");
       }
