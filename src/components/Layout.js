@@ -89,6 +89,7 @@ export default function Layout({ children }) {
           <li><Link to="/tasks" className="sidebar-link">Tasks</Link></li>
           <li><Link to="/calendar" className="sidebar-link">Calendar</Link></li>
           <li><Link to="/AccountManagement" className="sidebar-link">Account Management</Link></li>
+          <li><Link to="/Contact" className="sidebar-link">ContactUs</Link></li>
         </>
       );
     } else if (roleID === '2') {
@@ -99,6 +100,7 @@ export default function Layout({ children }) {
           <li><Link to="/scheduler" className="sidebar-link">Scheduler</Link></li>
           <li><Link to="/tasks" className="sidebar-link">Tasks</Link></li>
           <li><Link to="/calendar" className="sidebar-link">Calendar</Link></li>
+          <li><Link to="/Contact" className="sidebar-link">ContactUs</Link></li>
         </>
       );
     } else if (roleID === '3') {
@@ -107,6 +109,7 @@ export default function Layout({ children }) {
           <li><Link to="/" className="sidebar-link">Dashboard</Link></li>
           <li><Link to="/tasks" className="sidebar-link">Tasks</Link></li>
           <li><Link to="/calendar" className="sidebar-link">Calendar</Link></li>
+          <li><Link to="/Contact" className="sidebar-link">ContactUs</Link></li>
         </>
       );
     } else if (roleID === '4') {
@@ -115,6 +118,7 @@ export default function Layout({ children }) {
           <li><Link to="/" className="sidebar-link">Dashboard</Link></li>
           <li><Link to="/products" className="sidebar-link">Products</Link></li>
           <li><Link to="/calendar" className="sidebar-link">Calendar</Link></li>
+          <li><Link to="/Contact" className="sidebar-link">ContactUs</Link></li>
         </>
       );
     } else {
@@ -124,6 +128,7 @@ export default function Layout({ children }) {
           <li><Link to="/products" className="sidebar-link">Products</Link></li>
           <li><Link to="/register" className="sidebar-link">Register</Link></li>
           <li><Link to="/calendar" className="sidebar-link">Calendar</Link></li>
+          <li><Link to="/Contact" className="sidebar-link">ContactUs</Link></li>
         </>
       );
     }

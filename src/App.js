@@ -16,6 +16,7 @@ import Register from './components/Register';
 import Calendar from './components/Calendar';
 import { useState, useEffect } from 'react';
 import AccountManagement from './components/AccountManagement';
+import Contact from './components/Contact';
 
 function App() {
   const [roleID, setRoleID] = useState(null);
@@ -54,6 +55,7 @@ function App() {
             <Route path="/user-dashboard" element={<UserDashboard />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/AccountManagement" element={<AccountManagement />} />
+            <Route path="/Contact" element={<Contact />} />
 
             {/* Conditional dashboard route based on role */}
             <Route path="/" element={renderDashboard()} />
