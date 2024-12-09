@@ -7,6 +7,7 @@ import Dashboard from './Dashboard';
 import EmployeeDashboard from './EmployeeDashboard';
 import UserDashboard from './UserDashboard';
 import './Layout.css';
+import { BACKEND_URL } from '../config.js';
 
 export default function Layout({ children }) {
   const [username, setUsername] = useState(localStorage.getItem('username'));

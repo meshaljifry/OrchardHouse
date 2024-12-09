@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Spacer, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Autocomplete, AutocompleteItem, RadioGroup, Radio, Input, Pagination } from "@nextui-org/react";
 import './Dashboard.css';
+import { BACKEND_URL } from '../config.js';
 
 const mockTasks = [
   { task: 'Feed the animals', assignedTo: 'John Doe', dueDate: 'Oct 7, 2023' },

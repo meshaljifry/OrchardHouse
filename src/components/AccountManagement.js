@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { BACKEND_URL } from '../config.js';
 
 const AccountManagement = () => {
   const [users, setUsers] = useState([]);

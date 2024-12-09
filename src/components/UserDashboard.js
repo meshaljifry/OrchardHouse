@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Dashboard.css';
+import { BACKEND_URL } from '../config.js';
 
 // Create mock events to display
 const mockEvents = [

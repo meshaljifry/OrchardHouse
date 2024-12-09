@@ -11,7 +11,7 @@ import {
   Tooltip,
   Legend
 } from 'recharts';
-
+import { BACKEND_URL } from '../config.js';
 import './Dashboard.css';
 import { Modal, ModalContent, ModalHeader, ModalBody, useDisclosure, Table, TableBody, TableRow, TableHeader, TableCell, TableColumn, Button, Input, Pagination, RadioGroup, Radio ,Card,
   CardHeader,

@@ -2,6 +2,7 @@ import Calendar from 'react-calendar';
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Input, Checkbox } from "@nextui-org/react";
 import React, { useState, useEffect } from 'react';
 import './Calendar.css';
+import { BACKEND_URL } from '../config.js';
 
 const CalendarPage = () => {
   const { isOpen: isCreateOpen, onOpen: onCreateOpen, onOpenChange: onCreateOpenChange } = useDisclosure();

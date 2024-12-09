@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button, Input, Modal, Spacer, Select, SelectItem } from '@nextui-org/react';
 import { FaShoppingCart } from 'react-icons/fa';
 import './products.css';
+import { BACKEND_URL } from '../config.js';
 
 const Products = () => {
   const [products, setProducts] = useState([]);

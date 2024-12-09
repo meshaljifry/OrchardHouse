@@ -2,6 +2,7 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDi
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react";
 import './Tasks.css';
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../config.js';
 
 const Tasks = () => {
   const {isOpen, onOpen, onOpenChange} = useDisclosure();

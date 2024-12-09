@@ -1,6 +1,7 @@
 // File: src/components/Scheduler.js
 import React, { useState, useEffect } from 'react';
 import './Scheduler.css';
+import { BACKEND_URL } from '../config.js';
 
 const Scheduler = () => {
   const [availableEmployees, setAvailableEmployees] = useState([]);

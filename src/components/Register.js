@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Input, Button, Spacer, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from '@nextui-org/react';
 import { EyeFilledIcon } from "../components/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "../components/EyeSlashFilledIcon";
+import { BACKEND_URL } from '../config.js';
 
 export default function Register() {
   const [firstName, setFirstName] = useState('');
