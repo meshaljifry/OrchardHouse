@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'; 
-import { Button, Input, Modal, Spacer, Select, SelectItem } from '@nextui-org/react';
+import { Button, Input, Spacer, Select, SelectItem } from '@nextui-org/react';
 import { FaShoppingCart } from 'react-icons/fa';
 import './products.css';
 import { BACKEND_URL } from '../config.js';
@@ -10,7 +10,6 @@ const Products = () => {
   const [cart, setCart] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('');
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const cartRef = useRef(null);
 
   useEffect(() => {
@@ -90,14 +89,10 @@ const Products = () => {
     }
   };
 
-  const handleCheckoutOpen = () => setIsCheckoutOpen(true);
-  const handleCheckoutClose = () => setIsCheckoutOpen(false);
-
   const handleCheckout = () => {
     alert('Thank you for your purchase!');
     setCart([]);
     localStorage.removeItem('cart');
-    handleCheckoutClose();
   };
 
   const filteredProducts = products
@@ -182,7 +177,6 @@ const Products = () => {
         )}
       </div>
 
-      {/* Shopping Cart Section */}
       <div ref={cartRef} className="cart-section">
         <h2 className="cart-title">Shopping Cart</h2>
         {cart.length > 0 ? (
@@ -220,64 +214,48 @@ const Products = () => {
               </div>
             ))}
             <p className="total">Total: ${calculateTotal()}</p>
-            <Button color="success" onClick={handleCheckoutOpen}>
-              Checkout
+            <h3>Checkout</h3>
+            <Input
+              label="First Name"
+              placeholder="Enter your first name"
+              fullWidth
+              required
+            />
+            <Input
+              label="Last Name"
+              placeholder="Enter your last name"
+              fullWidth
+              required
+            />
+            <Input
+              label="Card Number"
+              placeholder="1234 5678 9012 3456"
+              fullWidth
+              required
+              type="number"
+            />
+            <Input
+              label="CVV"
+              placeholder="123"
+              fullWidth
+              required
+              type="number"
+            />
+            <Input
+              label="Zip Code"
+              placeholder="Enter your zip code"
+              fullWidth
+              required
+              type="number"
+            />
+            <Button color="success" onClick={handleCheckout}>
+              Confirm Purchase
             </Button>
           </div>
         ) : (
           <p>Your cart is empty.</p>
         )}
       </div>
-
-      {/* Checkout Modal */}
-      <Modal open={isCheckoutOpen} onClose={handleCheckoutClose}>
-        <Modal.Header>
-          <h3>Checkout</h3>
-        </Modal.Header>
-        <Modal.Body>
-          <Input
-            label="First Name"
-            placeholder="Enter your first name"
-            fullWidth
-            required
-          />
-          <Input
-            label="Last Name"
-            placeholder="Enter your last name"
-            fullWidth
-            required
-          />
-          <Input
-            label="Card Number"
-            placeholder="1234 5678 9012 3456"
-            fullWidth
-            required
-            type="number"
-          />
-          <Input
-            label="CVV"
-            placeholder="123"
-            fullWidth
-            required
-            type="number"
-          />
-          <Input
-            label="Zip Code"
-            placeholder="Enter your zip code"
-            fullWidth
-            required
-            type="number"
-          />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button auto flat color="error" onClick={handleCheckoutClose}>
-            Cancel
-          </Button>
-          <Button auto onClick={handleCheckout}>
-            Confirm Purchase
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </div>
   );
 };
